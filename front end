@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Home Finder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1e6b45;--gd:#165233;--gl:#e8f4ee;--gm:#2a8a58;--w:#fff;--off:#f4f4f4;--bl:#111;--br:#ddd;--mu:#666;--li:#aaa}
+body{font-family:'Inter',sans-serif;background:var(--w);color:var(--bl);font-size:14px}
+.page{display:none;flex-direction:column;min-height:100vh}.page.on{display:flex}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:400;display:grid;grid-template-columns:60px 1fr 60px;align-items:center;height:56px;background:var(--g);border-bottom:2px solid var(--gd)}
+.nav-left{display:flex;align-items:center;padding-left:16px}
+.nav-center{display:flex;justify-content:center}
+.nav-right{display:flex;justify-content:flex-end;align-items:center;padding-right:16px}
+.logo{font-size:15px;font-weight:700;color:var(--w);background:none;border:none;letter-spacing:.3px}.logo:hover{opacity:.85}
+.hbtn{width:36px;height:36px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;background:none;border:none}
+.hbtn span{display:block;width:18px;height:2px;background:var(--w)}
+.prof-wrap{position:relative}
+.prof-btn{width:32px;height:32px;border-radius:50%;background:var(--gd);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--w);cursor:pointer}
+.prof-btn:hover{border-color:var(--w)}
+.prof-drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--w);border:1px solid var(--br);min-width:190px;display:none;z-index:500;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.prof-drop.on{display:block}
+.pd-head{padding:12px 16px;border-bottom:1px solid var(--br);background:var(--gl)}
+.pd-name{font-size:13px;font-weight:600}.pd-role{font-size:11px;color:var(--mu);margin-top:1px}
+.pd-item{display:block;width:100%;text-align:left;padding:10px 16px;font-size:13px;color:var(--bl);background:none;border:none;border-bottom:1px solid var(--br);transition:background .1s}
+.pd-item:last-child{border-bottom:none}.pd-item:hover{background:var(--gl)}
+
+/* SIDE MENU */
+.m-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:450;display:none}.m-overlay.on{display:block}
+.side-menu{position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--w);z-index:460;transform:translateX(-100%);transition:transform .2s ease;display:flex;flex-direction:column;border-right:1px solid var(--br)}
+.side-menu.on{transform:translateX(0)}
+.sm-top{background:var(--g);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.sm-title{font-size:15px;font-weight:700;color:var(--w)}
+.sm-x{background:none;border:none;font-size:20px;color:rgba(255,255,255,.7);line-height:1}.sm-x:hover{color:var(--w)}
+.sm-nav{flex:1;padding:8px 0}
+.sm-item{display:block;width:100%;text-align:left;padding:12px 18px;font-size:14px;color:var(--bl);background:none;border:none;border-left:3px solid transparent;transition:all .1s}
+.sm-item:hover{background:var(--gl);border-left-color:var(--g)}
+.sm-div{height:1px;background:var(--br);margin:4px 0}
+.sm-foot{padding:14px 18px;border-top:1px solid var(--br);background:var(--off)}
+.sm-foot span{font-size:11px;color:var(--li)}
+
+/* HERO */
+.hero{background:var(--g);color:var(--w);padding:64px 40px;border-bottom:3px solid var(--gd);text-align:center}
+.hero-inner{max-width:600px;margin:0 auto}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.2}
+.hero p{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:28px;line-height:1.6}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn-w{padding:11px 28px;background:var(--w);color:var(--g);font-size:13px;font-weight:600;border:none}.btn-w:hover{background:#eee}
+.btn-wo{padding:11px 28px;background:transparent;color:var(--w);font-size:13px;font-weight:600;border:2px solid rgba(255,255,255,.5)}.btn-wo:hover{border-color:var(--w)}
+.hero-stats{display:flex;gap:0;margin-top:40px;border-top:1px solid rgba(255,255,255,.2);padding-top:28px;max-width:400px;margin-left:auto;margin-right:auto}
+.hstat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.15)}.hstat:last-child{border-right:none}
+.hstat-n{font-size:26px;font-weight:700}.hstat-l{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* SEARCH */
+.sw{background:var(--gd);padding:16px 40px;border-bottom:2px solid #0f3d26;display:flex;justify-content:center}
+.sb{display:flex;max-width:860px;width:100%}
+.sb input{flex:1;padding:11px 16px;font-size:13px;border:none;color:var(--bl);font-family:'Inter',sans-serif;outline:none}
+.sb input::placeholder{color:var(--li)}
+.sb select{padding:11px 14px;border:none;border-left:1px solid var(--br);font-size:12px;color:var(--mu);background:var(--off);font-family:'Inter',sans-serif;outline:none}
+.sbtn{padding:11px 24px;background:var(--gl);color:var(--g);font-size:13px;font-weight:600;border:none;font-family:'Inter',sans-serif}.sbtn:hover{background:#d4ecdf}
+
+/* CONTENT */
+.ct{flex:1;padding:32px 40px;background:var(--w)}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--g)}
+.sh h2{font-size:18px;font-weight:700}
+.sh-link{font-size:13px;font-weight:600;color:var(--g);background:none;border:none}.sh-link:hover{text-decoration:underline}
+.stag{font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+
+/* LISTING GRID */
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.lc{background:var(--w);border:1px solid var(--br);cursor:pointer;transition:border-color .15s}.lc:hover{border-color:var(--g)}
+.li-img{height:180px;background:var(--gl);position:relative;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--br)}
+.li-img span{font-size:11px;font-weight:500;color:var(--li);text-transform:uppercase;letter-spacing:1px}
+.li-badge{position:absolute;top:0;left:0;background:var(--g);color:var(--w);padding:4px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.li-body{padding:16px}
+.li-price{font-size:20px;font-weight:700;color:var(--g);margin-bottom:4px}
+.li-addr{font-size:12px;color:var(--mu);margin-bottom:10px}
+.li-meta{display:flex;gap:12px}.li-meta span{font-size:12px;color:var(--mu);font-weight:500}
+.li-acts{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)}
+.bsm{padding:6px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.bsm-g{background:var(--g);color:var(--w);border:none}.bsm-g:hover{background:var(--gd)}
+.bsm-o{background:var(--w);color:var(--bl);border:1px solid var(--br)}.bsm-o:hover{border-color:var(--bl)}
+
+/* FILTERS */
+.fr{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.chip{padding:6px 14px;border:1px solid var(--br);background:var(--w);font-size:12px;font-weight:500;color:var(--mu)}
+.chip.on{background:var(--g);color:var(--w);border-color:var(--g)}.chip:hover:not(.on){border-color:var(--g);color:var(--g)}
+
+/* DETAIL */
+.dh{height:280px;background:var(--gl);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:center;position:relative}
+.dh>span{font-size:11px;font-weight:500;color:var(--li);text-transform:uppercase;letter-spacing:1px}
+.bkbtn{position:absolute;top:16px;left:16px;background:var(--g);color:var(--w);border:none;padding:8px 16px;font-size:12px;font-weight:600}.bkbtn:hover{background:var(--gd)}
+.db{display:grid;grid-template-columns:1fr 280px}
+.dm{padding:32px;border-right:1px solid var(--br)}
+.ds{padding:24px;background:var(--gl)}
+.dp{font-size:32px;font-weight:700;color:var(--g);margin-bottom:4px}
+.da{font-size:13px;color:var(--mu);margin-bottom:24px;font-weight:500}
+.specs{display:flex;gap:24px;padding-bottom:20px;border-bottom:1px solid var(--br);margin-bottom:20px}
+.sv{font-size:22px;font-weight:700}.sl2{font-size:11px;color:var(--mu);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.ddesc{font-size:13px;color:#444;line-height:1.7;margin-bottom:20px}
+.mph{border:1px solid var(--br);height:140px;display:flex;align-items:center;justify-content:center;background:var(--w)}
+.mph span{font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px}
+.ssec{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #c8e4d6}.ssec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ssl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--g);margin-bottom:10px}
+.sc{display:flex;align-items:center;gap:10px;padding:12px;background:var(--w);border:1px solid #c8e4d6;margin-bottom:12px}
+.av{width:36px;height:36px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--w);flex-shrink:0}
+.sn{font-size:13px;font-weight:600}.si2{font-size:11px;color:var(--mu)}
+.bbook{width:100%;padding:11px;background:var(--g);color:var(--w);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;margin-bottom:8px}.bbook:hover{background:var(--gd)}
+.bchat{width:100%;padding:10px;background:var(--w);color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g)}.bchat:hover{background:var(--gl)}
+.aslot{padding:8px 10px;background:var(--w);border:1px solid #c8e4d6;font-size:12px;color:var(--mu);margin-bottom:6px}
+
+/* FORMS */
+.fp{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:48px 24px;background:var(--off)}
+.fbox{width:100%;max-width:420px;background:var(--w);border:1px solid var(--br);padding:32px}
+.ftitle{font-size:22px;font-weight:700;margin-bottom:4px}
+.fsub{font-size:13px;color:var(--mu);margin-bottom:28px}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:6px}
+.fi{width:100%;padding:10px 12px;border:1px solid var(--br);font-size:13px;font-family:'Inter',sans-serif;outline:none;color:var(--bl);background:var(--w)}
+.fi:focus{border-color:var(--g)}.fi::placeholder{color:var(--li)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fdiv{display:flex;align-items:center;gap:12px;margin:18px 0}
+.fdl{flex:1;height:1px;background:var(--br)}.fdt{font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:.5px}
+.lbtn{background:none;border:none;color:var(--g);font-size:12px;font-weight:600;font-family:'Inter',sans-serif}.lbtn:hover{text-decoration:underline}
+.bfu{width:100%;padding:12px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-family:'Inter',sans-serif}
+.bfu-g{background:var(--g);color:var(--w);border:none}.bfu-g:hover{background:var(--gd)}
+.bfu-o{background:var(--w);color:var(--bl);border:1px solid var(--br)}.bfu-o:hover{border-color:var(--bl)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.rc{padding:16px 10px;border:2px solid var(--br);text-align:center;background:var(--w)}
+.rc.on{border-color:var(--g);background:var(--gl)}.rc:hover:not(.on){border-color:var(--g)}
+.ri{font-size:22px;margin-bottom:6px}.rl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.emsg{background:#fdf2f2;border:1px solid #f5c6c6;color:#c0392b;padding:10px 12px;font-size:12px;margin-bottom:12px;display:none}
+.infomsg{background:var(--gl);border:1px solid #c8e4d6;color:var(--gd);padding:10px 12px;font-size:12px;margin-bottom:12px}
+
+/* DASHBOARD */
+.dl{flex:1;display:grid;grid-template-columns:200px 1fr}
+.sb2{border-right:1px solid var(--br);background:var(--off)}
+.sbu{padding:20px 18px;border-bottom:1px solid var(--br);background:var(--g)}
+.sbav{width:40px;height:40px;background:var(--gd);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--w);margin-bottom:10px}
+.sbav.adm-av{background:#6b1a1a}.sbav.buyer-av{background:#1a4a6b}
+.sbnm{font-size:13px;font-weight:600;color:var(--w)}.sbrl{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.sbrl.adm{color:#f5c0c0}.sbrl.buyer{color:#c0d8f5}
+.sbmenu{padding:8px 0}
+.sbi{width:100%;text-align:left;padding:10px 18px;font-size:13px;font-weight:400;color:var(--mu);background:none;border:none;border-left:3px solid transparent;transition:all .1s}
+.sbi:hover{background:var(--gl);color:var(--g)}.sbi.on{background:var(--gl);color:var(--g);border-left-color:var(--g);font-weight:600}
+.mp{background:var(--w);padding:32px;overflow-y:auto}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.sc2{background:var(--gl);border:1px solid #c8e4d6;padding:20px 16px}
+.sbig{font-size:30px;font-weight:700;color:var(--g)}.slb{font-size:11px;color:var(--mu);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse}
+.dt th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);border-bottom:2px solid var(--g);background:var(--gl)}
+.dt td{padding:12px 12px;border-bottom:1px solid var(--br);font-size:13px}
+.dt tr:hover td{background:var(--gl)}
+.pill{display:inline-block;padding:2px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.confirmed{background:#d4edda;color:#1a6b35}.pending{background:#fff3cd;color:#856404}.cancelled{background:#fce8e8;color:#a03030}
+.badge{display:inline-block;padding:2px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.bb{background:#dce8fb;color:#2c5fa0}.bs{background:#d4edda;color:#1a6b35}.ba{background:#fce8e8;color:#a03030}
+
+/* DRAG & DROP UPLOAD */
+.drop-zone{border:2px dashed var(--br);padding:32px;text-align:center;background:var(--off);transition:all .15s;margin-bottom:12px}
+.drop-zone.drag-over{border-color:var(--g);background:var(--gl)}
+.drop-zone p{font-size:13px;color:var(--mu);margin-bottom:8px}
+.drop-zone span{font-size:11px;color:var(--li)}
+.drop-zone input[type=file]{display:none}
+.drop-label{display:inline-block;padding:8px 18px;background:var(--g);color:var(--w);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;margin-top:8px}
+.drop-label:hover{background:var(--gd)}
+.file-list{font-size:12px;color:var(--mu);margin-top:8px;text-align:left}
+.file-item{padding:4px 0;border-bottom:1px solid var(--br);display:flex;justify-content:space-between;align-items:center}
+.file-item button{background:none;border:none;color:#c0392b;font-size:14px;cursor:pointer}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--br);border:1px solid var(--br)}
+.cal-head{background:var(--gl);padding:8px;text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--g)}
+.cal-day{background:var(--w);min-height:80px;padding:8px;border-top:1px solid var(--br);cursor:pointer;transition:background .1s}
+.cal-day:hover:not(.booked):not(.past){background:#f0f9f5}
+.cal-day.booked{background:#fce8e8;cursor:not-allowed}
+.cal-day.selected{background:var(--gl);border:2px solid var(--g)}
+.cal-day.past{background:var(--off);cursor:not-allowed;opacity:.6}
+.cal-day-num{font-size:14px;font-weight:600;margin-bottom:4px}
+.cal-event{background:var(--g);color:var(--w);font-size:9px;padding:3px 6px;font-weight:500;margin-bottom:2px}
+.cal-booked-lbl{font-size:9px;color:#a03030;font-weight:600;text-transform:uppercase}
+
+/* CHAT */
+.cw{border:1px solid var(--br);display:flex;flex-direction:column;height:480px;max-width:740px}
+.ch{padding:12px 18px;border-bottom:1px solid var(--br);background:var(--g);display:flex;align-items:center;gap:10px}
+.cav{width:32px;height:32px;background:var(--gd);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--w);flex-shrink:0}
+.cnm{font-size:13px;font-weight:600;color:var(--w)}.cst{font-size:11px;color:rgba(255,255,255,.7)}
+.cms{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:var(--off)}
+.cmsg{max-width:65%}.cmsg.me{align-self:flex-end}
+.bub{padding:10px 14px;font-size:13px;line-height:1.5}
+.bub.them{background:var(--w);border:1px solid var(--br)}.bub.me{background:var(--g);color:var(--w)}
+.mt{font-size:11px;color:var(--li);margin-top:4px}
+.cir{display:flex;border-top:1px solid var(--br)}
+.cir input{flex:1;padding:12px 16px;background:var(--w);border:none;font-size:13px;font-family:'Inter',sans-serif;color:var(--bl);outline:none}
+.cir input::placeholder{color:var(--li)}
+.csnd{padding:12px 22px;background:var(--g);color:var(--w);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none}.csnd:hover{background:var(--gd)}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;align-items:center;justify-content:center}.ov.on{display:flex}
+.modal{background:var(--w);border:1px solid var(--br);padding:32px;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:6px}.modal p{font-size:13px;color:var(--mu);line-height:1.6;margin-bottom:20px}
+.mcl{position:absolute;top:12px;right:16px;font-size:20px;background:none;border:none;color:var(--mu);line-height:1}.mcl:hover{color:var(--bl)}
+.macts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g);color:var(--w);padding:11px 18px;font-size:13px;font-weight:500;z-index:700;display:none;border-left:4px solid var(--gd)}
+.toast.on{display:block;animation:up .2s ease}
+@keyframes up{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* PENDING BADGE */
+.pending-approval{background:#fff3cd;border:1px solid #ffc107;padding:10px 14px;font-size:12px;color:#856404;margin-bottom:14px}
+
+/* FOOTER */
+.site-footer{background:var(--g);color:var(--w);border-top:3px solid var(--gd)}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;padding:40px 40px 32px}
+.footer-brand .f-logo{font-size:18px;font-weight:700;margin-bottom:10px}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;max-width:260px;margin-bottom:20px}
+.f-socials{display:flex;gap:8px}
+.f-social{width:32px;height:32px;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:rgba(255,255,255,.7);cursor:pointer}
+.f-social:hover{border-color:var(--w);color:var(--w)}
+.f-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.5);margin-bottom:14px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:9px}
+.f-links li button,.f-links li a{font-size:13px;color:rgba(255,255,255,.75);background:none;border:none;font-family:'Inter',sans-serif;padding:0;text-decoration:none}
+.f-links li button:hover,.f-links li a:hover{color:var(--w)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-top:1px solid rgba(255,255,255,.15);background:var(--gd)}
+.f-copy{font-size:12px;color:rgba(255,255,255,.5)}
+.f-legal{display:flex;gap:20px}
+.f-legal a,.f-legal button{font-size:12px;color:rgba(255,255,255,.5);background:none;border:none;font-family:'Inter',sans-serif;text-decoration:none}
+.f-legal a:hover,.f-legal button:hover{color:rgba(255,255,255,.85)}
+
+@media(max-width:768px){
+  .hero{padding:36px 20px}.ct{padding:24px 20px}.sw{padding:12px 20px}
+  .db{grid-template-columns:1fr}.ds{border-top:1px solid var(--br)}
+  .dl{grid-template-columns:1fr}.sb2{display:none}
+  .srow{grid-template-columns:repeat(2,1fr)}.frow{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr;padding:28px 20px}.footer-brand{grid-column:1/-1}
+  .footer-bottom{flex-direction:column;gap:10px;padding:14px 20px;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- SIDE MENU -->
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="closeMenu();go('home')">Home</button>
+    <button class="sm-item" onclick="closeMenu();go('browse')">Browse Listings</button>
+    <div class="sm-div"></div>
+    <button class="sm-item" onclick="closeMenu();go('login')">Sign In</button>
+    <button class="sm-item" onclick="closeMenu();go('signup')">Create Account</button>
+    <div class="sm-div"></div>
+    <button class="sm-item" onclick="closeMenu();go('buyer-dash')">Buyer Dashboard</button>
+    <button class="sm-item" onclick="closeMenu();go('seller-dash')">Seller Dashboard</button>
+    <button class="sm-item" onclick="closeMenu();go('chat')">Messages</button>
+  </div>
+  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+</div>
+
+<!-- BOOK APPOINTMENT MODAL -->
+<div class="ov" id="bkMod">
+  <div class="modal" style="max-width:520px">
+    <button class="mcl" onclick="cm('bkMod')">×</button>
+    <h2>Book a Viewing</h2>
+    <p id="bk-txt">Select an available date to schedule your viewing.</p>
+    <div style="margin-bottom:16px">
+      <div class="ssl">Select Date (booked dates are unavailable)</div>
+      <div class="cal-grid" id="book-cal"></div>
+    </div>
+    <div class="fg"><label class="fl">Selected Date</label><input type="text" class="fi" id="sel-date" placeholder="Click a date above" readonly/></div>
+    <div class="fg"><label class="fl">Time Slot</label>
+      <select class="fi" id="sel-time"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>3:30 PM</option><option>5:00 PM</option></select>
+    </div>
+    <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="bk-name" placeholder="Full name"/></div>
+    <div class="macts">
+      <button class="bfu bfu-g" style="max-width:150px" onclick="confirmBook()">Confirm</button>
+      <button class="bfu bfu-o" style="max-width:110px" onclick="cm('bkMod')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESCHEDULE MODAL -->
+<div class="ov" id="rescMod">
+  <div class="modal" style="max-width:520px">
+    <button class="mcl" onclick="cm('rescMod')">×</button>
+    <h2>Reschedule Appointment</h2>
+    <p>Select a new available date for your appointment.</p>
+    <div style="margin-bottom:16px">
+      <div class="ssl">Select New Date</div>
+      <div class="cal-grid" id="resc-cal"></div>
+    </div>
+    <div class="fg"><label class="fl">New Date</label><input type="text" class="fi" id="resc-date" placeholder="Click a date above" readonly/></div>
+    <div class="fg"><label class="fl">Time Slot</label>
+      <select class="fi"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>3:30 PM</option><option>5:00 PM</option></select>
+    </div>
+    <div class="macts">
+      <button class="bfu bfu-g" style="max-width:160px" onclick="confirmReschedule()">Reschedule</button>
+      <button class="bfu bfu-o" style="max-width:110px" onclick="cm('rescMod')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW LISTING MODAL (with drag & drop) -->
+<div class="ov" id="nlMod">
+  <div class="modal" style="max-width:540px">
+    <button class="mcl" onclick="cm('nlMod')">×</button>
+    <h2>New Listing</h2>
+    <p>Add a new property. Drag and drop photos or videos below.</p>
+    <div class="frow">
+      <div class="fg"><label class="fl">Title</label><input type="text" class="fi" placeholder="3-Bed House"/></div>
+      <div class="fg"><label class="fl">Price (€)</label><input type="number" class="fi" placeholder="450000"/></div>
+    </div>
+    <div class="fg"><label class="fl">Address</label><input type="text" class="fi" placeholder="Full address"/></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Type</label><select class="fi"><option>House</option><option>Apartment</option><option>Studio</option><option>Townhouse</option></select></div>
+      <div class="fg"><label class="fl">Bedrooms</label><input type="number" class="fi" placeholder="3" min="1"/></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Bathrooms</label><input type="number" class="fi" placeholder="2" min="1"/></div>
+      <div class="fg"><label class="fl">Size (sqft)</label><input type="number" class="fi" placeholder="1200"/></div>
+    </div>
+    <div class="fg"><label class="fl">Description</label><textarea class="fi" rows="2" style="resize:vertical" placeholder="Describe the property..."></textarea></div>
+    <div class="fg">
+      <label class="fl">Photos & Videos</label>
+      <div class="drop-zone" id="dropZone">
+        <p>Drag & drop photos or videos here</p>
+        <span>Supports JPG, PNG, MP4 — Max 5MB each</span>
+        <br>
+        <label class="drop-label" for="fileInput">Browse Files</label>
+        <input type="file" id="fileInput" multiple accept="image/*,video/*" onchange="handleFiles(this.files)"/>
+      </div>
+      <div class="file-list" id="fileList"></div>
+    </div>
+    <div class="macts">
+      <button class="bfu bfu-g" style="max-width:140px" onclick="addListing()">Add Listing</button>
+      <button class="bfu bfu-o" style="max-width:110px" onclick="cm('nlMod')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN APPROVE MODAL -->
+<div class="ov" id="approveMod">
+  <div class="modal" style="max-width:500px">
+    <button class="mcl" onclick="cm('approveMod')">×</button>
+    <h2>Pending Approvals</h2>
+    <p>New buyer registrations awaiting your approval.</p>
+    <table class="dt">
+      <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>John Davies</td><td>john.d@email.com</td><td>Today</td><td><button class="bsm bsm-g" onclick="toast('John Davies approved');cm('approveMod')">Approve</button></td></tr>
+        <tr><td>Maria Costa</td><td>maria.c@email.com</td><td>Today</td><td><button class="bsm bsm-g" onclick="toast('Maria Costa approved');cm('approveMod')">Approve</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ████ HOME ████ -->
+<div class="page on" id="pg-home">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('home')">G</div><div class="prof-drop" id="pd-home"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('login')">Sign In</button><button class="pd-item" onclick="closePd();go('signup')">Create Account</button><button class="pd-item" onclick="closePd();go('browse')">Browse Listings</button></div></div></div>
+  </nav>
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Find Your Perfect Home</h1>
+      <p>Connect with verified sellers. Browse listings across every city. Book viewings in seconds.</p>
+      <div class="hero-btns">
+        <button class="btn-w" onclick="go('browse')">Browse Listings</button>
+        <button class="btn-wo" onclick="go('signup')">Create Account</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-n">2,400</div><div class="hstat-l">Listings</div></div>
+        <div class="hstat"><div class="hstat-n">890</div><div class="hstat-l">Sellers</div></div>
+        <div class="hstat"><div class="hstat-n">12K</div><div class="hstat-l">Buyers</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sw"><div class="sb">
+    <input type="text" id="hs" placeholder="Search by city, postcode, or address..." onkeydown="if(event.key==='Enter')hSearch()"/>
+    <select id="ht"><option value="">Any type</option><option>House</option><option>Apartment</option><option>Studio</option></select>
+    <select id="hp"><option value="">Any price</option><option>Under €300k</option><option>€300k–€600k</option><option>€600k+</option></select>
+    <button class="sbtn" onclick="hSearch()">Search</button>
+  </div></div>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Featured</div><h2>New Listings</h2></div><button class="sh-link" onclick="go('browse')">View All →</button></div>
+    <div class="lg" id="feat-grid"></div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="f-logo">Home Finder</div><p>Connecting buyers and sellers across every city. Find your perfect home, or list yours with confidence.</p><div class="f-socials"><a class="f-social" onclick="toast('Twitter')">X</a><a class="f-social" onclick="toast('Instagram')">IG</a><a class="f-social" onclick="toast('LinkedIn')">in</a><a class="f-social" onclick="toast('Facebook')">fb</a></div></div>
+      <div><div class="f-col-title">Browse</div><ul class="f-links"><li><button onclick="go('browse')">All Listings</button></li><li><button onclick="setFlt('Houses');go('browse')">Houses</button></li><li><button onclick="setFlt('Apartments');go('browse')">Apartments</button></li><li><button onclick="setFlt('Studios');go('browse')">Studios</button></li></ul></div>
+      <div><div class="f-col-title">Account</div><ul class="f-links"><li><button onclick="go('login')">Sign In</button></li><li><button onclick="go('signup')">Create Account</button></li><li><button onclick="go('buyer-dash')">Buyer Dashboard</button></li><li><button onclick="go('seller-dash')">Seller Dashboard</button></li></ul></div>
+      <div><div class="f-col-title">Company</div><ul class="f-links"><li><a href="#">About Us</a></li><li><a href="#">How it Works</a></li><li><a href="#">Contact</a></li><li><a href="#">Careers</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><div class="f-copy">© 2024 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Cookies</a></div></div>
+  </footer>
+</div>
+
+<!-- ████ BROWSE ████ -->
+<div class="page" id="pg-browse">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('br')">G</div><div class="prof-drop" id="pd-br"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('login')">Sign In</button><button class="pd-item" onclick="closePd();go('signup')">Create Account</button></div></div></div>
+  </nav>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Browse</div><h2>All Listings</h2></div><span id="rc" style="font-size:13px;color:var(--mu)"></span></div>
+    <div class="fr" id="frow"></div>
+    <div class="lg" id="browse-grid"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-top"><div class="footer-brand"><div class="f-logo">Home Finder</div><p>Connecting buyers and sellers.</p></div><div><div class="f-col-title">Browse</div><ul class="f-links"><li><button onclick="setFlt('Houses');go('browse')">Houses</button></li><li><button onclick="setFlt('Apartments');go('browse')">Apartments</button></li></ul></div><div><div class="f-col-title">Account</div><ul class="f-links"><li><button onclick="go('login')">Sign In</button></li><li><button onclick="go('signup')">Create Account</button></li></ul></div><div><div class="f-col-title">Company</div><ul class="f-links"><li><a href="#">About</a></li><li><a href="#">Contact</a></li></ul></div></div><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ LISTING DETAIL ████ -->
+<div class="page" id="pg-listing">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('li')">G</div><div class="prof-drop" id="pd-li"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('login')">Sign In</button></div></div></div>
+  </nav>
+  <div class="dh"><span>Property Photo</span><button class="bkbtn" onclick="go('browse')">← Back</button></div>
+  <div class="db" id="detail-body"></div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ LOGIN ████ -->
+<div class="page" id="pg-login">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('lg')">G</div><div class="prof-drop" id="pd-lg"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('signup')">Create Account</button></div></div></div>
+  </nav>
+  <div class="fp">
+    <div class="fbox">
+      <div class="ftitle">Sign In</div>
+      <div class="fsub">Sign in to your Home Finder account.</div>
+      <div class="emsg" id="lerr">Incorrect username or password.</div>
+      <div class="fg"><label class="fl">Username or Email</label><input type="text" class="fi" id="lu" placeholder="you@email.com"/></div>
+      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div style="text-align:right;margin-bottom:18px;margin-top:4px"><button class="lbtn" onclick="toast('Reset link sent.')">Forgot password?</button></div>
+      <button class="bfu bfu-g" onclick="doLogin()">Sign In</button>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
+      <button class="bfu bfu-o" onclick="go('signup')">Create Account</button>
+      <p style="font-size:11px;color:var(--li);margin-top:16px;text-align:center">Admin: <strong style="color:var(--mu)">admin</strong> / <strong style="color:var(--mu)">12345678</strong> · Buyer: <strong style="color:var(--mu)">buyer</strong> / <strong style="color:var(--mu)">buyer123</strong></p>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ SIGN UP ████ -->
+<div class="page" id="pg-signup">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('su')">G</div><div class="prof-drop" id="pd-su"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('login')">Sign In</button></div></div></div>
+  </nav>
+  <div class="fp">
+    <div class="fbox">
+      <div class="ftitle">Create Account</div>
+      <div class="fsub">Join as a buyer or seller.</div>
+      <div class="infomsg" id="reg-note" style="display:none">⚠ Buyer accounts require admin approval before you can access the platform.</div>
+      <div class="fl" style="margin-bottom:10px">I am a</div>
+      <div class="rgrid">
+        <div class="rc on" id="r-buyer" onclick="selRole('buyer')"><div class="ri">🏠</div><div class="rl">Buyer</div></div>
+        <div class="rc" id="r-seller" onclick="selRole('seller')"><div class="ri">🔑</div><div class="rl">Seller</div></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" placeholder="Jane"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" placeholder="Smith"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" placeholder="you@email.com"/></div>
+      <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" placeholder="+1 (000) 000-0000"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Password</label><input type="password" class="fi" placeholder="••••••••"/></div>
+        <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" placeholder="••••••••"/></div>
+      </div>
+      <div id="co-field" style="display:none" class="fg"><label class="fl">Company (optional)</label><input type="text" class="fi" placeholder="Acme Realty"/></div>
+      <button class="bfu bfu-g" style="margin-top:8px" onclick="doSignup()">Create Account</button>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
+      <button class="bfu bfu-o" onclick="go('login')">Back to Sign In</button>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ BUYER DASHBOARD ████ -->
+<div class="page" id="pg-buyer-dash">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('buy')" style="background:#1a4a6b">JT</div><div class="prof-drop" id="pd-buy"><div class="pd-head"><div class="pd-name">James Thompson</div><div class="pd-role">Buyer</div></div><button class="pd-item" onclick="closePd();btab('appointments')">My Appointments</button><button class="pd-item" onclick="closePd();go('browse')">Browse Listings</button><button class="pd-item" onclick="closePd();btab('profile')">Edit Profile</button><button class="pd-item" onclick="closePd();logout()">Sign Out</button></div></div></div>
+  </nav>
+  <div class="dl">
+    <div class="sb2">
+      <div class="sbu" style="background:#1a4a6b">
+        <div class="sbav buyer-av">JT</div>
+        <div class="sbnm">James Thompson</div>
+        <div class="sbrl buyer">Buyer</div>
+      </div>
+      <div class="sbmenu">
+        <button class="sbi" onclick="btab('overview')">Overview</button>
+        <button class="sbi on" onclick="btab('appointments')">My Appointments</button>
+        <button class="sbi" onclick="btab('browse')">Browse Listings</button>
+        <button class="sbi" onclick="btab('chat')">Messages</button>
+        <button class="sbi" onclick="btab('profile')">Edit Profile</button>
+      </div>
+    </div>
+    <div class="mp" id="bmp"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ SELLER DASHBOARD ████ -->
+<div class="page" id="pg-seller-dash">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('sel')">SM</div><div class="prof-drop" id="pd-sel"><div class="pd-head"><div class="pd-name">Sarah Mitchell</div><div class="pd-role">Seller</div></div><button class="pd-item" onclick="closePd();stab('listings')">My Listings</button><button class="pd-item" onclick="closePd();stab('appointments')">View Appointments</button><button class="pd-item" onclick="closePd();stab('profile')">Edit Profile</button><button class="pd-item" onclick="closePd();logout()">Sign Out</button></div></div></div>
+  </nav>
+  <div class="dl">
+    <div class="sb2">
+      <div class="sbu">
+        <div class="sbav">SM</div>
+        <div class="sbnm">Sarah Mitchell</div>
+        <div class="sbrl">Seller</div>
+      </div>
+      <div class="sbmenu">
+        <button class="sbi" onclick="stab('overview')">Overview</button>
+        <button class="sbi on" onclick="stab('listings')">My Listings</button>
+        <button class="sbi" onclick="stab('appointments')">Appointments</button>
+        <button class="sbi" onclick="stab('calendar')">Calendar</button>
+        <button class="sbi" onclick="stab('profile')">Edit Profile</button>
+      </div>
+    </div>
+    <div class="mp" id="smp"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ ADMIN DASHBOARD ████ -->
+<div class="page" id="pg-admin-dash">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('adm')" style="background:#6b1a1a">AU</div><div class="prof-drop" id="pd-adm"><div class="pd-head"><div class="pd-name">Admin User</div><div class="pd-role" style="color:#a03030">Administrator</div></div><button class="pd-item" onclick="closePd();atab('users')">Manage Users</button><button class="pd-item" onclick="closePd();atab('approvals')">Pending Approvals</button><button class="pd-item" onclick="closePd();atab('appointments')">Appointments</button><button class="pd-item" onclick="closePd();logout()">Sign Out</button></div></div></div>
+  </nav>
+  <div class="dl">
+    <div class="sb2">
+      <div class="sbu" style="background:#6b1a1a">
+        <div class="sbav adm-av">AU</div>
+        <div class="sbnm">Admin User</div>
+        <div class="sbrl adm">Administrator</div>
+      </div>
+      <div class="sbmenu">
+        <button class="sbi on" onclick="atab('users')">Users</button>
+        <button class="sbi" onclick="atab('approvals')">Pending Approvals</button>
+        <button class="sbi" onclick="atab('listings')">Listings</button>
+        <button class="sbi" onclick="atab('appointments')">Appointments</button>
+        <button class="sbi" onclick="atab('profile')">Profile</button>
+      </div>
+    </div>
+    <div class="mp" id="amp"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<!-- ████ CHAT ████ -->
+<div class="page" id="pg-chat">
+  <nav>
+    <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><button class="logo" onclick="go('home')">Home Finder</button></div>
+    <div class="nav-right"><div class="prof-wrap"><div class="prof-btn" onclick="toggleProf('ch')">G</div><div class="prof-drop" id="pd-ch"><div class="pd-head"><div class="pd-name">Guest</div><div class="pd-role">Not signed in</div></div><button class="pd-item" onclick="closePd();go('login')">Sign In</button></div></div></div>
+  </nav>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Messages</div><h2>Sarah Mitchell</h2></div><button class="sh-link" onclick="go('listing')">← Back to Listing</button></div>
+    <div class="cw">
+      <div class="ch"><div class="cav">S</div><div><div class="cnm">Sarah Mitchell</div><div class="cst">● Online</div></div></div>
+      <div class="cms" id="cms">
+        <div class="cmsg"><div class="bub them">Hi — I saw your listing at 12 Maple Avenue. Is it still available?</div><div class="mt">10:32</div></div>
+        <div class="cmsg me"><div class="bub me">Yes, still available. Would you like to arrange a viewing?</div><div class="mt" style="text-align:right">10:35</div></div>
+        <div class="cmsg"><div class="bub them">Definitely. Does Saturday morning work for you?</div><div class="mt">10:37</div></div>
+        <div class="cmsg me"><div class="bub me">Saturday works. I'll put you in for 10:30 AM.</div><div class="mt" style="text-align:right">10:40</div></div>
+      </div>
+      <div class="cir"><input type="text" id="cinp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')send()"/><button class="csnd" onclick="send()">Send</button></div>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</div>
+
+<script>
+const LS=[
+  {id:1,price:"€485,000",raw:485000,address:"12 Maple Avenue, Portland",city:"Portland",type:"House",beds:4,baths:2,sqft:"1,840",desc:"Four-bedroom family home in Portland. Original hardwood floors, renovated kitchen, rear garden. Close to schools, parks and transport.",seller:"Sarah Mitchell",si:"SM"},
+  {id:2,price:"€320,000",raw:320000,address:"7 Riverside Loft, Denver",city:"Denver",type:"Apartment",beds:2,baths:1,sqft:"980",desc:"Loft-style apartment with river views and large windows. Exposed brick, open-plan layout, rooftop access.",seller:"Marco Verdi",si:"MV"},
+  {id:3,price:"€720,000",raw:720000,address:"34 Oak Hills Drive, Seattle",city:"Seattle",type:"House",beds:5,baths:3,sqft:"2,400",desc:"Five-bedroom home on a quiet street. Double garage, large garden, high-spec kitchen. Near schools and transport.",seller:"Sarah Mitchell",si:"SM"},
+  {id:4,price:"€195,000",raw:195000,address:"2B Studio Court, Austin",city:"Austin",type:"Studio",beds:1,baths:1,sqft:"620",desc:"Compact studio in Austin's arts district, recently renovated. Good investment or starter home.",seller:"Ana Rodriguez",si:"AR"},
+  {id:5,price:"€540,000",raw:540000,address:"88 Cliffside Road, Boston",city:"Boston",type:"House",beds:4,baths:2,sqft:"2,100",desc:"Victorian four-bedroom on a popular road. Period features, loft space, rear garden, off-street parking.",seller:"James Thompson",si:"JT"},
+  {id:6,price:"€275,000",raw:275000,address:"15 Garden Place, Chicago",city:"Chicago",type:"Apartment",beds:2,baths:2,sqft:"1,100",desc:"Two-bedroom apartment with balcony and underground parking. Secure building with concierge.",seller:"Lisa Han",si:"LH"},
+];
+const USERS=[
+  {name:"James Thompson",email:"james.t@email.com",role:"buyer",joined:"Mar 2024",status:"approved"},
+  {name:"Sarah Mitchell",email:"sarah.m@email.com",role:"seller",joined:"Jan 2024",status:"approved"},
+  {name:"Ana Rodriguez",email:"ana.r@email.com",role:"buyer",joined:"Apr 2024",status:"approved"},
+  {name:"Marco Verdi",email:"marco.v@email.com",role:"seller",joined:"Feb 2024",status:"approved"},
+  {name:"Lisa Han",email:"lisa.h@email.com",role:"buyer",joined:"Apr 2024",status:"approved"},
+];
+// Appointments - booked dates drive double-booking prevention
+let APPTS=[
+  {id:1,buyer:"James T.",seller:"Sarah M.",property:"12 Maple Ave",date:"Apr 08",time:"10:00 AM",loc:"Portland",status:"confirmed"},
+  {id:2,buyer:"Ana R.",seller:"Marco V.",property:"34 Oak Hills",date:"Apr 10",time:"2:30 PM",loc:"Seattle",status:"confirmed"},
+  {id:3,buyer:"Marco V.",seller:"Sarah M.",property:"12 Maple Ave",date:"Apr 12",time:"11:00 AM",loc:"Portland",status:"confirmed"},
+  {id:4,buyer:"Lisa H.",seller:"Sarah M.",property:"7 Riverside",date:"Apr 15",time:"9:30 AM",loc:"Denver",status:"pending"},
+];
+// Dates that are already booked (no double-booking)
+const BOOKED_DAYS=[8,10,12,15];
+
+let cur=LS[0],flt="All",stabA="listings",atabA="users",btabA="appointments",role="buyer";
+let uploadedFiles=[];
+let selectedBookDay=null;
+
+/* NAVIGATION */
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  const el=document.getElementById('pg-'+p);
+  if(el){el.classList.add('on');window.scrollTo(0,0);}
+  closePd();
+  if(p==='home') renderFeat();
+  if(p==='browse') renderBrowse();
+  if(p==='listing') renderDetail();
+  if(p==='seller-dash') stab(stabA);
+  if(p==='admin-dash') atab(atabA);
+  if(p==='buyer-dash') btab(btabA);
+}
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+let openPd=null;
+function toggleProf(id){const pd=document.getElementById('pd-'+id);if(!pd)return;if(openPd&&openPd!==pd)openPd.classList.remove('on');pd.classList.toggle('on');openPd=pd.classList.contains('on')?pd:null;}
+function closePd(){document.querySelectorAll('.prof-drop').forEach(d=>d.classList.remove('on'));openPd=null;}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))closePd();});
+
+/* CARDS */
+function card(l,acts){
+  const a=acts?`<div class="li-acts"><button class="bsm bsm-g" onclick="event.stopPropagation();om('nlMod')">Edit</button><button class="bsm bsm-o" onclick="event.stopPropagation();toast('Listing removed')">Delete</button></div>`:'';
+  return `<div class="lc" onclick="openL(${l.id})"><div class="li-img"><span>Photo</span><div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft} sqft</span></div>${a}</div></div>`;
+}
+
+/* HOME */
+function renderFeat(){document.getElementById('feat-grid').innerHTML=LS.slice(0,4).map(l=>card(l)).join('');}
+function hSearch(){
+  const q=document.getElementById('hs').value.trim().toLowerCase();
+  const t=document.getElementById('ht').value;
+  const p=document.getElementById('hp').value;
+  flt="All";go('browse');
+  renderWith(LS.filter(l=>{let ok=true;if(q)ok=ok&&(l.address.toLowerCase().includes(q)||l.city.toLowerCase().includes(q));if(t)ok=ok&&l.type===t;if(p==='Under €300k')ok=ok&&l.raw<300000;if(p==='€300k–€600k')ok=ok&&l.raw>=300000&&l.raw<=600000;if(p==='€600k+')ok=ok&&l.raw>600000;return ok;}));
+}
+
+/* BROWSE */
+const FLTS=["All","Houses","Apartments","Studios","Portland","Denver","Seattle","Boston","Austin","Chicago"];
+function renderBrowse(){
+  document.getElementById('frow').innerHTML=FLTS.map(f=>`<button class="chip${f===flt?' on':''}" onclick="setFlt('${f}')">${f}</button>`).join('');
+  renderWith(flt==="All"?LS:LS.filter(l=>l.type===flt||l.type===flt.replace(/s$/,'')||l.city===flt));
+}
+function renderWith(arr){
+  document.getElementById('rc').textContent=arr.length+(arr.length===1?' result':' results');
+  document.getElementById('browse-grid').innerHTML=arr.length?arr.map(l=>card(l)).join(''):'<p style="padding:32px;color:var(--mu);grid-column:1/-1">No listings found.</p>';
+}
+function setFlt(f){flt=f;renderBrowse();}
+
+/* DETAIL */
+function openL(id){cur=LS.find(l=>l.id===id)||LS[0];go('listing');}
+function renderDetail(){
+  const l=cur;
+  document.getElementById('detail-body').innerHTML=`
+    <div class="dm"><div class="dp">${l.price}</div><div class="da">${l.address}</div>
+      <div class="specs"><div><div class="sv">${l.beds}</div><div class="sl2">Bedrooms</div></div><div><div class="sv">${l.baths}</div><div class="sl2">Bathrooms</div></div><div><div class="sv">${l.sqft}</div><div class="sl2">Sq Ft</div></div><div><div class="sv">${l.type}</div><div class="sl2">Type</div></div></div>
+      <p class="ddesc">${l.desc}</p>
+      <div class="ssl" style="margin-bottom:10px">Location</div>
+      <div class="mph"><span>${l.city}</span></div>
+    </div>
+    <div class="ds">
+      <div class="ssec"><div class="ssl">Listed By</div><div class="sc"><div class="av">${l.si}</div><div><div class="sn">${l.seller}</div><div class="si2">Verified Seller</div></div></div>
+        <button class="bbook" onclick="openBookModal('${l.address}')">Book a Viewing</button>
+        <button class="bchat" onclick="go('chat')">Message Seller</button>
+      </div>
+      <div class="ssec"><div class="ssl">Contact</div><div style="font-size:13px;color:var(--mu);line-height:2"><div>${l.seller.toLowerCase().replace(' ','.')}@email.com</div><div>+1 (000) 555-0${100+l.id}</div></div></div>
+      <div class="ssec"><div class="ssl">Booking</div><p style="font-size:12px;color:var(--mu)">Select a date using the Book button above. Booked dates are automatically blocked.</p></div>
+    </div>`;
+}
+
+/* BOOKING CALENDAR */
+function buildCalendar(containerId, inputId){
+  const c=document.getElementById(containerId);
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html=days.map(d=>`<div class="cal-head">${d}</div>`).join('');
+  for(let d=7;d<=13;d++){
+    const booked=BOOKED_DAYS.includes(d);
+    const past=d<7;
+    let cls='cal-day'+(booked?' booked':past?' past':'');
+    const evt=APPTS.find(a=>parseInt(a.date.split(' ')[1])===d);
+    html+=`<div class="${cls}" onclick="selectDay(${d},'${inputId}',this)">
+      <div class="cal-day-num">${d}</div>
+      ${booked?`<div class="cal-booked-lbl">Booked</div>`:evt?`<div class="cal-event">${evt.time}</div>`:''}
+    </div>`;
+  }
+  c.innerHTML=html;
+}
+function selectDay(day,inputId,el){
+  if(el.classList.contains('booked')||el.classList.contains('past')){toast('This date is already booked. Please select another.');return;}
+  document.querySelectorAll('.cal-day').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(inputId).value='Apr '+day+', 2024';
+  selectedBookDay=day;
+}
+function openBookModal(addr){
+  document.getElementById('bk-txt').textContent='Select an available date for: '+addr;
+  buildCalendar('book-cal','sel-date');
+  selectedBookDay=null;
+  document.getElementById('sel-date').value='';
+  om('bkMod');
+}
+function confirmBook(){
+  if(!selectedBookDay){toast('Please select a date first.');return;}
+  BOOKED_DAYS.push(selectedBookDay);
+  const time=document.getElementById('sel-time').value;
+  const name=document.getElementById('bk-name').value||'Buyer';
+  APPTS.push({id:APPTS.length+1,buyer:name,seller:"Sarah M.",property:cur.address.split(',')[0],date:"Apr "+selectedBookDay,time:time,loc:cur.city,status:"confirmed"});
+  cm('bkMod');
+  toast('Viewing booked for Apr '+selectedBookDay+' at '+time+'!');
+}
+
+/* RESCHEDULE */
+function openReschedule(apptId){
+  buildCalendar('resc-cal','resc-date');
+  document.getElementById('resc-date').value='';
+  document.getElementById('rescMod').dataset.appt=apptId;
+  om('rescMod');
+}
+function confirmReschedule(){
+  const newDate=document.getElementById('resc-date').value;
+  if(!newDate){toast('Please select a new date.');return;}
+  const apptId=parseInt(document.getElementById('rescMod').dataset.appt);
+  const appt=APPTS.find(a=>a.id===apptId);
+  if(appt){appt.date=newDate.replace(', 2024','');appt.status='confirmed';}
+  cm('rescMod');
+  toast('Appointment rescheduled to '+newDate+'!');
+  btab('appointments');
+}
+
+/* DRAG & DROP */
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');handleFiles(e.dataTransfer.files);});
+function handleFiles(files){
+  Array.from(files).forEach(f=>{
+    if(f.size>5*1024*1024){toast(f.name+' is too large (max 5MB)');return;}
+    uploadedFiles.push(f);
+    const fl=document.getElementById('fileList');
+    fl.innerHTML+=`<div class="file-item"><span>📎 ${f.name} (${(f.size/1024).toFixed(0)}KB)</span><button onclick="removeFile('${f.name}',this.parentNode)">×</button></div>`;
+  });
+}
+function removeFile(name,el){uploadedFiles=uploadedFiles.filter(f=>f.name!==name);el.remove();}
+
+/* LOGIN */
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  document.getElementById('lerr').style.display='none';
+  if(u==='admin'&&p==='12345678'){atabA='users';go('admin-dash');atab('users');toast('Signed in as Administrator');return;}
+  if(u==='buyer'&&p==='buyer123'){btabA='appointments';go('buyer-dash');btab('appointments');toast('Welcome, James!');return;}
+  if(u&&p.length>=6){stabA='listings';go('seller-dash');stab('listings');toast('Welcome back!');return;}
+  document.getElementById('lerr').style.display='block';
+}
+function logout(){document.getElementById('lu').value='';document.getElementById('lp').value='';go('home');toast('Signed out');}
+
+/* SIGN UP */
+function selRole(r){
+  role=r;
+  ['buyer','seller'].forEach(x=>document.getElementById('r-'+x).classList.remove('on'));
+  document.getElementById('r-'+r).classList.add('on');
+  document.getElementById('co-field').style.display=r==='seller'?'block':'none';
+  document.getElementById('reg-note').style.display=r==='buyer'?'block':'none';
+}
+function doSignup(){
+  if(role==='buyer'){toast('Account created! Awaiting admin approval before you can log in.');go('login');}
+  else{toast('Account created! Welcome aboard.');go('login');}
+}
+
+/* BUYER DASHBOARD */
+function btab(t){
+  btabA=t;
+  document.querySelectorAll('#pg-buyer-dash .sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','browse','chat','profile'][i]===t));
+  const mp=document.getElementById('bmp');
+  if(t==='overview'){
+    const myAppts=APPTS.filter(a=>a.buyer==="James T.");
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Overview</h2></div></div>
+      <div class="srow" style="grid-template-columns:repeat(3,1fr)">
+        <div class="sc2"><div class="sbig">${myAppts.length}</div><div class="slb">Appointments</div></div>
+        <div class="sc2"><div class="sbig">${myAppts.filter(a=>a.status==='confirmed').length}</div><div class="slb">Confirmed</div></div>
+        <div class="sc2"><div class="sbig">3</div><div class="slb">Saved Listings</div></div>
+      </div>
+      <div class="sh" style="margin-top:4px"><div><div class="stag">Upcoming</div><h2 style="font-size:16px">My Appointments</h2></div><button class="sh-link" onclick="btab('appointments')">Manage →</button></div>
+      <table class="dt"><thead><tr><th>Property</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+      <tbody>${myAppts.map(a=>`<tr><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+  }else if(t==='appointments'){
+    const myAppts=APPTS.filter(a=>a.buyer==="James T.");
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>My Appointments</h2></div>
+      <button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="openBookModal('Select a property')">+ New Appointment</button></div>
+      ${myAppts.length?`<table class="dt"><thead><tr><th>Property</th><th>Location</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${myAppts.map(a=>`<tr>
+        <td style="font-weight:600">${a.property}</td>
+        <td>${a.loc}</td>
+        <td>${a.date}</td>
+        <td>${a.time}</td>
+        <td><span class="pill ${a.status}">${a.status}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="bsm bsm-g" style="padding:4px 10px;font-size:10px" onclick="openReschedule(${a.id})">Reschedule</button>
+          <button class="bsm bsm-o" style="padding:4px 10px;font-size:10px;color:#a03030;border-color:#f5c6c6" onclick="cancelAppt(${a.id})">Cancel</button>
+        </td>
+      </tr>`).join('')}</tbody></table>`:'<p style="color:var(--mu);font-size:13px;padding:20px 0">No appointments yet. <button class="lbtn" onclick="go(\'browse\')">Browse listings</button> to book a viewing.</p>'}`;
+  }else if(t==='browse'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Browse Listings</h2></div></div>
+      <div class="lg">${LS.map(l=>`<div class="lc" onclick="openL(${l.id})"><div class="li-img"><span>Photo</span><div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span></div><div class="li-acts"><button class="bsm bsm-g" onclick="event.stopPropagation();openBookModal('${l.address}')">Book Viewing</button></div></div></div>`).join('')}</div>`;
+  }else if(t==='chat'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Messages</h2></div></div>
+      <div class="cw"><div class="ch"><div class="cav">S</div><div><div class="cnm">Sarah Mitchell</div><div class="cst">● Online</div></div></div>
+      <div class="cms" id="bms"><div class="cmsg"><div class="bub them">Hi James! The property at 12 Maple is ready to view.</div><div class="mt">09:14</div></div><div class="cmsg me"><div class="bub me">Great, I'll confirm the appointment for Saturday.</div><div class="mt" style="text-align:right">09:18</div></div></div>
+      <div class="cir"><input type="text" id="bchatinp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendBuyer()"/><button class="csnd" onclick="sendBuyer()">Send</button></div></div>`;
+  }else if(t==='profile'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Edit Profile</h2></div></div>
+      <div style="max-width:400px">
+        <div class="frow"><div class="fg"><label class="fl">First Name</label><input type="text" class="fi" value="James"/></div><div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" value="Thompson"/></div></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="james.t@email.com"/></div>
+        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" value="+1 (503) 555-0201"/></div>
+        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="toast('Profile saved')">Save Changes</button>
+      </div>`;
+  }
+}
+function cancelAppt(id){
+  const a=APPTS.find(x=>x.id===id);
+  if(a){a.status='cancelled';}
+  toast('Appointment cancelled.');
+  btab('appointments');
+}
+function sendBuyer(){
+  const inp=document.getElementById('bchatinp');
+  if(!inp||!inp.value.trim())return;
+  const box=document.getElementById('bms');
+  const t=new Date();const ts=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+  box.innerHTML+=`<div class="cmsg me"><div class="bub me">${esc(inp.value.trim())}</div><div class="mt" style="text-align:right">${ts}</div></div>`;
+  inp.value='';box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{const rs=["Of course!","I'll check and get back to you.","Sounds good!","See you then."];const t2=new Date();box.innerHTML+=`<div class="cmsg"><div class="bub them">${rs[Math.floor(Math.random()*rs.length)]}</div><div class="mt">${t2.getHours()}:${String(t2.getMinutes()).padStart(2,'0')}</div></div>`;box.scrollTop=box.scrollHeight;},1000);
+}
+
+/* SELLER DASHBOARD */
+function stab(t){
+  stabA=t;
+  document.querySelectorAll('#pg-seller-dash .sbi').forEach((b,i)=>b.classList.toggle('on',['overview','listings','appointments','calendar','profile'][i]===t));
+  const mp=document.getElementById('smp');
+  if(t==='overview'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Overview</h2></div></div>
+      <div class="srow">${[['6','Active Listings'],['14','Appointments'],['89','Views'],['3','Messages']].map(([n,l])=>`<div class="sc2"><div class="sbig">${n}</div><div class="slb">${l}</div></div>`).join('')}</div>
+      <div class="sh" style="margin-top:4px"><div><div class="stag">Recent</div><h2 style="font-size:16px">Appointments</h2></div></div>
+      <table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${APPTS.map(a=>`<tr><td>${a.buyer}</td><td>${a.property}</td><td>${a.date}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+  }else if(t==='listings'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>My Listings</h2></div>
+      <button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="om('nlMod')">+ New Listing</button></div>
+      <div class="lg">${LS.slice(0,4).map(l=>card(l,true)).join('')}</div>`;
+  }else if(t==='appointments'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Appointments</h2></div></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px;background:var(--gl);padding:10px 14px;border-left:3px solid var(--g)">You can view appointments but cannot edit them. Buyers manage their own bookings.</p>
+      <table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody>${APPTS.map(a=>`<tr><td>${a.buyer}</td><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td>${a.loc}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+  }else if(t==='calendar'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Calendar</h2></div><span style="font-size:13px;color:var(--mu)">April 2024</span></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px">Booked dates are automatically blocked to prevent double bookings.</p>
+      <div class="cal-grid">
+        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-head">${d}</div>`).join('')}
+        ${[7,8,9,10,11,12,13].map(d=>{const booked=BOOKED_DAYS.includes(d);const evt=APPTS.find(a=>parseInt(a.date.split(' ')[1])===d);return`<div class="cal-day${booked?' booked':''}">
+          <div class="cal-day-num">${d}</div>
+          ${booked?`<div class="cal-booked-lbl">Booked</div>`:evt?`<div class="cal-event">${evt.buyer} ${evt.time}</div>`:''}
+        </div>`}).join('')}
+      </div>`;
+  }else if(t==='profile'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Edit Profile</h2></div></div>
+      <div style="max-width:400px">
+        <div class="frow"><div class="fg"><label class="fl">First Name</label><input type="text" class="fi" value="Sarah"/></div><div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" value="Mitchell"/></div></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="sarah.m@email.com"/></div>
+        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" value="+1 (503) 555-0192"/></div>
+        <div class="fg"><label class="fl">Company</label><input type="text" class="fi" value="Mitchell Realty"/></div>
+        <div class="fg"><label class="fl">Bio</label><textarea class="fi" rows="3" style="resize:vertical">Experienced seller with 5+ years in the Portland market.</textarea></div>
+        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="toast('Profile saved')">Save Changes</button>
+      </div>`;
+  }
+}
+
+/* ADMIN DASHBOARD */
+function atab(t){
+  atabA=t;
+  document.querySelectorAll('#pg-admin-dash .sbi').forEach((b,i)=>b.classList.toggle('on',['users','approvals','listings','appointments','profile'][i]===t));
+  const mp=document.getElementById('amp');
+  if(t==='users'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Users</h2></div><span style="font-size:13px;color:var(--mu)">${USERS.length} accounts</span></div>
+      <div class="srow" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">${[['12K','Total Users'],['890','Sellers'],['2.4K','Listings']].map(([n,l])=>`<div class="sc2"><div class="sbig">${n}</div><div class="slb">${l}</div></div>`).join('')}</div>
+      <table class="dt"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+      <tbody>${USERS.map(u=>`<tr><td style="font-weight:600">${u.name}</td><td style="color:var(--mu)">${u.email}</td><td><span class="badge b${u.role[0]}">${u.role}</span></td><td><span class="pill confirmed">${u.status}</span></td><td style="color:var(--mu)">${u.joined}</td><td><button class="lbtn" onclick="toast('Editing ${u.name}')">Edit</button></td></tr>`).join('')}</tbody></table>`;
+  }else if(t==='approvals'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Pending Approvals</h2></div><span style="font-size:13px;color:#856404">2 pending</span></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px;background:#fff3cd;padding:10px 14px;border-left:3px solid #ffc107">Buyers must be approved by an administrator before they can access the platform.</p>
+      <table class="dt"><thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600">John Davies</td><td style="color:var(--mu)">john.d@email.com</td><td style="color:var(--mu)">Today</td><td style="display:flex;gap:6px"><button class="bsm bsm-g" onclick="toast('John Davies approved')">Approve</button><button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="toast('John Davies rejected')">Reject</button></td></tr>
+        <tr><td style="font-weight:600">Maria Costa</td><td style="color:var(--mu)">maria.c@email.com</td><td style="color:var(--mu)">Today</td><td style="display:flex;gap:6px"><button class="bsm bsm-g" onclick="toast('Maria Costa approved')">Approve</button><button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="toast('Maria Costa rejected')">Reject</button></td></tr>
+      </tbody></table>`;
+  }else if(t==='listings'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>All Listings</h2></div><button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="om('nlMod')">+ New Listing</button></div>
+      <div class="lg">${LS.map(l=>card(l,true)).join('')}</div>`;
+  }else if(t==='appointments'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>All Appointments</h2></div></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px;background:var(--gl);padding:10px 14px;border-left:3px solid var(--g)">Admin can override or cancel any appointment in emergencies.</p>
+      <table class="dt"><thead><tr><th>Buyer</th><th>Seller</th><th>Property</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead>
+      <tbody>${APPTS.map(a=>`<tr><td>${a.buyer}</td><td>${a.seller}</td><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td><span class="pill ${a.status}">${a.status}</span></td><td><button class="bsm bsm-o" style="font-size:10px;padding:4px 8px;color:#a03030;border-color:#f5c6c6" onclick="adminCancelAppt(${a.id})">Cancel</button></td></tr>`).join('')}</tbody></table>`;
+  }else if(t==='profile'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Profile</h2></div></div>
+      <div style="max-width:380px">
+        <div class="fg"><label class="fl">Name</label><input type="text" class="fi" value="Admin User"/></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="admin@homefinder.com"/></div>
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" placeholder="Leave blank to keep current"/></div>
+        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="toast('Profile saved')">Save Changes</button>
+      </div>`;
+  }
+}
+function adminCancelAppt(id){const a=APPTS.find(x=>x.id===id);if(a)a.status='cancelled';toast('Appointment cancelled by admin.');atab('appointments');}
+
+/* CHAT */
+function send(){
+  const inp=document.getElementById('cinp');const txt=inp.value.trim();if(!txt)return;
+  const box=document.getElementById('cms');const t=new Date();const ts=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+  box.innerHTML+=`<div class="cmsg me"><div class="bub me">${esc(txt)}</div><div class="mt" style="text-align:right">${ts}</div></div>`;
+  inp.value='';box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{const rs=["Thanks, I'll get back to you shortly.","Sounds good!","Looking forward to the viewing.","Feel free to call anytime."];const t2=new Date();box.innerHTML+=`<div class="cmsg"><div class="bub them">${rs[Math.floor(Math.random()*rs.length)]}</div><div class="mt">${t2.getHours()}:${String(t2.getMinutes()).padStart(2,'0')}</div></div>`;box.scrollTop=box.scrollHeight;},1200);
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* MODALS */
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
+function addListing(){cm('nlMod');uploadedFiles=[];document.getElementById('fileList').innerHTML='';toast('Listing added with '+(uploadedFiles.length||0)+' files.');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+
+/* TOAST */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200);}
+
+renderFeat();
+</script>
+</body>
+</html>
