@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Browse Listings</title>
+<link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="location.href='home.html'">Home</button>
+    <button class="sm-item" onclick="location.href='browse.html'">Browse Listings</button>
+    <div class="sm-div"></div>
+    <div id="sm-auth-links"></div>
+  </div>
+  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+</div>
+<nav>
+  <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-right">
+    <div class="prof-wrap">
+      <div class="prof-btn" id="prof-btn" onclick="toggleProf()">G</div>
+      <div class="prof-drop" id="prof-drop">
+        <div class="pd-head"><div class="pd-name" id="pd-name">Guest</div><div class="pd-role" id="pd-role">Not signed in</div></div>
+        <div id="pd-links"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+<main>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Browse</div><h2>All Listings</h2></div><span id="rc" style="font-size:13px;color:var(--mu)"></span></div>
+    <div class="fr" id="frow"></div>
+    <div class="lg" id="browse-grid"></div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="f-logo">Home Finder</div><p>Connecting buyers and sellers across every city.</p></div>
+      <div><div class="f-col-title">Browse</div><ul class="f-links"><li><button onclick="setFlt('Houses')">Houses</button></li><li><button onclick="setFlt('Apartments')">Apartments</button></li><li><button onclick="setFlt('Studios')">Studios</button></li></ul></div>
+      <div><div class="f-col-title">Account</div><ul class="f-links"><li><button onclick="location.href='index.html'">Sign In</button></li><li><button onclick="location.href='signup.html'">Create Account</button></li></ul></div>
+      <div><div class="f-col-title">Company</div><ul class="f-links"><li><a href="#">About</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+  </footer>
+</main>
+<script>
+const USER=JSON.parse(sessionStorage.getItem('hf_user')||'null');
+if(!USER) location.href='index.html';
+function getData(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
+const LS=getData('hf_ls',[]);
+let flt=sessionStorage.getItem('hf_chip')||'All';
+sessionStorage.removeItem('hf_chip');
+
+// Apply any search filter from home page
+const fltSaved=getData('hf_flt',null);
+if(fltSaved){sessionStorage.removeItem('hf_flt');}
+
+const FLTS=["All","Houses","Apartments","Studios","Kolonaki","Plaka","Glyfada","Monastiraki","Kifisia","Exarchia"];
+
+function setupNav(){
+  const pb=document.getElementById('prof-btn');
+  const pdl=document.getElementById('pd-links');
+  if(USER){
+    pb.textContent=USER.initials;
+    document.getElementById('pd-name').textContent=USER.name;
+    document.getElementById('pd-role').textContent=USER.role;
+    const dashUrl={admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[USER.role]||'home.html';
+    pdl.innerHTML=`<button class="pd-item" onclick="location.href='${dashUrl}'">My Dashboard</button><button class="pd-item" onclick="logout()">Sign Out</button>`;
+    document.getElementById('sm-auth-links').innerHTML=`<button class="sm-item" onclick="location.href='${dashUrl}'">My Dashboard</button><button class="sm-item" onclick="logout()">Sign Out</button>`;
+  } else {
+    pdl.innerHTML=`<button class="pd-item" onclick="location.href='index.html'">Sign In</button><button class="pd-item" onclick="location.href='signup.html'">Create Account</button>`;
+  }
+}
+setupNav();
+
+function card(l){
+  return `<div class="lc" onclick="openL(${l.id})"><div class="li-img">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div></div></div>`;
+}
+
+function renderBrowse(){
+  document.getElementById('frow').innerHTML=FLTS.map(f=>`<button class="chip${f===flt?' on':''}" onclick="setFlt('${f}')">${f}</button>`).join('');
+  let arr=flt==="All"?LS:LS.filter(l=>l.type===flt||l.type===flt.replace(/s$/,'')||l.city===flt);
+  if(fltSaved){
+    arr=LS.filter(l=>{let ok=true;const{q,t,p}=fltSaved;if(q)ok=ok&&(l.address.toLowerCase().includes(q)||l.city.toLowerCase().includes(q));if(t)ok=ok&&l.type===t;if(p==='Under €300k')ok=ok&&l.raw<300000;if(p==='€300k–€600k')ok=ok&&l.raw>=300000&&l.raw<=600000;if(p==='€600k+')ok=ok&&l.raw>600000;return ok;});
+  }
+  document.getElementById('rc').textContent=arr.length+(arr.length===1?' result':' results');
+  document.getElementById('browse-grid').innerHTML=arr.length?arr.map(card).join(''):'<p style="padding:32px;color:var(--mu);grid-column:1/-1">No listings found.</p>';
+}
+function setFlt(f){flt=f;renderBrowse();}
+function openL(id){sessionStorage.setItem('hf_cur',id);location.href='listing.html';}
+function logout(){sessionStorage.removeItem('hf_user');location.href='index.html';}
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+renderBrowse();
+</script>
+</body>
+</html>

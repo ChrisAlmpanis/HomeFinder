@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+/* Athens hero with green tint */
+.hero{
+  color:var(--w);border-bottom:3px solid var(--gd);text-align:center;
+  background:
+    linear-gradient(rgba(15,70,38,0.68),rgba(8,48,24,0.78)),
+    url('https://images.unsplash.com/photo-1603565816030-6987515cc1d8?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+  padding:72px 40px;
+}
+.hero-inner{max-width:620px;margin:0 auto}
+.hero h1{font-size:34px;font-weight:700;margin-bottom:12px;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+.hero p{font-size:15px;color:rgba(255,255,255,.85);margin-bottom:30px;line-height:1.65}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hero-stats{display:flex;gap:0;margin-top:44px;border-top:1px solid rgba(255,255,255,.25);padding-top:28px;max-width:400px;margin-left:auto;margin-right:auto}
+.hstat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.18)}.hstat:last-child{border-right:none}
+.hstat-n{font-size:26px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.3)}.hstat-l{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="go('home.html')">Home</button>
+    <button class="sm-item" onclick="go('browse.html')">Browse Listings</button>
+    <div class="sm-div"></div>
+    <div id="sm-auth-links"></div>
+  </div>
+  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+</div>
+<nav>
+  <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+  <div class="nav-center"><button class="logo" onclick="go('home.html')">Home Finder</button></div>
+  <div class="nav-right">
+    <div class="prof-wrap">
+      <div class="prof-btn" id="prof-btn" onclick="toggleProf()">G</div>
+      <div class="prof-drop" id="prof-drop">
+        <div class="pd-head"><div class="pd-name" id="pd-name">Guest</div><div class="pd-role" id="pd-role">Not signed in</div></div>
+        <div id="pd-links"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Find Your Perfect Home</h1>
+      <p>Connect with verified sellers. Browse listings across every city. Book viewings in seconds.</p>
+      <div class="hero-btns">
+        <button class="btn-lg btn-lg-w" onclick="go('browse.html')">Browse Listings</button>
+        <button class="btn-lg btn-lg-o" onclick="go('signup.html')">Create Account</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-n">2,400</div><div class="hstat-l">Listings</div></div>
+        <div class="hstat"><div class="hstat-n">890</div><div class="hstat-l">Sellers</div></div>
+        <div class="hstat"><div class="hstat-n">12K</div><div class="hstat-l">Buyers</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sw">
+    <div class="sb">
+      <input type="text" id="hs" placeholder="Search by city, postcode, or address..." onkeydown="if(event.key==='Enter')hSearch()"/>
+      <select id="ht"><option value="">Any type</option><option>House</option><option>Apartment</option><option>Studio</option></select>
+      <select id="hp"><option value="">Any price</option><option>Under €300k</option><option>€300k–€600k</option><option>€600k+</option></select>
+      <button class="sbtn" onclick="hSearch()">Search</button>
+    </div>
+  </div>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Featured</div><h2>New Listings</h2></div><button class="sh-link" onclick="go('browse.html')">View All →</button></div>
+    <div class="lg" id="feat-grid"></div>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="f-logo">Home Finder</div><p>Connecting buyers and sellers across every city. Find your perfect home, or list yours with confidence.</p><div class="f-socials"><span class="f-social">X</span><span class="f-social">IG</span><span class="f-social">in</span><span class="f-social">fb</span></div></div>
+      <div><div class="f-col-title">Browse</div><ul class="f-links"><li><button onclick="go('browse.html')">All Listings</button></li><li><button onclick="goFlt('Houses')">Houses</button></li><li><button onclick="goFlt('Apartments')">Apartments</button></li><li><button onclick="goFlt('Studios')">Studios</button></li></ul></div>
+      <div><div class="f-col-title">Account</div><ul class="f-links"><li><button onclick="go('index.html')">Sign In</button></li><li><button onclick="go('signup.html')">Create Account</button></li><li><button onclick="go('buyer-dash.html')">Buyer Dashboard</button></li><li><button onclick="go('seller-dash.html')">Seller Dashboard</button></li></ul></div>
+      <div><div class="f-col-title">Company</div><ul class="f-links"><li><a href="#">About Us</a></li><li><a href="#">How it Works</a></li><li><a href="#">Contact</a></li><li><a href="#">Careers</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><div class="f-copy">© 2024 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Cookies</a></div></div>
+  </footer>
+</main>
+<script>
+const USER=JSON.parse(sessionStorage.getItem('hf_user')||'null');
+if(!USER) location.href='index.html';
+
+function getData(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
+const LS=getData('hf_ls',[]);
+
+function setupNav(){
+  const pb=document.getElementById('prof-btn');
+  const pdl=document.getElementById('pd-links');
+  if(USER){
+    pb.textContent=USER.initials;
+    document.getElementById('pd-name').textContent=USER.name;
+    document.getElementById('pd-role').textContent=USER.role;
+    const dashUrl={admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[USER.role]||'home.html';
+    pdl.innerHTML=`<button class="pd-item" onclick="go('${dashUrl}')">My Dashboard</button><button class="pd-item" onclick="go('browse.html')">Browse Listings</button><button class="pd-item" onclick="logout()">Sign Out</button>`;
+    document.getElementById('sm-auth-links').innerHTML=`<button class="sm-item" onclick="go('${dashUrl}')">My Dashboard</button><button class="sm-item" onclick="logout()">Sign Out</button>`;
+  } else {
+    pdl.innerHTML=`<button class="pd-item" onclick="go('index.html')">Sign In</button><button class="pd-item" onclick="go('signup.html')">Create Account</button>`;
+    document.getElementById('sm-auth-links').innerHTML=`<button class="sm-item" onclick="go('index.html')">Sign In</button><button class="sm-item" onclick="go('signup.html')">Create Account</button>`;
+  }
+}
+setupNav();
+
+function card(l){
+  return `<div class="lc" onclick="openL(${l.id})"><div class="li-img">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div></div></div>`;
+}
+document.getElementById('feat-grid').innerHTML=LS.slice(0,4).map(card).join('');
+
+function openL(id){sessionStorage.setItem('hf_cur',id);location.href='listing.html';}
+function hSearch(){
+  const q=document.getElementById('hs').value.trim().toLowerCase();
+  const t=document.getElementById('ht').value;
+  const p=document.getElementById('hp').value;
+  sessionStorage.setItem('hf_flt',JSON.stringify({q,t,p}));
+  location.href='browse.html';
+}
+function goFlt(f){sessionStorage.setItem('hf_chip',f);location.href='browse.html';}
+function go(u){location.href=u;}
+function logout(){sessionStorage.removeItem('hf_user');location.href='index.html';}
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+let openPd=null;
+function toggleProf(){const pd=document.getElementById('prof-drop');pd.classList.toggle('on');openPd=pd;}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap')){const pd=document.getElementById('prof-drop');pd.classList.remove('on');}});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+</script>
+</body>
+</html>

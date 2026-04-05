@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Listing</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--br);border:1px solid var(--br)}
+.cal-grid .empty{background:var(--off);min-height:64px}
+.cal-month-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-month-hdr span{font-size:14px;font-weight:700;color:var(--bl)}
+.cal-day{background:var(--w);min-height:64px;padding:7px;border-top:1px solid var(--br);cursor:pointer;transition:background .1s}
+.cal-day:hover:not(.booked):not(.past){background:#f0f9f5}
+.cal-day.booked{background:#fce8e8;cursor:not-allowed}
+.cal-day.selected{background:var(--gl);outline:2px solid var(--g)}
+.cal-day.past{background:var(--off);cursor:not-allowed;color:var(--li)}
+.cal-day-num{font-size:13px;font-weight:600;margin-bottom:3px}
+.cal-booked-lbl{font-size:8px;color:#a03030;font-weight:600;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- BOOKING MODAL with ← back button in green header -->
+<div class="ov" id="bkMod">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="cm('bkMod')">← Back</button>
+      <h2>Book a Viewing</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <p id="bk-txt">Select an available date in April 2024.</p>
+      <!-- April 2024 calendar -->
+      <div class="cal-month-hdr">
+        <span>📅 April 2024</span>
+        <span style="font-size:12px;color:var(--mu)">Red = already booked</span>
+      </div>
+      <div class="cal-grid" id="book-cal"></div>
+      <div class="fg" style="margin-top:14px"><label class="fl">Selected Date</label><input type="text" class="fi" id="sel-date" placeholder="Click a date above" readonly/></div>
+      <div class="fg"><label class="fl">Time Slot</label>
+        <select class="fi" id="sel-time"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>3:30 PM</option><option>5:00 PM</option></select>
+      </div>
+      <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="bk-name" placeholder="Full name"/></div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:150px" onclick="confirmBook()">Confirm</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('bkMod')">← Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="location.href='home.html'">Home</button>
+    <button class="sm-item" onclick="location.href='browse.html'">Browse Listings</button>
+    <div class="sm-div"></div>
+    <div id="sm-auth-links"></div>
+  </div>
+  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+</div>
+<nav>
+  <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-right">
+    <div class="prof-wrap">
+      <div class="prof-btn" id="prof-btn" onclick="toggleProf()">G</div>
+      <div class="prof-drop" id="prof-drop">
+        <div class="pd-head"><div class="pd-name" id="pd-name">Guest</div><div class="pd-role" id="pd-role"></div></div>
+        <div id="pd-links"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+<main>
+  <div id="prop-hero" class="dh">
+    <span id="photo-ph">Property Photo</span>
+    <button class="bkbtn" onclick="location.href='browse.html'">← Back to Listings</button>
+  </div>
+  <div class="db" id="detail-body"></div>
+  <footer class="site-footer">
+    <div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+  </footer>
+</main>
+<script>
+const USER=JSON.parse(sessionStorage.getItem('hf_user')||'null');
+if(!USER) location.href='index.html';
+function getData(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
+function setData(k,v){sessionStorage.setItem(k,JSON.stringify(v));}
+const LS=getData('hf_ls',[]);
+let BOOKED=getData('hf_booked',[8,10,12,15]);
+let APPTS=getData('hf_appts',[]);
+const curId=parseInt(sessionStorage.getItem('hf_cur')||'1');
+const L=LS.find(l=>l.id===curId)||LS[0];
+let selectedDay=null;
+
+// Setup hero image
+if(L&&L.img){
+  const hero=document.getElementById('prop-hero');
+  hero.style.backgroundImage=`linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.35)), url('${L.img}')`;
+  hero.style.backgroundSize='cover';
+  hero.style.backgroundPosition='center';
+  document.getElementById('photo-ph').style.display='none';
+}
+
+function setupNav(){
+  if(USER){
+    document.getElementById('prof-btn').textContent=USER.initials;
+    document.getElementById('pd-name').textContent=USER.name;
+    document.getElementById('pd-role').textContent=USER.role;
+    const dashUrl={admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[USER.role]||'home.html';
+    document.getElementById('pd-links').innerHTML=`<button class="pd-item" onclick="location.href='${dashUrl}'">My Dashboard</button><button class="pd-item" onclick="logout()">Sign Out</button>`;
+    document.getElementById('sm-auth-links').innerHTML=`<button class="sm-item" onclick="location.href='${dashUrl}'">My Dashboard</button><button class="sm-item" onclick="logout()">Sign Out</button>`;
+  } else {
+    document.getElementById('pd-links').innerHTML=`<button class="pd-item" onclick="location.href='index.html'">Sign In</button>`;
+  }
+}
+setupNav();
+
+function renderDetail(){
+  document.title='Home Finder — '+L.address;
+  document.getElementById('detail-body').innerHTML=`
+    <div class="dm">
+      <div class="dp">${L.price}</div>
+      <div class="da">${L.address}</div>
+      <div class="specs">
+        <div><div class="sv">${L.beds}</div><div class="sl2">Bedrooms</div></div>
+        <div><div class="sv">${L.baths}</div><div class="sl2">Bathrooms</div></div>
+        <div><div class="sv">${L.sqft}</div><div class="sl2">Size</div></div>
+        <div><div class="sv">${L.type}</div><div class="sl2">Type</div></div>
+      </div>
+      <p class="ddesc">${L.desc}</p>
+      <div class="ssl" style="margin-bottom:10px">Location — Athens, Greece</div>
+      <div class="mph"><span>${L.city} · Athens · Greece</span></div>
+    </div>
+    <div class="ds">
+      <div class="ssec">
+        <div class="ssl">Listed By</div>
+        <div class="sc"><div class="av">${L.si}</div><div><div class="sn">${L.seller}</div><div class="si2">Verified Seller</div></div></div>
+        <button class="bbook" onclick="openBook()">Book a Viewing</button>
+        <button class="bchat" onclick="location.href='chat.html'">Message Seller</button>
+      </div>
+      <div class="ssec">
+        <div class="ssl">Contact</div>
+        <div style="font-size:13px;color:var(--mu);line-height:2">
+          <div>${L.seller.toLowerCase().replace(/\s/g,'.')}@homefinder.gr</div>
+          <div>+30 210 555 0${100+L.id}</div>
+        </div>
+      </div>
+      <div class="ssec">
+        <div class="ssl">Next Available Slots</div>
+        ${[7,9,11,13,14].filter(d=>!BOOKED.includes(d)).slice(0,3).map(d=>`<div class="aslot">Apr ${d} — 10:00 AM</div>`).join('')}
+      </div>
+    </div>`;
+}
+renderDetail();
+
+// ── MAY 2025 CALENDAR ──
+// May 1, 2025 = Thursday → Monday-first offset = 3
+const MAY_DAYS = 31;
+const MAY_OFFSET = 3; // Mon=0, Tue=1, Wed=2 empty before Thu May 1
+
+function buildCal(containerId, inputId){
+  BOOKED = getData('hf_booked',[8,14,20,22]);
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = dayNames.map(d=>`<div class="cal-head">${d}</div>`).join('');
+
+  // Empty cells before May 1
+  for(let i=0;i<MAY_OFFSET;i++){
+    html+=`<div class="cal-day past empty"></div>`;
+  }
+
+  for(let d=1;d<=MAY_DAYS;d++){
+    const booked=BOOKED.includes(d);
+    const past=d<5; // first few days passed in demo
+    let cls='cal-day'+(booked?' booked':past?' past':'');
+    html+=`<div class="${cls}" onclick="selDay(${d},'${inputId}',this)">
+      <div class="cal-day-num">${d}</div>
+      ${booked?'<div class="cal-booked-lbl">Booked</div>':''}
+    </div>`;
+  }
+
+  // Pad trailing cells
+  const total = MAY_OFFSET + MAY_DAYS;
+  const pad = (7 - (total % 7)) % 7;
+  for(let i=0;i<pad;i++) html+=`<div class="cal-day past empty"></div>`;
+
+  document.getElementById(containerId).innerHTML=html;
+}
+
+function selDay(d,inputId,el){
+  if(el.classList.contains('booked')){toast('This date is already booked. Please choose another.');return;}
+  if(el.classList.contains('past')){toast('This date has passed.');return;}
+  document.querySelectorAll('#book-cal .cal-day').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(inputId).value='May '+d+', 2025';
+  selectedDay=d;
+}
+
+function openBook(){
+  document.getElementById('bk-txt').textContent='Viewing for: '+L.address;
+  document.getElementById('sel-date').value='';
+  selectedDay=null;
+  buildCal('book-cal','sel-date');
+  om('bkMod');
+}
+
+function confirmBook(){
+  if(!selectedDay){toast('Please select a date on the calendar first.');return;}
+  BOOKED.push(selectedDay);
+  setData('hf_booked',BOOKED);
+  const time=document.getElementById('sel-time').value;
+  const name=document.getElementById('bk-name').value||USER.name;
+  APPTS=getData('hf_appts',[]);
+  APPTS.push({id:Date.now(),buyer:name,buyerId:USER.role,seller:L.seller,property:L.address.split(',')[0],date:'Apr '+selectedDay,time,loc:L.city,status:'confirmed'});
+  setData('hf_appts',APPTS);
+  cm('bkMod');
+  toast('✓ Viewing booked for April '+selectedDay+' at '+time+'!');
+}
+
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+function logout(){sessionStorage.removeItem('hf_user');location.href='index.html';}
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200);}
+</script>
+</body>
+</html>

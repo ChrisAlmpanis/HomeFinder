@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Seller Dashboard</title>
+<link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- NEW LISTING MODAL -->
+<div class="ov" id="nlMod">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="cm('nlMod')">← Back</button>
+      <h2>New Listing</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <p>Add a new property. Drag and drop photos or videos below.</p>
+      <div class="frow">
+        <div class="fg"><label class="fl">Title</label><input type="text" class="fi" placeholder="3-Bed House"/></div>
+        <div class="fg"><label class="fl">Price (€)</label><input type="number" class="fi" placeholder="450000"/></div>
+      </div>
+      <div class="fg"><label class="fl">Address</label><input type="text" class="fi" placeholder="Full address"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Type</label><select class="fi"><option>House</option><option>Apartment</option><option>Studio</option><option>Townhouse</option></select></div>
+        <div class="fg"><label class="fl">Bedrooms</label><input type="number" class="fi" placeholder="3" min="1"/></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Bathrooms</label><input type="number" class="fi" placeholder="2" min="1"/></div>
+        <div class="fg"><label class="fl">Size (sqft)</label><input type="number" class="fi" placeholder="1200"/></div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" rows="2" style="resize:vertical" placeholder="Describe the property..."></textarea></div>
+      <div class="fg">
+        <label class="fl">Photos & Videos</label>
+        <div class="drop-zone" id="dropZone">
+          <p>Drag &amp; drop photos or videos here</p>
+          <span>Supports JPG, PNG, MP4 — Max 5MB each</span><br>
+          <label class="drop-label" for="fileInput">Browse Files</label>
+          <input type="file" id="fileInput" multiple accept="image/*,video/*" onchange="handleFiles(this.files)"/>
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:140px" onclick="addListing()">Add Listing</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('nlMod')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="location.href='home.html'">Home</button>
+    <button class="sm-item" onclick="location.href='browse.html'">Browse Listings</button>
+    <div class="sm-div"></div>
+    <button class="sm-item" onclick="logout()">Sign Out</button>
+  </div>
+  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+</div>
+<nav>
+  <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-right">
+    <div class="prof-wrap">
+      <div class="prof-btn" id="prof-btn" onclick="toggleProf()">SM</div>
+      <div class="prof-drop" id="prof-drop">
+        <div class="pd-head"><div class="pd-name" id="pd-name">Sarah Mitchell</div><div class="pd-role">Seller</div></div>
+        <button class="pd-item" onclick="showTab('listings')">My Listings</button>
+        <button class="pd-item" onclick="showTab('appointments')">View Appointments</button>
+        <button class="pd-item" onclick="showTab('profile')">Edit Profile</button>
+        <button class="pd-item" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<main>
+<div class="dl">
+  <div class="sb2">
+    <div class="sbu">
+      <div class="sbav" id="sb-av">SM</div>
+      <div class="sbnm" id="sb-name">Sarah Mitchell</div>
+      <div class="sbrl">Seller</div>
+    </div>
+    <div class="sbmenu">
+      <button class="sbi" onclick="showTab('overview')">Overview</button>
+      <button class="sbi on" onclick="showTab('listings')">My Listings</button>
+      <button class="sbi" onclick="showTab('appointments')">Appointments</button>
+      <button class="sbi" onclick="showTab('calendar')">Calendar</button>
+      <button class="sbi" onclick="showTab('profile')">Edit Profile</button>
+    </div>
+  </div>
+  <div class="dash-inner">
+    <div class="dash-banner">
+      <div class="dash-banner-txt">
+        <h3>Athens Real Estate Dashboard</h3>
+        <p>Manage your listings across Athens' finest neighbourhoods</p>
+      </div>
+    </div>
+    <div class="mp" id="mp"></div>
+  </div>
+</div>
+<footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2024 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</main>
+<script>
+const USER=JSON.parse(sessionStorage.getItem('hf_user')||'null');
+if(!USER||USER.role!=='seller') location.href='index.html';
+function getData(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
+function setData(k,v){sessionStorage.setItem(k,JSON.stringify(v));}
+let APPTS=getData('hf_appts',[]);
+let BOOKED=getData('hf_booked',[8,10,12,15]);
+const LS=getData('hf_ls',[]);
+let uploadedFiles=[];
+
+if(USER){
+  document.getElementById('prof-btn').textContent=USER.initials;
+  document.getElementById('pd-name').textContent=USER.name;
+  document.getElementById('sb-av').textContent=USER.initials;
+  document.getElementById('sb-name').textContent=USER.name;
+}
+
+function card(l){
+  return `<div class="lc"><div class="li-img">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div><div class="li-acts"><button class="bsm bsm-g" onclick="om('nlMod')">Edit</button><button class="bsm bsm-o" onclick="toast('Listing removed')">Delete</button></div></div></div>`;
+}
+
+function showTab(t){
+  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','listings','appointments','calendar','profile'][i]===t));
+  APPTS=getData('hf_appts',[]);
+  const mp=document.getElementById('mp');
+  if(t==='overview'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Overview</h2></div></div>
+      <div class="srow">${[['6','Active Listings'],[''+APPTS.length,'Appointments'],['89','Views'],['3','Messages']].map(([n,l])=>`<div class="sc2"><div class="sbig">${n}</div><div class="slb">${l}</div></div>`).join('')}</div>
+      <div class="sh"><div><div class="stag">Recent</div><h2 style="font-size:16px">Appointments</h2></div></div>
+      <table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${APPTS.slice(0,4).map(a=>`<tr><td>${a.buyer}</td><td>${a.property}</td><td>${a.date}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+  } else if(t==='listings'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>My Listings</h2></div><button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="om('nlMod')">+ New Listing</button></div>
+      <div class="lg">${LS.slice(0,4).map(card).join('')}</div>`;
+  } else if(t==='appointments'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Appointments</h2></div></div>
+      <div class="infomsg">You can view appointments but cannot edit them. Buyers manage their own bookings.</div>
+      <table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody>${APPTS.map(a=>`<tr><td>${a.buyer}</td><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td>${a.loc}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+  } else if(t==='calendar'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Calendar</h2></div><span style="font-size:13px;color:var(--mu)">April 2024</span></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:14px">Red dates are already booked and blocked for new appointments.</p>
+      <div class="cal-grid">
+        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-head">${d}</div>`).join('')}
+        ${Array.from({length:14},(_,i)=>i+7).map(d=>{const booked=BOOKED.includes(d);const evt=APPTS.find(a=>parseInt((a.date||'').split(' ')[1])===d);return`<div class="cal-day${booked?' booked':''}"><div class="cal-day-num">${d}</div>${booked?'<div class="cal-booked-lbl">Booked</div>':evt?`<div class="cal-event">${evt.buyer} ${evt.time}</div>`:''}</div>`;}).join('')}
+      </div>`;
+  } else if(t==='profile'){
+    const nm=USER.name.split(' ');
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Edit Profile</h2></div></div>
+      <div style="max-width:400px">
+        <div class="frow"><div class="fg"><label class="fl">First Name</label><input type="text" class="fi" value="${nm[0]||'Sarah'}"/></div><div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" value="${nm[1]||'Mitchell'}"/></div></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="sarah.m@email.com"/></div>
+        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" value="+1 (503) 555-0192"/></div>
+        <div class="fg"><label class="fl">Company</label><input type="text" class="fi" value="Mitchell Realty"/></div>
+        <div class="fg"><label class="fl">Bio</label><textarea class="fi" rows="3" style="resize:vertical">Experienced seller with 5+ years in the Portland market.</textarea></div>
+        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="toast('Profile saved')">Save Changes</button>
+      </div>`;
+  }
+}
+
+// Drag & drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');handleFiles(e.dataTransfer.files);});
+function handleFiles(files){
+  Array.from(files).forEach(f=>{
+    if(f.size>5*1024*1024){toast(f.name+' exceeds 5MB');return;}
+    uploadedFiles.push(f);
+    document.getElementById('fileList').innerHTML+=`<div class="file-item"><span>📎 ${f.name} (${(f.size/1024).toFixed(0)}KB)</span><button onclick="this.parentNode.remove()">×</button></div>`;
+  });
+}
+function addListing(){cm('nlMod');uploadedFiles=[];document.getElementById('fileList').innerHTML='';toast('Listing added successfully!');}
+
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+function logout(){sessionStorage.removeItem('hf_user');location.href='index.html';}
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+showTab('listings');
+</script>
+</body>
+</html>
