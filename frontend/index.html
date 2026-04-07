@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Sign In</title>
+<link rel="stylesheet" href="css/shared.css"/>
+<style>
+body{background:none;display:block;min-height:100vh}
+.login-wrap{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:
+    linear-gradient(rgba(15,70,38,0.72),rgba(8,48,24,0.82)),
+    url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=1920&h=1080&fit=crop&q=80') center/cover no-repeat;
+  padding:24px;
+}
+.login-box{background:var(--w);width:100%;max-width:400px;border:1px solid var(--br)}
+.login-header{background:var(--g);padding:24px;text-align:center;color:var(--w)}
+.login-header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.login-header p{font-size:13px;color:rgba(255,255,255,.7)}
+.login-body{padding:28px}
+.spinner{display:none;text-align:center;padding:8px 0;font-size:13px;color:var(--mu)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-header">
+      <h1>Home Finder</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+    <div class="login-body">
+      <div class="emsg" id="lerr">Incorrect email or password.</div>
+      <div class="fg">
+        <label class="fl">Email</label>
+        <input type="email" class="fi" id="lu" placeholder="you@email.com" autofocus/>
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input type="password" class="fi" id="lp" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div style="text-align:right;margin-bottom:20px;margin-top:4px">
+        <button class="lbtn" onclick="toast('Password reset coming soon.')">Forgot password?</button>
+      </div>
+      <div class="spinner" id="spinner">Signing in...</div>
+      <button class="bfu bfu-g" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
+      <button class="bfu bfu-o" onclick="location.href='signup.html'">Create Account</button>
+      <p style="font-size:11px;color:var(--li);margin-top:18px;text-align:center;line-height:1.8">
+        Demo logins:<br/>
+        Seller: <strong style="color:var(--mu)">sarah.m@homefinder.com</strong> / <strong style="color:var(--mu)">pass123</strong><br/>
+        Buyer: <strong style="color:var(--mu)">james.t@homefinder.com</strong> / <strong style="color:var(--mu)">buyer123</strong><br/>
+        Admin: <strong style="color:var(--mu)">admin@homefinder.com</strong> / <strong style="color:var(--mu)">12345678</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+// Redirect if already logged in
+if (getUser()) {
+  const u = getUser();
+  location.href = u.role === 'admin' ? 'admin-dash.html'
+               : u.role === 'seller' ? 'seller-dash.html'
+               : 'home.html';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('lu').value.trim();
+  const password = document.getElementById('lp').value;
+  const errEl    = document.getElementById('lerr');
+  const spinner  = document.getElementById('spinner');
+  const btn      = document.getElementById('loginBtn');
+
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Show loading state
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  spinner.style.display = 'block';
+
+  try {
+    const data = await apiLogin(email, password);
+
+    if (data.error) {
+      errEl.textContent = data.error;
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Save user + token to sessionStorage
+    saveUser({
+      _id:       data.user._id,
+      name:      data.user.name,
+      email:     data.user.email,
+      role:      data.user.role,
+      initials:  data.user.name.substring(0, 2).toUpperCase(),
+      isApproved:data.user.isApproved,
+      token:     data.token
+    });
+
+    toast('Welcome, ' + data.user.name + '!');
+
+    // Redirect based on role
+    setTimeout(() => {
+      if (data.user.role === 'admin')       location.href = 'admin-dash.html';
+      else if (data.user.role === 'seller') location.href = 'seller-dash.html';
+      else                                  location.href = 'home.html';
+    }, 600);
+
+  } catch (err) {
+    errEl.textContent = 'Server error. Make sure the backend is running.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+    spinner.style.display = 'none';
+  }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('on'), 3000);
+}
+</script>
+</body>
+</html>

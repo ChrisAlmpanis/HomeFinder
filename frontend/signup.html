@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Create Account</title>
+<link rel="stylesheet" href="css/shared.css"/>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav>
+  <div class="nav-left"></div>
+  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-right"></div>
+</nav>
+<main>
+<div class="fp">
+  <div class="fbox">
+    <div class="ftitle">Create Account</div>
+    <div class="fsub">Join Home Finder as a buyer or seller.</div>
+    <div class="infomsg" id="reg-note" style="display:none">⚠ Buyer accounts require admin approval before you can access the platform.</div>
+    <div class="fl" style="margin-bottom:10px">I am a</div>
+    <div class="rgrid">
+      <div class="rc on" id="r-buyer" onclick="selRole('buyer')"><div class="rl">Buyer</div><div style="font-size:11px;color:var(--mu);margin-top:4px;font-weight:400">I want to find a home</div></div>
+      <div class="rc" id="r-seller" onclick="selRole('seller')"><div class="rl">Seller</div><div style="font-size:11px;color:var(--mu);margin-top:4px;font-weight:400">I want to list a property</div></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" placeholder="Jane"/></div>
+      <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" placeholder="Smith"/></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input type="email" class="fi" placeholder="you@email.com"/></div>
+    <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" placeholder="+1 (000) 000-0000"/></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" placeholder="••••••••"/></div>
+      <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" placeholder="••••••••"/></div>
+    </div>
+    <div id="co-field" style="display:none" class="fg"><label class="fl">Company (optional)</label><input type="text" class="fi" placeholder="Acme Realty"/></div>
+    <button class="bfu bfu-g" style="margin-top:8px" onclick="doSignup()">Create Account</button>
+    <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
+    <button class="bfu bfu-o" onclick="location.href='index.html'">Back to Sign In</button>
+  </div>
+</div>
+</main>
+<script src="js/auth.js"></script>
+<script>
+
+let role='buyer';
+function selRole(r){
+  role=r;
+  ['buyer','seller'].forEach(x=>document.getElementById('r-'+x).classList.remove('on'));
+  document.getElementById('r-'+r).classList.add('on');
+  document.getElementById('co-field').style.display=r==='seller'?'block':'none';
+  document.getElementById('reg-note').style.display=r==='buyer'?'block':'none';
+}
+async function doSignup(){
+  const inputs = document.querySelectorAll('.frow .fi, .fg .fi');
+  const firstName = document.querySelectorAll('.frow .fi')[0].value.trim();
+  const lastName  = document.querySelectorAll('.frow .fi')[1].value.trim();
+  const email     = document.querySelector('input[type=email]').value.trim();
+  const password  = document.querySelectorAll('input[type=password]')[0].value;
+  const confirm   = document.querySelectorAll('input[type=password]')[1].value;
+  const company   = document.getElementById('co-field').querySelector('.fi').value.trim();
+
+  if(!firstName||!lastName||!email||!password){ toast('Please fill in all fields.'); return; }
+  if(password !== confirm){ toast('Passwords do not match.'); return; }
+  if(password.length < 6){ toast('Password must be at least 6 characters.'); return; }
+
+  const data = await apiRegister({
+    name: firstName + ' ' + lastName,
+    email, password, role,
+    agencyName: company || undefined
+  });
+
+  if(data.error){ toast(data.error); return; }
+
+  toast(role==='buyer' ? 'Account created! Awaiting admin approval.' : 'Account created! Welcome aboard.');
+  setTimeout(()=>location.href='index.html', 1500);
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+</script>
+</body>
+</html>
