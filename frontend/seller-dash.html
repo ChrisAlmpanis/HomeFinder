@@ -177,12 +177,40 @@ function showTab(t){
       <table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
       <tbody>${APPTS.map(a=>`<tr><td>${a.buyer}</td><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td>${a.loc}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
   } else if(t==='calendar'){
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Calendar</h2></div><span style="font-size:13px;color:var(--mu)">April 2024</span></div>
-      <p style="font-size:12px;color:var(--mu);margin-bottom:14px">Red dates are already booked and blocked for new appointments.</p>
-      <div class="cal-grid">
-        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-head">${d}</div>`).join('')}
-        ${Array.from({length:14},(_,i)=>i+7).map(d=>{const booked=BOOKED.includes(d);const evt=APPTS.find(a=>parseInt((a.date||'').split(' ')[1])===d);return`<div class="cal-day${booked?' booked':''}"><div class="cal-day-num">${d}</div>${booked?'<div class="cal-booked-lbl">Booked</div>':evt?`<div class="cal-event">${evt.buyer} ${evt.time}</div>`:''}</div>`;}).join('')}
+    const now = new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const monthName = now.toLocaleString('en-US',{month:'long',timeZone:'Europe/Athens'});
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const offset = firstDay===0 ? 6 : firstDay-1;
+
+    const bookedDays = APPTS
+      .filter(a=>a.status!=='cancelled')
+      .map(a=>{
+        const d = new Date(a.scheduledAt||a.date);
+        return d.getMonth()===month && d.getFullYear()===year ? d.getDate() : null;
+      }).filter(Boolean);
+
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    let cells = days.map(d=>`<div class="cal-head">${d}</div>`).join('');
+    for(let i=0;i<offset;i++) cells+=`<div class="cal-day" style="background:var(--off)"></div>`;
+    for(let d=1;d<=daysInMonth;d++){
+      const isBooked = bookedDays.includes(d);
+      const isToday = d===now.getDate();
+      const appt = APPTS.find(a=>{
+        const ad=new Date(a.scheduledAt||a.date);
+        return ad.getDate()===d && ad.getMonth()===month && ad.getFullYear()===year && a.status!=='cancelled';
+      });
+      cells+=`<div class="cal-day${isBooked?' booked':''}${isToday?' selected':''}" style="position:relative;${isBooked?'background:#fce8e8;':''}">
+        <div class="cal-day-num" style="${isToday?'color:var(--g);font-weight:700;':''}">${d}</div>
+        ${isBooked?`<div style="position:absolute;top:50%;left:0;right:0;height:1.5px;background:#c0392b;transform:translateY(-50%);opacity:0.6;pointer-events:none"></div><div style="font-size:9px;color:#a03030;font-weight:600;text-transform:uppercase;margin-top:2px">${appt?appt.time||'Booked':'Booked'}</div>`:''}
       </div>`;
+    }
+
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Calendar</h2></div><span style="font-size:13px;color:var(--mu)">${monthName} ${year}</span></div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:14px">Dates with a line are booked. You can view only — buyers manage appointments.</p>
+      <div class="cal-grid">${cells}</div>`;
   } else if(t==='messages'){
     mp.innerHTML=`<div class="sh"><div><div class="stag">Seller</div><h2>Messages</h2></div></div>
       <div class="infomsg">Real-time chat with buyers is available here. Socket.io integration active.</div>

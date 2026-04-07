@@ -5,6 +5,37 @@
 <meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Create Account</title>
 <link rel="stylesheet" href="css/shared.css"/>
+<style>
+body{background:none}
+.fp{
+  min-height:calc(100vh - 56px);
+  background:
+    linear-gradient(rgba(15,70,38,0.72),rgba(8,48,24,0.82)),
+    url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=1920&h=1080&fit=crop&q=80') center/cover no-repeat fixed;
+}
+.fbox{
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.ftitle,.fsub{color:#fff}
+.fl{color:rgba(255,255,255,0.9)}
+.fi{background:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.4);color:#111}
+.fi::placeholder{color:#888}
+.fdl{background:rgba(255,255,255,0.3)}
+.fdt{color:rgba(255,255,255,0.6)}
+.rc{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:#fff}
+.rc .rl{color:#fff}
+.rc div{color:rgba(255,255,255,0.7)!important}
+.rc.on{background:rgba(255,255,255,0.3);border-color:#fff}
+.infomsg{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:#fff}
+nav{display:none}
+.fp{align-items:center;padding-top:60px}
+.fbox{padding:0}
+</style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -16,8 +47,11 @@
 <main>
 <div class="fp">
   <div class="fbox">
-    <div class="ftitle">Create Account</div>
-    <div class="fsub">Join Home Finder as a buyer or seller.</div>
+  <div style="background:var(--g);padding:24px;text-align:center;color:#fff;border-radius:16px 16px 0 0">
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px">Home Finder</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.7)">Create your account to continue</div>
+  </div>
+  <div style="padding:28px">
     <div class="infomsg" id="reg-note" style="display:none">⚠ Buyer accounts require admin approval before you can access the platform.</div>
     <div class="fl" style="margin-bottom:10px">I am a</div>
     <div class="rgrid">
@@ -38,6 +72,7 @@
     <button class="bfu bfu-g" style="margin-top:8px" onclick="doSignup()">Create Account</button>
     <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
     <button class="bfu bfu-o" onclick="location.href='index.html'">Back to Sign In</button>
+  </div>
   </div>
 </div>
 </main>

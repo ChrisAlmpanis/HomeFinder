@@ -11,7 +11,7 @@
 .view{display:none}.view.active{display:flex;flex-direction:column;min-height:calc(100vh - 56px)}
 
 /* ── HERO ── */
-.hero{color:#fff;border-bottom:3px solid var(--gd);text-align:center;position:relative;padding:80px 40px;overflow:hidden;min-height:460px;display:flex;align-items:center;justify-content:center}
+.hero{color:#fff;border-bottom:3px solid var(--gd);text-align:center;position:relative;padding:80px 40px;overflow:hidden;min-height:380px;display:flex;align-items:center;justify-content:center}
 .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0}
 .hero-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,50,24,.65) 0%,rgba(5,32,14,.8) 100%);z-index:1}
 .hero-inner{max-width:600px;margin:0 auto;position:relative;z-index:2;width:100%}
@@ -194,6 +194,8 @@
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 40px;border-top:1px solid rgba(255,255,255,.12);background:var(--gd)}
 .f-copy{font-size:12px;color:rgba(255,255,255,.45)}
 .f-legal{display:flex;gap:16px}.f-legal a{font-size:12px;color:rgba(255,255,255,.45);text-decoration:none}.f-legal a:hover{color:rgba(255,255,255,.8)}
+#view-home{min-height:100vh;display:flex;flex-direction:column}
+#view-home footer{margin-top:auto}
 
 @media(max-width:900px){
   .browse-wrap{grid-template-columns:1fr}.filter-sidebar{display:none;position:relative;top:0;max-height:none;border-right:none;border-bottom:1px solid var(--br)}.filter-sidebar.mob-open{display:block}
@@ -256,7 +258,7 @@
 <!-- ████ VIEW: HOME ████ -->
 <div class="view active" id="view-home">
   <div class="hero">
-    <img class="hero-bg" id="hero-img" src="https://images.unsplash.com/photo-1603565816030-6987515cc1d8?w=1600&h=900&fit=crop&q=80" alt="Athens" referrerpolicy="no-referrer" crossorigin="anonymous"
+    <img class="hero-bg" id="hero-img" src="https://images.unsplash.com/photo-1555993539-1732b0258235?w=1600&h=900&fit=crop&q=80" alt="Athens" referrerpolicy="no-referrer" crossorigin="anonymous"
          onerror="this.src='https://images.unsplash.com/photo-1555993539-1732b0258235?w=1600&h=900&fit=crop&q=80';this.onerror=null;"/>
     <div class="hero-tint"></div>
     <div class="hero-inner">
@@ -275,15 +277,11 @@
     </div>
   </div>
 
-  <footer class="site-footer">
-    <div class="footer-top">
-      <div class="footer-brand"><div class="f-logo">Home Finder</div><p>Find your perfect home across Athens. Verified sellers, real photos, instant bookings.</p></div>
-      <div><div class="f-col-title">Navigate</div><ul class="f-links"><li><button onclick="goView('browse')">Browse</button></li><li><button onclick="authLogout()">Sign Out</button></li></ul></div>
-      <div><div class="f-col-title">Company</div><ul class="f-links"><li><a href="#">About</a></li><li><a href="#">Contact</a></li></ul></div>
-    </div>
-    <div class="footer-bottom"><div class="f-copy">© 2025 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
-  </footer>
-</div>
+  <div class="ct">
+    <div class="sh"><div><div class="stag">Recently Added</div><h2>Latest Listings</h2></div></div>
+    <div class="lg" id="feat-grid"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
 
 <!-- ████ VIEW: BROWSE ████ -->
 <div class="view" id="view-browse">
@@ -378,6 +376,12 @@
   </div>
 </div>
 
+<!-- ████ VIEW: RECENTLY ADDED ████ -->
+ <div class="ct">
+    <div class="sh"><div><div class="stag">Recently Added</div><h2>Latest Listings</h2></div></div>
+    <div class="lg" id="feat-grid"></div>
+  </div>
+
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
@@ -421,9 +425,19 @@ function setHsMode(m){
 function heroSearch(){
   const loc = document.getElementById('hs-loc').value.trim();
   setMode(hsMode);
-  if(loc){ document.getElementById('search-loc').value=loc; }
+  if(loc){
+    const match = LS.find(l=>
+      l.location.toLowerCase().includes(loc.toLowerCase()) ||
+      l.city && l.city.toLowerCase().includes(loc.toLowerCase())
+    );
+    if(!match && loc.length > 0){
+      toast('No listings found for "'+loc+'". Try: Kolonaki, Plaka, Glyfada, Kifisia...');
+      return;
+    }
+    document.getElementById('search-loc').value = loc;
+  }
   goView('browse');
-  setTimeout(()=>applyFilters(),100);
+  setTimeout(()=>applyFilters(), 100);
 }
 function goView(name, opts={}) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -711,6 +725,8 @@ function sendMsg(){
   },1100);
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const fg = document.getElementById('feat-grid');
+if(fg) fg.innerHTML = LS.slice(0,6).map(card).join('');
 
 /* ── UTILS ── */
 function om(id){document.getElementById(id).classList.add('on');}
@@ -723,7 +739,30 @@ function toggleProf(){document.getElementById('prof-drop').classList.toggle('on'
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))closePd();});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200);}
 updateRange();
-loadListings().then(()=>renderHome());
+async function loadListings(){
+  try{
+    const res = await apiGetListings();
+    LS = res.listings||[];
+    LS = LS.map(l=>({
+      ...l,
+      id: l._id,
+      price: l.listingMode==='rent' ? '€'+l.price+'/mo' : '€'+l.price.toLocaleString(),
+      raw: l.price,
+      address: l.location,
+      city: l.location.split(',')[0].trim(),
+      img: l.files&&l.files[0] ? l.files[0].fileURL : '',
+      seller: l.sellerID ? (l.sellerID.name||'Seller') : 'Seller',
+      si: l.sellerID ? (l.sellerID.name||'S').substring(0,2).toUpperCase() : 'S',
+      desc: l.description||'',
+      addedDaysAgo: Math.floor((Date.now()-new Date(l.createdAt))/(1000*60*60*24))
+    }));
+  } catch(e){ console.error('Failed to load listings',e); }
+}
+loadListings().then(()=>{
+  renderHome();
+  const fg = document.getElementById('feat-grid');
+  if(fg) fg.innerHTML = LS.slice(0,6).map(card).join('');
+});
 </script>
 </body>
 </html>
