@@ -253,9 +253,9 @@ nav{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;height:5
 
 /* ── DASHBOARD ATHENS BANNER ── */
 .dash-banner{
-  height:190px;
+  height:180px;
   background:
-    linear-gradient(rgba(10,60,30,0.68),rgba(5,40,18,0.78)),
+    linear-gradient(rgba(10,58,28,0.72),rgba(5,38,18,0.82)),
     url('https://images.unsplash.com/photo-1603565816030-6987515cc1d8?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
   display:flex;align-items:flex-end;padding:22px 32px;flex-shrink:0;
 }

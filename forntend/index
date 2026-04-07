@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8"/>
+<meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Sign In</title>
 <link rel="stylesheet" href="shared.css"/>
 <style>
@@ -10,7 +11,7 @@ body{background:none;display:block;min-height:100vh}
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   background:
     linear-gradient(rgba(15,70,38,0.72),rgba(8,48,24,0.82)),
-    url('https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+    url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=1920&h=1080&fit=crop&q=80') center/cover no-repeat;
   padding:24px;
 }
 .login-box{background:var(--w);width:100%;max-width:400px;border:1px solid var(--br)}
@@ -47,17 +48,23 @@ body{background:none;display:block;min-height:100vh}
 </div>
 <script>
 function initData(){
+  // Version bump clears old cached data with wrong images
+  if(sessionStorage.getItem('hf_ver')!=='v4'){sessionStorage.clear();sessionStorage.setItem('hf_ver','v4');}
   if(!sessionStorage.getItem('hf_ls')){
-    sessionStorage.setItem('hf_ls',JSON.stringify([
-      {id:1,price:"€485,000",raw:485000,address:"Kolonaki, Athens",city:"Kolonaki",type:"Apartment",beds:3,baths:2,sqft:"120 m²",desc:"Elegant three-bedroom apartment in prestigious Kolonaki. High ceilings, marble floors and a balcony with Acropolis views. Walking distance to top restaurants and boutiques.",seller:"Yannis Papadopoulos",si:"YP",img:"https://images.unsplash.com/photo-1560184897-ae75f418493e?auto=format&fit=crop&w=600&h=400"},
-      {id:2,price:"€220,000",raw:220000,address:"Exarchia, Athens",city:"Exarchia",type:"Apartment",beds:2,baths:1,sqft:"75 m²",desc:"Charming two-bedroom apartment in vibrant Exarchia. Renovated kitchen, wooden floors and a sunny terrace. Near the National Archaeological Museum.",seller:"Maria Stavrou",si:"MS",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&h=400"},
-      {id:3,price:"€890,000",raw:890000,address:"Glyfada, Athens",city:"Glyfada",type:"House",beds:5,baths:3,sqft:"280 m²",desc:"Stunning seafront villa in Glyfada with private pool and direct beach access. Open-plan living, modern kitchen and panoramic sea views.",seller:"Yannis Papadopoulos",si:"YP",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&h=400"},
-      {id:4,price:"€135,000",raw:135000,address:"Monastiraki, Athens",city:"Monastiraki",type:"Studio",beds:1,baths:1,sqft:"45 m²",desc:"Cozy studio steps from Monastiraki Square and the Acropolis. Ideal for investment or city living. Fully renovated with modern fixtures throughout.",seller:"Nikos Georgiou",si:"NG",img:"https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=600&h=400"},
-      {id:5,price:"€620,000",raw:620000,address:"Kifisia, Athens",city:"Kifisia",type:"House",beds:4,baths:2,sqft:"200 m²",desc:"Beautiful four-bedroom house in leafy Kifisia. Large garden, private parking and tasteful interiors. One of Athens' most desirable northern suburbs.",seller:"Elena Nikolaou",si:"EN",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&h=400"},
-      {id:6,price:"€310,000",raw:310000,address:"Plaka, Athens",city:"Plaka",type:"Apartment",beds:2,baths:1,sqft:"90 m²",desc:"Characterful apartment in historic Plaka with Parthenon views. Stone walls, original features and a rooftop terrace. A rare find in Athens' oldest neighbourhood.",seller:"Maria Stavrou",si:"MS",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=400"},
+        sessionStorage.setItem('hf_ls',JSON.stringify([
+      {id:1,  price:"€485,000",raw:485000, address:"Kolonaki, Athens",    city:"Kolonaki",    type:"House",      beds:3,baths:2,sqft:"145 m²",listingMode:"buy",  addedDaysAgo:3,  desc:"Refined three-bedroom house in prestigious Kolonaki. High ceilings, oak floors and a private terrace with Acropolis views. Minutes from top restaurants and boutiques.",     seller:"Yannis Papadopoulos",si:"YP",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=80"},
+      {id:2,  price:"€280,000",raw:280000, address:"Exarchia, Athens",    city:"Exarchia",    type:"Apartment",  beds:2,baths:1,sqft:"78 m²", listingMode:"buy",  addedDaysAgo:5,  desc:"Bright two-bedroom apartment in vibrant Exarchia. Renovated kitchen, wooden floors and a sunny balcony. Near the National Archaeological Museum and Strefi Hill.",          seller:"Maria Stavrou",     si:"MS",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop&q=80"},
+      {id:3,  price:"€890,000",raw:890000, address:"Glyfada, Athens",     city:"Glyfada",     type:"House",      beds:5,baths:3,sqft:"280 m²",listingMode:"buy",  addedDaysAgo:12, desc:"Stunning five-bedroom seafront villa in Glyfada with private pool and direct beach access. Open-plan living, modern kitchen and panoramic Saronic Gulf views.",              seller:"Yannis Papadopoulos",si:"YP",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop&q=80"},
+      {id:4,  price:"€155,000",raw:155000, address:"Monastiraki, Athens", city:"Monastiraki", type:"Studio",     beds:1,baths:1,sqft:"42 m²", listingMode:"buy",  addedDaysAgo:7,  desc:"Compact studio steps from Monastiraki Square and the Acropolis. Fully renovated with modern fixtures, built-in storage and a private entrance. Perfect for investment.",     seller:"Nikos Georgiou",    si:"NG",img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop&q=80"},
+      {id:5,  price:"€620,000",raw:620000, address:"Kifisia, Athens",     city:"Kifisia",     type:"House",      beds:4,baths:2,sqft:"200 m²",listingMode:"buy",  addedDaysAgo:45, desc:"Beautiful four-bedroom house in leafy Kifisia. Large private garden, off-street parking and tasteful interiors. One of Athens most desirable northern suburbs.",             seller:"Elena Nikolaou",    si:"EN",img:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop&q=80"},
+      {id:6,  price:"€350,000",raw:350000, address:"Plaka, Athens",       city:"Plaka",       type:"Apartment",  beds:2,baths:1,sqft:"88 m²", listingMode:"buy",  addedDaysAgo:20, desc:"Characterful apartment in historic Plaka with Parthenon views from the rooftop terrace. Stone walls, original features and updated fixtures throughout.",                    seller:"Maria Stavrou",     si:"MS",img:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=400&fit=crop&q=80"},
+      {id:7,  price:"€550,000",raw:550000, address:"Psychiko, Athens",    city:"Psychiko",    type:"House",      beds:4,baths:3,sqft:"210 m²",listingMode:"buy",  addedDaysAgo:60, desc:"Elegant villa in upscale Psychiko. Landscaped garden, pool, double garage. Classic architecture with fully modernised interiors throughout.",                               seller:"Yannis Papadopoulos",si:"YP",img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=400&fit=crop&q=80"},
+      {id:8,  price:"€820/mo",  raw:1200,  address:"Piraeus, Athens",     city:"Piraeus",     type:"Apartment",  beds:2,baths:1,sqft:"65 m²", listingMode:"rent", addedDaysAgo:15, desc:"Well-maintained two-bedroom apartment near Piraeus port. Modern kitchen, tiled floors and a balcony with sea glimpses. Excellent transport links to central Athens.",        seller:"Nikos Georgiou",    si:"NG",img:"https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop&q=80"},
+      {id:9,  price:"€730,000",raw:730000, address:"Vouliagmeni, Athens", city:"Vouliagmeni", type:"House",      beds:5,baths:4,sqft:"300 m²",listingMode:"buy",  addedDaysAgo:90, desc:"Luxury five-bedroom villa in coastal Vouliagmeni with private pool and direct sea access. High-end finishes, open-plan kitchen and extensive landscaped grounds.",           seller:"Elena Nikolaou",    si:"EN",img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop&q=80"},
+      {id:10, price:"€650/mo",  raw:800,   address:"Nea Smyrni, Athens",  city:"Nea Smyrni",  type:"Studio",     beds:1,baths:1,sqft:"38 m²", listingMode:"rent", addedDaysAgo:35, desc:"Cosy studio apartment in Nea Smyrni with updated bathroom, kitchenette and plenty of natural light. Quiet building, close to metro and park.",                             seller:"Maria Stavrou",     si:"MS",img:"https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=600&h=400&fit=crop&q=80"},
+      {id:11, price:"€460,000",raw:460000, address:"Halandri, Athens",    city:"Halandri",    type:"House",      beds:4,baths:2,sqft:"165 m²",listingMode:"buy",  addedDaysAgo:7,  desc:"Modern four-bedroom house in family-friendly Halandri. Open-plan ground floor, garden with pergola, roof terrace. Walking distance to schools and parks.",                 seller:"Nikos Georgiou",    si:"NG",img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop&q=80"},
+      {id:12, price:"€310,000",raw:310000, address:"Zografou, Athens",    city:"Zografou",    type:"Apartment",  beds:3,baths:1,sqft:"95 m²", listingMode:"buy",  addedDaysAgo:180,desc:"Spacious three-bedroom apartment near the University of Athens. Modern kitchen, wooden floors, balcony and private parking. Quiet street, excellent amenities nearby.",     seller:"Elena Nikolaou",    si:"EN",img:"https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&h=400&fit=crop&q=80"},
     ]));
-  }
-  if(!sessionStorage.getItem('hf_appts')){
     sessionStorage.setItem('hf_appts',JSON.stringify([
       {id:1,buyer:"James T.",buyerId:"buyer",seller:"Sarah M.",property:"Kolonaki Apt",date:"May 08",time:"10:00 AM",loc:"Athens",status:"confirmed"},
       {id:2,buyer:"Ana R.",buyerId:"",seller:"Maria S.",property:"Glyfada Villa",date:"May 14",time:"2:30 PM",loc:"Athens",status:"confirmed"},
@@ -69,6 +76,7 @@ function initData(){
     sessionStorage.setItem('hf_booked',JSON.stringify([8,14,20,22]));
   }
 }
+window.addEventListener("load", initData);
 function doLogin(){
   const u=document.getElementById('lu').value.trim();
   const p=document.getElementById('lp').value;
@@ -82,14 +90,18 @@ function doLogin(){
   const found=users[u.toLowerCase()];
   if(found && found.pass===p){
     sessionStorage.setItem('hf_user',JSON.stringify({name:found.name,role:found.role,initials:found.initials}));
-    const dest={admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[found.role]||'home.html';
+    const after=sessionStorage.getItem('hf_after_login');
+    sessionStorage.removeItem('hf_after_login');
+    const dest=after||{admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[found.role]||'home.html';
     location.href=dest;
     return;
   }
   if(u && p.length>=6){
     initData();
     sessionStorage.setItem('hf_user',JSON.stringify({name:u,role:'buyer',initials:u.substring(0,2).toUpperCase()}));
-    location.href='home.html';
+    const after2=sessionStorage.getItem('hf_after_login');
+    sessionStorage.removeItem('hf_after_login');
+    location.href=after2||'home.html';
     return;
   }
   document.getElementById('lerr').style.display='block';

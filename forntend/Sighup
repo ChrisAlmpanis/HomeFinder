@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8"/>
+<meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Create Account</title>
 <link rel="stylesheet" href="shared.css"/>
 </head>
@@ -20,8 +21,8 @@
     <div class="infomsg" id="reg-note" style="display:none">⚠ Buyer accounts require admin approval before you can access the platform.</div>
     <div class="fl" style="margin-bottom:10px">I am a</div>
     <div class="rgrid">
-      <div class="rc on" id="r-buyer" onclick="selRole('buyer')"><div class="ri">🏠</div><div class="rl">Buyer</div></div>
-      <div class="rc" id="r-seller" onclick="selRole('seller')"><div class="ri">🔑</div><div class="rl">Seller</div></div>
+      <div class="rc on" id="r-buyer" onclick="selRole('buyer')"><div class="rl">Buyer</div><div style="font-size:11px;color:var(--mu);margin-top:4px;font-weight:400">I want to find a home</div></div>
+      <div class="rc" id="r-seller" onclick="selRole('seller')"><div class="rl">Seller</div><div style="font-size:11px;color:var(--mu);margin-top:4px;font-weight:400">I want to list a property</div></div>
     </div>
     <div class="frow">
       <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" placeholder="Jane"/></div>
@@ -40,7 +41,9 @@
   </div>
 </div>
 </main>
+<script src="auth.js"></script>
 <script>
+
 let role='buyer';
 function selRole(r){
   role=r;
