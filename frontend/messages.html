@@ -6,6 +6,26 @@
 <title>Home Finder — Messages</title>
 <link rel="stylesheet" href="css/shared.css"/>
 <style>
+body{background:url('images/backgound.jpg') center/cover fixed no-repeat}
+body::before{content:'';position:fixed;inset:0;background:rgba(207,227,194,0.88);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
+nav{position:relative;z-index:400}main, .chat-page-wrap{position:relative;z-index:1}
+.prof-wrap{position:relative;z-index:500}
+.prof-drop{background:#fff!important;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.sys-msg-chat{border-radius:20px!important}
+.convo-list{background:rgba(207,227,194,0.5)!important}
+.convo-search input{background:rgba(255,255,255,0.6);border-radius:8px}
+.convo-item{border-radius:8px;margin:4px 8px;width:calc(100% - 16px)}
+.bubble.them, .cp-bub.them-b{border-radius:18px 18px 18px 4px!important}
+.bubble.me, .cp-bub.me-b{border-radius:18px 18px 4px 18px!important}
+.chat-input-row, .cp-input-row{border-radius:12px!important;overflow:hidden}
+.chat-input-row textarea, .cp-input-row textarea{border-radius:12px 0 0 12px}
+.chat-send, .cp-send{border-radius:0 12px 12px 0!important}
+.chat-main, .chat-msgs{background:transparent}
+.chat-topbar{background:rgba(255,255,255,0.5);backdrop-filter:blur(4px)}
+.chat-input-area{background:rgba(255,255,255,0.5);backdrop-filter:blur(4px)}
+.convo-list{background:rgba(207,227,194,0.6)}
+.bubble.them{background:rgba(255,255,255,0.75)}
+.prop-ref-bar{background:rgba(207,227,194,0.4)!important}
 .chat-page-wrap{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 56px)}
 .convo-list{border-right:1px solid var(--br);background:#fff;display:flex;flex-direction:column}
 .convo-hdr{padding:16px 18px;background:var(--g);color:#fff}
@@ -55,6 +75,8 @@
 .chat-send-wrap{display:flex;align-items:flex-end;padding:6px 6px 6px 0}
 .chat-send{padding:9px 18px;background:var(--g);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;cursor:pointer;height:32px;display:flex;align-items:center}.chat-send:hover{background:var(--gd)}
 .chat-hint{font-size:10px;color:var(--li);margin-top:5px}
+.prof-drop{z-index:9999!important;position:fixed!important;top:56px!important;right:8px!important}
+.prof-drop.on{display:block!important;background:#fff!important;opacity:1!important}
 main{flex:1;display:flex;flex-direction:column}
 @media(max-width:768px){.chat-page-wrap{grid-template-columns:1fr}.convo-list{display:none}}
 </style>
@@ -77,13 +99,13 @@ main{flex:1;display:flex;flex-direction:column}
 
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <div class="nav-center"><button class="logo" onclick="goBack()">Home Finder</button></div>
+  <button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" onclick="toggleProf()">?</div>
       <div class="prof-drop" id="prof-drop">
         <div class="pd-head"><div class="pd-name" id="pd-name">User</div><div class="pd-role" id="pd-role">Member</div></div>
-        <button class="pd-item" onclick="goBack()">Dashboard</button>
+        <button class="pd-item" onclick="goBack()">My Dashboard</button>
         <button class="pd-item" onclick="authLogout()">Sign Out</button>
       </div>
     </div>

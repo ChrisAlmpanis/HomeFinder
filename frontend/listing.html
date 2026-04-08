@@ -163,6 +163,7 @@ async function loadListing(){
             <div><div class="sn">${seller}</div><div class="si2">✓ Verified Seller</div></div>
           </div>
           ${USER.role==='buyer'?`
+          <button class="bbook" style="background:transparent;color:var(--g);border:2px solid var(--g)" onclick="toggleSave()">♡ Save Listing</button>
           <button class="bbook" onclick="toast('Booking coming soon!')">Book a Viewing</button>
           <button class="bchat" onclick="location.href='messages.html'">Message Seller</button>
           `:'<div style="font-size:12px;color:var(--mu)">Log in as a buyer to book or message.</div>'}
@@ -191,6 +192,18 @@ function closeMenu(){document.getElementById('mOv').classList.remove('on');docum
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+function toggleSave(){
+  const id = sessionStorage.getItem('hf_listing_id');
+  let saved = JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
+  if(saved.includes(id)){
+    saved = saved.filter(x=>x!==id);
+    toast('Removed from saved listings.');
+  } else {
+    saved.push(id);
+    toast('Listing saved!');
+  }
+  sessionStorage.setItem('hf_saved', JSON.stringify(saved));
+}
 
 loadListing();
 </script>

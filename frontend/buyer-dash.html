@@ -5,61 +5,55 @@
 <meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Buyer Dashboard</title>
 <link rel="stylesheet" href="css/shared.css"/>
-<style>.sbu{background:#1a4a6b!important}.sbav{background:#164070!important}</style>
+<style>
+.sb2{background:var(--gl)!important}
+.sbu{background:#1a4a6b!important}
+.sbav{background:#164070!important}
+.mp{background:url('images/backgound.jpg') center/cover fixed no-repeat!important;position:relative;min-height:100vh}
+.mp::before{content:'';position:absolute;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
+.mp>*{position:relative;z-index:1}
+.sc2{border-radius:12px!important}
+.dt{border-radius:12px;overflow:hidden}
+.sh{border-radius:8px}
+.lc{background:rgba(255,255,255,0.7)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform 0.15s ease,box-shadow 0.15s ease;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.lc:hover{transform:scale(1.03);box-shadow:0 12px 32px rgba(0,0,0,0.15)}
+.sb2{background:rgba(207,227,194,0.6)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.sbu{background:rgba(26,74,107,0.85)!important}
+.dash-banner{
+  background:url('images/backgound.jpg') center/cover fixed no-repeat!important;
+  border-radius:12px;
+  margin:12px;
+  overflow:hidden;
+  position:relative
+}
+.dash-banner::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(90,122,78,0.55);
+  z-index:1
+}
+.dash-banner>*{position:relative;z-index:2}
+.dash-banner::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(90,122,78,0.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:0
+}
+.dash-banner>*{position:relative;z-index:1}
 
-<style id="chat-styles">
-/* Full chat UI for buyer dashboard */
-.chat-full-wrap{display:grid;grid-template-columns:260px 1fr;height:520px;border:1px solid var(--br);background:var(--w)}
-.cv-list{border-right:1px solid var(--br);display:flex;flex-direction:column;background:var(--w)}
-.cv-hdr{padding:14px 16px;background:var(--g);color:#fff}
-.cv-hdr h4{font-size:13px;font-weight:700}
-.cv-hdr p{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px}
-.cv-search{padding:8px 12px;border-bottom:1px solid var(--br)}
-.cv-search input{width:100%;padding:7px 10px;border:1px solid var(--br);font-size:12px;font-family:'Inter',sans-serif;outline:none;background:var(--off)}
-.cv-search input:focus{border-color:var(--g)}
-.cv-items{flex:1;overflow-y:auto}
-.cv-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .1s}
-.cv-item:hover{background:var(--off)}.cv-item.cv-active{background:var(--gl);border-left:3px solid var(--g)}
-.cv-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.cv-info{flex:1;min-width:0}
-.cv-name{font-size:12px;font-weight:600;margin-bottom:1px}
-.cv-prev{font-size:11px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cv-meta{text-align:right;flex-shrink:0}
-.cv-time{font-size:10px;color:var(--li);margin-bottom:2px}
-.cv-badge{background:var(--g);color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:2px 6px}
-.chat-panel{display:flex;flex-direction:column;background:var(--off)}
-.cp-topbar{padding:11px 18px;border-bottom:1px solid var(--br);background:var(--w);display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.cp-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.cp-name{font-size:13px;font-weight:600}.cp-status{font-size:11px;color:var(--g);margin-top:1px}
-.cp-acts{display:flex;gap:6px;margin-left:auto}
-.cp-act{padding:6px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;font-family:'Inter',sans-serif;border:none}
-.cp-act-g{background:var(--g);color:#fff}.cp-act-g:hover{background:var(--gd)}
-.cp-act-o{background:#fff;color:var(--bl);border:1px solid var(--br)}.cp-act-o:hover{border-color:var(--bl)}
-.cp-prop{display:flex;align-items:center;gap:10px;padding:7px 18px;background:#f0f9f5;border-bottom:1px solid #c8e4d6;flex-shrink:0}
-.cp-prop-img{width:38px;height:28px;object-fit:cover;border:1px solid #c8e4d6;flex-shrink:0}
-.cp-prop-txt{font-size:11px;color:var(--g);font-weight:600}
-.cp-prop-addr{font-size:11px;color:var(--mu)}
-.cp-msgs{flex:1;overflow-y:auto;padding:18px 18px 10px;display:flex;flex-direction:column;gap:2px}
-.cp-mg{display:flex;flex-direction:column;margin-bottom:12px}.cp-mg.me-mg{align-items:flex-end}
-.cp-mg-nm{font-size:9px;font-weight:600;color:var(--mu);margin-bottom:3px;padding:0 3px;text-transform:uppercase;letter-spacing:.5px}
-.cp-row{display:flex;align-items:flex-end;gap:6px}.cp-row.me-row{flex-direction:row-reverse}
-.cp-sm-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
-.cp-bub{padding:9px 13px;font-size:13px;line-height:1.5;max-width:420px}
-.cp-bub.them-b{background:#fff;border:1px solid var(--br)}.cp-bub.me-b{background:var(--g);color:#fff}
-.cp-ts{font-size:10px;color:var(--li);padding:0 3px;white-space:nowrap}
-.cp-date-div{display:flex;align-items:center;gap:10px;margin:12px 0}
-.cp-date-line{flex:1;height:1px;background:var(--br)}
-.cp-date-txt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--li);white-space:nowrap}
-.cp-sys{text-align:center;font-size:11px;color:var(--mu);background:rgba(30,107,69,.08);border:1px solid rgba(30,107,69,.15);padding:5px 12px;margin:4px auto;max-width:340px}
-.cp-input-area{padding:12px 16px;background:#fff;border-top:1px solid var(--br)}
-.cp-input-row{display:flex;border:1px solid var(--br)}.cp-input-row:focus-within{border-color:var(--g)}
-.cp-input-row textarea{flex:1;padding:10px 13px;background:#fff;border:none;font-size:13px;font-family:'Inter',sans-serif;color:var(--bl);outline:none;resize:none;height:42px;line-height:1.5}
-.cp-input-row textarea::placeholder{color:var(--li)}
-.cp-send-wrap{display:flex;align-items:flex-end;padding:5px 5px 5px 0}
-.cp-send{padding:8px 16px;background:var(--g);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border:none;cursor:pointer;height:30px;display:flex;align-items:center}.cp-send:hover{background:var(--gd)}
-.cp-hint{font-size:10px;color:var(--li);margin-top:4px}
-@media(max-width:768px){.chat-full-wrap{grid-template-columns:1fr}.cv-list{display:none}}
+.sb2{
+  background:url('images/backgound.jpg') center/cover fixed no-repeat!important;
+  position:relative;overflow:hidden
+}
+.sb2::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(207,227,194,0.75);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  z-index:0
+}
+.sbu,.sbmenu,.sbav,.sbnm,.sbrl,.sbi{position:relative;z-index:1}
+.sbu{background:rgba(26,74,107,0.85)!important}
 </style>
+
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -104,10 +98,7 @@
       <div class="prof-btn" id="prof-btn" style="background:#1a4a6b" onclick="toggleProf()">JT</div>
       <div class="prof-drop" id="prof-drop">
         <div class="pd-head"><div class="pd-name" id="pd-name">James Thompson</div><div class="pd-role">Buyer</div></div>
-        <button class="pd-item" onclick="showTab('appointments')">My Appointments</button>
-        <button class="pd-item" onclick="location.href='home.html'">Browse Listings</button>
-        <button class="pd-item" onclick="showTab('profile')">Edit Profile</button>
-        <button class="pd-item" onclick="closePd();showTab('chat')">Messages</button>
+        <button class="pd-item" onclick="closePd();openProfileModal()">Edit Profile</button>
         <button class="pd-item" onclick="authLogout()">Sign Out</button>
       </div>
     </div>
@@ -124,25 +115,75 @@
     <div class="sbmenu">
       <button class="sbi" onclick="showTab('overview')">Overview</button>
       <button class="sbi" onclick="showTab('appointments')">My Appointments</button>
-      <button class="sbi" onclick="showTab('browse')">Browse Listings</button>
-      <button class="sbi" onclick="showTab('profile')">Edit Profile</button>
+      <button class="sbi" onclick="showTab('saved')">Saved Listings</button>
     </div>
   </div>
   <div class="dash-inner">
-    <div class="dash-banner">
-      <div class="dash-banner-txt">
-        <h3>Athens Property Finder</h3>
-        <p>Browse and book viewings across Athens' finest neighbourhoods</p>
+    <div class="dash-banner" style="justify-content:center;align-items:center;text-align:center;position:relative">
+      <button onclick="prevSlide()" style="position:absolute;left:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:20px;width:32px;height:32px;border-radius:50%;cursor:pointer">‹</button>
+      <div id="banner-txt">
+        <h3 id="banner-h" style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px"></h3>
+        <p id="banner-p" style="font-size:13px;color:rgba(255,255,255,.7)"></p>
       </div>
+      <button onclick="nextSlide()" style="position:absolute;right:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:20px;width:32px;height:32px;border-radius:50%;cursor:pointer">›</button>
     </div>
     <div class="mp" id="mp"></div>
   </div>
 </div>
 <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
 </main>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="ov" id="profileMod">
+  <div class="modal" style="max-width:440px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="cm('profileMod')">← Back</button>
+      <h2>Edit Profile</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <div id="prof-err" class="emsg"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="ep-fn"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="ep-ln"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
+      <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="ep-phone" placeholder="+30 69X XXX XXXX" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'').slice(0,20)"/></div>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
+      <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="ep-newpw" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" id="ep-conpw" placeholder="Repeat password"/></div>
+      </div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveProfile()">Save Changes</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('profileMod')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
+const slides=[
+  {h:'Find Your New Home in Athens',p:'Browse houses, apartments and studios across the city', img:'images/home.jpg'},
+  {h:'Find Your Next Office Space',p:'Discover commercial properties in prime locations', img:'images/office.jpg'},
+  {h:'Invest in Athens Real Estate',p:'Explore top investment opportunities across Athens', img:'images/invest.jpg'},
+  {h:'Book a Viewing Today',p:'Connect with verified sellers and arrange a visit', img:'images/book.jpg'},
+];
+let slideIdx=0;
+function showSlide(i){
+  slideIdx=(i+slides.length)%slides.length;
+  const s=slides[slideIdx];
+  document.getElementById('banner-h').textContent=s.h;
+  document.getElementById('banner-p').textContent=s.p;
+  document.querySelector('.dash-banner').style.backgroundImage=`url('${s.img}')`;
+}
+function nextSlide(){showSlide(slideIdx+1);}
+function prevSlide(){showSlide(slideIdx-1);}
+showSlide(0);
+setInterval(()=>showSlide(slideIdx+1),4000);
+
 const USER=getUser();
 if(!USER||USER.role!=='buyer'){location.href='index.html';}
 let APPTS=[];
@@ -150,8 +191,20 @@ let BOOKED=[];
 
 async function loadData(){
   try{
-    const aRes = await apiGetAppointments();
+    const [aRes, lRes] = await Promise.all([
+      apiGetAppointments(),
+      apiGetListings()
+    ]);
     APPTS = aRes.appointments||[];
+    LS = (lRes.listings||[]).map(l=>({
+      ...l,
+      id: l._id,
+      price: l.listingMode==='rent' ? '€'+l.price+'/mo' : '€'+l.price.toLocaleString(),
+      raw: l.price,
+      address: l.location,
+      img: l.files&&l.files[0] ? l.files[0].fileURL : '',
+      beds: l.beds, baths: l.baths, type: l.type
+    }));
   } catch(e){ console.error('Load error',e); }
 }
 let LS=[];
@@ -172,7 +225,7 @@ function myAppts(){
 }
 
 function showTab(t){
-  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','browse','profile'][i]===t));
+  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','saved'][i]===t));
   const mp=document.getElementById('mp');
   if(t==='overview'){
     const ma=myAppts();
@@ -184,42 +237,112 @@ function showTab(t){
       </div>
       <div class="sh"><div><div class="stag">Upcoming</div><h2 style="font-size:16px">My Appointments</h2></div><button class="sh-link" onclick="showTab('appointments')">Manage →</button></div>
       <table class="dt"><thead><tr><th>Property</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
-      <tbody>${ma.map(a=>`<tr><td>${a.property}</td><td>${a.date}</td><td>${a.time}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`;
+      <tbody>${ma.map(a=>{const prop=a.listingID?.title||a.listingID?.location||a.property||'—';const date=a.scheduledAt?new Date(a.scheduledAt).toLocaleDateString('el-GR'):a.date||'—';return`<tr><td>${prop}</td><td>${date}</td><td>${a.time||'—'}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`;}).join('')}</tbody></table>`;
   } else if(t==='appointments'){
     const ma=myAppts();
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>My Appointments</h2></div><button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="location.href='home.html'">+ Book New</button></div>
-      ${ma.length?`<table class="dt"><thead><tr><th>Property</th><th>Location</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${ma.map(a=>`<tr><td style="font-weight:600">${a.property}</td><td>${a.loc}</td><td>${a.date}</td><td>${a.time}</td><td><span class="pill ${a.status}">${a.status}</span></td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap">
-          ${a.status!=='cancelled'?`<button class="bsm bsm-g" style="padding:4px 10px;font-size:10px" onclick="openResc(${a.id})">Reschedule</button>
-          <button class="bsm bsm-o" style="padding:4px 10px;font-size:10px;color:#a03030;border-color:#f5c6c6" onclick="cancelAppt(${a.id})">Cancel</button>`:'<span style="font-size:11px;color:var(--li)">—</span>'}
-        </td></tr>`).join('')}</tbody></table>`
-      :'<p style="color:var(--mu);font-size:13px;padding:20px 0">No appointments yet. <a href="home.html" style="color:var(--g);font-weight:600">Browse listings</a> to book a viewing.</p>'}`;
-  } else if(t==='browse'){
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Browse Listings</h2></div></div>
-      <div class="lg">${LS.map(l=>`<div class="lc" onclick="openL(${l.id})"><div class="li-img">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div><div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span></div><div class="li-acts"><button class="bsm bsm-g" onclick="event.stopPropagation();openL(${l.id})">View & Book</button></div></div></div>`).join('')}</div>`;
-  } else if(t==='chat'){
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Messages</h2></div></div>
-      <div class="chat-full-wrap">
-        <div class="cv-list">
-          <div class="cv-hdr"><h4>Conversations</h4><p>Your seller messages</p></div>
-          <div class="cv-search"><input type="text" placeholder="Search…" oninput="filterCV(this.value)"/></div>
-          <div class="cv-items" id="cv-items"></div>
-        </div>
-        <div class="chat-panel">
-          <div class="cp-topbar" id="cp-topbar"></div>
-          <div class="cp-prop" id="cp-prop"></div>
-          <div class="cp-msgs" id="cp-msgs"></div>
-          <div class="cp-input-area">
-            <div class="cp-input-row">
-              <textarea id="cp-inp" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCpMsg();}"></textarea>
-              <div class="cp-send-wrap"><button class="cp-send" onclick="sendCpMsg()">Send</button></div>
-            </div>
-            <div class="cp-hint">Enter to send · Shift+Enter for new line</div>
-          </div>
-        </div>
+    const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+    const todayD=now.getDate(), todayM=now.getMonth(), todayY=now.getFullYear();
+
+    // Calendar state - allow current month and next month only
+    if(typeof window.calMonth==='undefined'){window.calMonth=todayM;window.calYear=todayY;}
+    const viewMonth=window.calMonth, viewYear=window.calYear;
+    const maxMonth=todayM+1, maxYear=todayY+(todayM===11?1:0);
+
+    const monthName=new Date(viewYear,viewMonth,1).toLocaleString('en-US',{month:'long'});
+    const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
+    const firstDay=new Date(viewYear,viewMonth,1).getDay();
+    const offset=firstDay===0?6:firstDay-1;
+
+    const bookedDates=ma.filter(a=>a.status!=='cancelled').map(a=>{
+      const d=new Date(a.scheduledAt||a.date);
+      return d.getMonth()===viewMonth&&d.getFullYear()===viewYear?d.getDate():null;
+    }).filter(Boolean);
+
+    const days=['Mo','Tu','We','Th','Fr','Sa','Su'];
+    let cal=days.map(d=>`<div style="text-align:center;font-size:10px;font-weight:700;color:var(--mu);padding:4px 0">${d}</div>`).join('');
+    for(let i=0;i<offset;i++) cal+=`<div></div>`;
+    for(let d=1;d<=daysInMonth;d++){
+      const isBooked=bookedDates.includes(d);
+      const isToday=d===todayD&&viewMonth===todayM&&viewYear===todayY;
+      const isPast=(viewYear<todayY)||(viewYear===todayY&&viewMonth<todayM)||(viewYear===todayY&&viewMonth===todayM&&d<todayD)||(viewYear===todayY&&viewMonth===todayM&&d===todayD&&false);
+      const maxDate=new Date(todayY,todayM+1,todayD);
+      const thisDate=new Date(viewYear,viewMonth,d);
+      const isFutureLocked=thisDate>maxDate;
+      const crossed=isPast||isFutureLocked;
+      cal+=`<div onclick="${!crossed?`selectCalDay(${d},${viewMonth},${viewYear})`:''}"
+        style="text-align:center;cursor:${crossed?'default':'pointer'};border-radius:50%;
+        ${isBooked?'background:var(--gd);color:#fff;font-weight:700;':''}
+        ${isToday&&!isBooked?'border:2px solid var(--g);':''}
+        ${crossed?'color:#ccc;text-decoration:line-through;':''}
+        font-size:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:auto"
+        class="cal-day-btn" data-day="${d}" data-month="${viewMonth}" data-year="${viewYear}">${d}</div>`;
+    }
+
+    // Selected day for time slots
+    const selDay=window.calSelDay||todayD;
+    const selM=window.calSelMonth!==undefined?window.calSelMonth:todayM;
+    const selY=window.calSelYear||todayY;
+
+    const hours=[];
+    for(let h=8;h<=20;h++) hours.push(h);
+    const timeSlots=hours.map(h=>{
+      const appt=ma.find(a=>{
+        const d=new Date(a.scheduledAt||a.date);
+        return d.getDate()===selDay&&d.getMonth()===selM&&d.getFullYear()===selY&&(a.time||'').replace(/^0/,'').startsWith(h+':');
+      });
+      const nowH=now.getHours();
+      const isPastHour=selM===todayM&&selY===todayY&&selDay===todayD&&h<nowH;
+      const isFutureDay=(selY>maxYear)||(selY===maxYear&&selM>maxMonth);
+      const crossed=isPastHour||isFutureDay;
+      return `<div style="border:1px solid var(--br);border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:8px;background:${appt?'rgba(90,122,78,0.12)':'rgba(255,255,255,0.6)'}">
+        <span style="font-size:11px;color:var(--mu);width:40px;flex-shrink:0;${crossed?'text-decoration:line-through;color:#ccc':''}">${h}:00</span>
+        ${appt?`<span style="font-size:11px;font-weight:600;color:var(--g);text-decoration:line-through">${appt.listingID?.title||appt.property||'Appointment'}</span>`
+        :`<span style="font-size:11px;color:${crossed?'#ccc':'var(--li)'}${crossed?';text-decoration:line-through':''}">Available</span>`}
       </div>`;
-    initChat();
+    }).join('');
+
+    // Nav buttons
+    const canPrev=!(viewMonth===todayM&&viewYear===todayY);
+    const canNext=!(viewMonth===maxMonth&&viewYear===maxYear);
+
+    mp.innerHTML=`
+      <div class="sh"><div><div class="stag">Buyer</div><h2>My Appointments</h2></div><button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="location.href='browse.html'">+ Book New</button></div>
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:24px;margin-bottom:28px">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <button onclick="calNav(-1)" style="background:none;border:1px solid var(--br);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;${canPrev?'':'opacity:.3;cursor:default'}">‹</button>
+            <div style="font-size:12px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px">${monthName} ${viewYear}</div>
+            <button onclick="calNav(1)" style="background:none;border:1px solid var(--br);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;${canNext?'':'opacity:.3;cursor:default'}">›</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cal}</div>
+          <div style="margin-top:8px;font-size:10px;color:var(--mu)">&#9679; Booked &nbsp; &#8212; Past/unavailable</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--g);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px" id="time-label">${selDay}/${selM+1}/${selY}</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${timeSlots}</div>
+        </div>
+      </div>
+      <div class="sh"><div><div class="stag">All</div><h2 style="font-size:16px">Appointments</h2></div></div>
+      ${ma.length?`<table class="dt"><thead><tr><th>Property</th><th>Location</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${ma.map(a=>`<tr><td style="font-weight:600">${a.listingID?.title||a.listingID?.location||a.property||'&#8212;'}</td><td>${a.listingID?.location||a.loc||'&#8212;'}</td><td>${a.scheduledAt?new Date(a.scheduledAt).toLocaleDateString('el-GR'):a.date||'&#8212;'}</td><td>${a.time||'&#8212;'}</td><td><span class="pill ${a.status}">${a.status}</span></td>
+        <td style="display:flex;gap:6px">
+          ${a.status!=='cancelled'?`<button class="bsm bsm-g" style="padding:4px 10px;font-size:10px" onclick="openResc('${a._id||a.id}')">Reschedule</button>
+          <button class="bsm bsm-o" style="padding:4px 10px;font-size:10px;color:#a03030;border-color:#f5c6c6" onclick="cancelAppt('${a._id||a.id}')">Cancel</button>`:'<span style="font-size:11px;color:var(--li)">&#8212;</span>'}
+        </td></tr>`).join('')}</tbody></table>`
+      :'<p style="color:var(--mu);font-size:13px;padding:20px 0">No appointments yet. <a href="browse.html" style="color:var(--g);font-weight:600">Browse listings</a> to book a viewing.</p>'}`;
+    } else if(t==='saved'){
+    const saved = JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
+    const savedListings = LS.filter(l=>saved.includes(l.id||l._id));
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Saved Listings</h2></div></div>
+      ${savedListings.length?
+        `<div class="lg">${savedListings.map(l=>`
+          <div class="lc" onclick="sessionStorage.setItem('hf_listing_id','${l.id||l._id}');location.href='listing.html'">
+            <div class="li-img">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div>
+            <div class="li-body"><div class="li-price">${l.price}</div><div class="li-addr">${l.address}</div><div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span></div>
+            <div class="li-acts"><button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="event.stopPropagation();removeSaved('${l.id||l._id}')">Remove</button></div>
+            </div>
+          </div>`).join('')}</div>`
+        :'<p style="color:var(--mu);font-size:13px;padding:20px 0">No saved listings yet. <a href="browse.html" style="color:var(--g);font-weight:600">Browse listings</a> and click ♡ to save them.</p>'}`;
   } else if(t==='profile'){
     const nm=USER.name.split(' ');
     mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Edit Profile</h2></div></div>
@@ -287,99 +410,103 @@ async function confirmResc(){
 }
 
 // ── Full chat system ──
-const CONVOS_B=[
-  {id:1,seller:'Yannis Papadopoulos',si:'YP',color:'#1e6b45',property:'Kolonaki House',price:'€485,000',img:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=80&h=60&fit=crop',preview:'The house is available for viewing this week.',time:'10:41',unread:0,messages:[
-    {me:false,text:'Good morning! I saw you were interested in the Kolonaki property.',time:'10:32'},
-    {me:true, text:'Yes, it looks great! Is it still available?',time:'10:34'},
-    {me:false,text:'Absolutely. Would you like to arrange a viewing?',time:'10:36'},
-    {me:true, text:'That would be perfect. When are you free?',time:'10:38'},
-    {me:false,text:'The house is available for viewing this week.',time:'10:41'},
-  ]},
-  {id:2,seller:'Maria Stavrou',si:'MS',color:'#1a4a6b',property:'Plaka Apartment',price:'€350,000',img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=80&h=60&fit=crop',preview:'The apartment has stunning Parthenon views.',time:'Yesterday',unread:2,messages:[
-    {me:false,text:'Hello! The Plaka apartment has stunning Parthenon views from the rooftop terrace.',time:'09:14'},
-    {me:true, text:'That sounds amazing. What floor is it on?',time:'09:20'},
-    {me:false,text:'4th floor with a rooftop terrace. Stone walls and original features.',time:'09:22'},
-    {me:false,text:'The apartment has stunning Parthenon views.',time:'09:23'},
-  ]},
-  {id:3,seller:'Elena Nikolaou',si:'EN',color:'#7b3a00',property:'Kifisia House',price:'€620,000',img:'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=80&h=60&fit=crop',preview:'I can arrange a viewing for next week.',time:'Mon',unread:0,messages:[
-    {me:false,text:'Hi! Thanks for your interest in the Kifisia property.',time:'14:05'},
-    {me:true, text:'It looks beautiful. Is the garden maintained?',time:'14:10'},
-    {me:false,text:'Yes, fully maintained. I can arrange a viewing for next week.',time:'14:12'},
-  ]},
-];
-let activeCvId=1;
-function initChat(){renderCvList();openCv(activeCvId);}
-function filterCV(v){renderCvList(v);}
-function renderCvList(filter=''){
-  const el=document.getElementById('cv-items');if(!el)return;
-  const html=CONVOS_B.filter(c=>!filter||c.seller.toLowerCase().includes(filter.toLowerCase())||c.property.toLowerCase().includes(filter.toLowerCase())).map(c=>`
-    <div class="cv-item${c.id===activeCvId?' cv-active':''}" onclick="openCv(${c.id})">
-      <div class="cv-av" style="background:${c.color}">${c.si}</div>
-      <div class="cv-info"><div class="cv-name">${c.seller}</div><div class="cv-prev">${c.preview}</div></div>
-      <div class="cv-meta"><div class="cv-time">${c.time}</div>${c.unread>0?`<span class="cv-badge">${c.unread}</span>`:''}</div>
-    </div>`).join('');
-  el.innerHTML=html||'<p style="padding:16px;font-size:12px;color:var(--li);text-align:center">No conversations</p>';
-}
-function openCv(id){
-  activeCvId=id;
-  const cv=CONVOS_B.find(x=>x.id===id);if(!cv)return;
-  cv.unread=0; renderCvList();
-  const un=USER?USER.name:'You';const ui=USER?USER.initials:'JT';
-  const tb=document.getElementById('cp-topbar');
-  const pp=document.getElementById('cp-prop');
-  const mb=document.getElementById('cp-msgs');
-  if(!tb||!pp||!mb)return;
-  tb.innerHTML=`<div class="cp-av" style="background:${cv.color}">${cv.si}</div>
-    <div><div class="cp-name">${cv.seller}</div><div class="cp-status">● Online · Verified Seller</div></div>
-    <div class="cp-acts">
-      <button class="cp-act cp-act-g" onclick="location.href='home.html'">View Property</button>
-      <button class="cp-act cp-act-o">Book Viewing</button>
-    </div>`;
-  pp.innerHTML=cv.img?`<img class="cp-prop-img" src="${cv.img}" alt="" referrerpolicy="no-referrer"/>
-    <div><div class="cp-prop-txt">${cv.price} · ${cv.property}</div></div>`:'';
-  let html=`<div class="cp-date-div"><div class="cp-date-line"></div><div class="cp-date-txt">Today</div><div class="cp-date-line"></div></div>`;
-  html+=`<div class="cp-sys">You are connected with ${cv.seller} about ${cv.property}</div>`;
-  let lastS=null;
-  cv.messages.forEach((m,i)=>{
-    const s=m.me?'me':'them';
-    if(s!==lastS){if(i>0)html+='</div>';html+=`<div class="cp-mg${m.me?' me-mg':''}">`;}
-    html+=`<div class="cp-row${m.me?' me-row':''}">
-      ${!m.me&&s!==lastS?`<div class="cp-sm-av" style="background:${cv.color}">${cv.si}</div>`:'<div style="width:24px"></div>'}
-      <div class="cp-bub ${m.me?'me-b':'them-b'}">${esc(m.text)}</div>
-      ${m.me&&s!==lastS?`<div class="cp-sm-av" style="background:#1a4a6b">${ui}</div>`:'<div style="width:24px"></div>'}
-      <span class="cp-ts">${m.time}</span>
-    </div>`;
-    lastS=s;
-  });
-  if(lastS)html+='</div>';
-  mb.innerHTML=html; mb.scrollTop=mb.scrollHeight;
-}
-function sendCpMsg(){
-  const inp=document.getElementById('cp-inp');if(!inp||!inp.value.trim())return;
-  const cv=CONVOS_B.find(x=>x.id===activeCvId);if(!cv)return;
-  const t=new Date();const ts=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
-  cv.messages.push({me:true,text:inp.value.trim(),time:ts});cv.preview=inp.value.trim();cv.time='Now';
-  inp.value=''; openCv(activeCvId); renderCvList();
-  setTimeout(()=>{
-    const r=['Of course! I will check my schedule.','Sounds good!','Looking forward to the viewing.','I will confirm shortly.','Feel free to call anytime.'];
-    const t2=new Date();
-    cv.messages.push({me:false,text:r[Math.floor(Math.random()*r.length)],time:t2.getHours()+':'+String(t2.getMinutes()).padStart(2,'0')});
-    cv.preview=cv.messages[cv.messages.length-1].text;
-    openCv(activeCvId);renderCvList();
-  },1100);
-}
-function sendMsg(){sendCpMsg();}
+
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function om(id){document.getElementById(id).classList.add('on');}
-function cm(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
 function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
 function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+function closePd(){document.getElementById('prof-drop').classList.remove('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+
+// Pre-fill profile modal when opened
+const origOm = om;
+document.getElementById('profileMod').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('on');
+});
+function openProfileModal(){
+  const nm=USER.name.split(' ');
+  document.getElementById('ep-fn').value=nm[0]||'';
+  document.getElementById('ep-ln').value=nm[1]||'';
+  document.getElementById('ep-email').value=USER.email||'';
+  document.getElementById('ep-phone').value='';
+  document.getElementById('profileMod').classList.add('on');
+}
+function saveProfile(){
+  const fn = document.getElementById('ep-fn').value.trim();
+  const ln = document.getElementById('ep-ln').value.trim();
+  const email = document.getElementById('ep-email').value.trim();
+  const phone = document.getElementById('ep-phone').value.trim();
+  const oldpw = document.getElementById('ep-oldpw').value;
+  const newpw = document.getElementById('ep-newpw').value;
+  const conpw = document.getElementById('ep-conpw').value;
+  const err = document.getElementById('prof-err');
+  err.style.display='none';
+
+  // Validate name - no numbers
+  if(!fn||!ln){ err.textContent='First and last name are required.'; err.style.display='block'; return; }
+  if(/\d/.test(fn)||/\d/.test(ln)){ err.textContent='Name cannot contain numbers.'; err.style.display='block'; return; }
+
+  // Validate phone - no letters, max 20 digits
+  if(phone && (/[a-zA-Z]/.test(phone) || phone.replace(/\D/g,'').length > 20)){
+    err.textContent='Phone must contain only numbers, max 20 digits.'; err.style.display='block'; return;
+  }
+
+  // Validate password if entered
+  if(oldpw || newpw || conpw){
+    if(!oldpw){ err.textContent='Enter your current password.'; err.style.display='block'; return; }
+    if(newpw.length < 8){ err.textContent='New password must be at least 8 characters.'; err.style.display='block'; return; }
+    if(newpw !== conpw){ err.textContent='Passwords do not match.'; err.style.display='block'; return; }
+  }
+
+  USER.name = fn+' '+ln;
+  USER.initials = (fn[0]+ln[0]).toUpperCase();
+  if(email) USER.email = email;
+  saveUser(USER);
+  document.getElementById('sb-name').textContent = USER.name;
+  document.getElementById('sb-av').textContent = USER.initials;
+  document.getElementById('prof-btn').textContent = USER.initials;
+  cm('profileMod');
+  toast('Profile saved!');
+}
+function calNav(dir){
+  const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  const todayM=now.getMonth(), todayY=now.getFullYear();
+  const maxM=todayM+1, maxY=todayY+(todayM===11?1:0);
+  let m=(window.calMonth||todayM)+dir;
+  let y=window.calYear||todayY;
+  if(m<0){m=11;y--;}if(m>11){m=0;y++;}
+  if(y<todayY||(y===todayY&&m<todayM))return;
+  if(y>maxY||(y===maxY&&m>maxM))return;
+  window.calMonth=m;window.calYear=y;
+  showTab('appointments');
+}
+function selectCalDay(d){
+  document.querySelectorAll('.cal-day-btn').forEach(el=>{
+    if(parseInt(el.dataset.day)===d) el.style.outline='2px solid var(--g)';
+    else el.style.outline='';
+  });
+  const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  const month=now.getMonth();const year=now.getFullYear();
+  const lbl=document.getElementById('time-label');
+  if(lbl) lbl.textContent=`Schedule for ${d}/${month+1}/${year}`;
+}
+function removeSaved(id){
+  let saved=JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
+  saved=saved.filter(x=>x!==id);
+  sessionStorage.setItem('hf_saved',JSON.stringify(saved));
+  showTab('saved');
+  toast('Removed from saved listings.');
+}
 loadData().then(()=>showTab('overview'));
+
 </script>
+
 </body>
 </html>

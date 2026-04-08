@@ -9,6 +9,9 @@
 <style>
 /* ── BROWSE LAYOUT ── */
 main{flex:1;display:flex;flex-direction:column}
+.lc{background:rgba(255,255,255,0.7)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform 0.15s ease, box-shadow 0.15s ease;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.lc:hover{transform:scale(1.03);box-shadow:0 12px 32px rgba(0,0,0,0.15)}
+.li-body{background:rgba(255,255,255,0.6)}
 .browse-wrap{flex:1;display:grid;grid-template-columns:1fr}.browse-wrap.filters-open{grid-template-columns:280px 1fr}
 .filter-sidebar{border-right:1px solid var(--br);background:var(--w);position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;display:none}.filter-sidebar.open{display:block}
 .fs-header{padding:16px 22px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:space-between}
@@ -51,13 +54,23 @@ main{flex:1;display:flex;flex-direction:column}
 .sort-label{font-size:12px;color:var(--mu)}
 .sort-sel{padding:7px 12px;border:1px solid var(--br);font-size:12px;font-family:'Inter',sans-serif;background:#fff;outline:none;cursor:pointer}.sort-sel:focus{border-color:var(--g)}
 .active-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.atag{display:flex;align-items:center;gap:5px;background:var(--g);color:#fff;padding:4px 10px;font-size:11px;font-weight:500}
+.atag{display:flex;align-items:center;gap:5px;background:transparent;color:var(--g);padding:4px 12px;font-size:12px;font-weight:600;border:1.5px solid var(--g);border-radius:20px}
+.atag button{color:var(--g)}
 .atag button{background:none;border:none;color:rgba(255,255,255,.8);font-size:14px;cursor:pointer;line-height:1;padding:0}.atag button:hover{color:#fff}
 .rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .lc{border-radius:10px!important;overflow:hidden!important}
 .li-badge-rent{background:#1a4a6b}
 .no-res{text-align:center;padding:56px 20px;color:var(--mu);background:#fff;border:1px dashed var(--br);grid-column:1/-1}
 .no-res p{font-size:14px;margin-bottom:8px}.no-res span{font-size:12px;color:var(--li)}
+.rg .lc{border-radius:12px;overflow:hidden}
+.results-panel{border-radius:0}
+input, select, button{border-radius:8px}
+.sort-sel{border-radius:8px}
+.atag{border-radius:20px}
+body{background:url('images/backgound.jpg') center/cover fixed no-repeat}
+body::before{content:'';position:fixed;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
+main, nav{position:relative;z-index:1}
+.results-panel{background:transparent}
 /* listing detail */
 .detail-wrap{display:none;flex-direction:column}
 .detail-wrap.on{display:flex}
@@ -376,7 +389,7 @@ function applyFilters(){
   document.getElementById('fs-count').textContent=arr.length+' matches';
 
   const tags=[];
-  if(fS.location)tags.push({l:'📍 '+fS.location,k:'location'});
+  if(fS.location)tags.push({l:fS.location,k:'location'});
   if(fS.mode==='rent')tags.push({l:'For Rent',k:'mode'});
   if(fS.type!=='All')tags.push({l:fS.type,k:'type'});
   if(fS.pMin>0||fS.pMax<1000000){const mx=fS.pMax>=1000000?'€1M+':'€'+fS.pMax.toLocaleString();tags.push({l:'€'+fS.pMin.toLocaleString()+' – '+mx,k:'price'});}
