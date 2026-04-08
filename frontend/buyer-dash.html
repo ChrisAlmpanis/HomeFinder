@@ -90,8 +90,7 @@
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
   <div class="sm-nav">
     <button class="sm-item" onclick="location.href='home.html'">Home</button>
-    <button class="sm-item" onclick="location.href='home.html'">Browse Listings</button>
-    <button class="sm-item" onclick="closeMenu();showTab('chat')">Messages</button>
+    <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
     <div class="sm-div"></div>
     <button class="sm-item" onclick="authLogout()">Sign Out</button>
   </div>
@@ -124,7 +123,7 @@
     </div>
     <div class="sbmenu">
       <button class="sbi" onclick="showTab('overview')">Overview</button>
-      <button class="sbi on" onclick="showTab('appointments')">My Appointments</button>
+      <button class="sbi" onclick="showTab('appointments')">My Appointments</button>
       <button class="sbi" onclick="showTab('browse')">Browse Listings</button>
       <button class="sbi" onclick="showTab('profile')">Edit Profile</button>
     </div>
@@ -155,7 +154,7 @@ async function loadData(){
     APPTS = aRes.appointments||[];
   } catch(e){ console.error('Load error',e); }
 }
-const LS=getData('hf_ls',[]);
+let LS=[];
 let rescId=null,rescDay=null;
 
 if(USER){
@@ -165,7 +164,12 @@ if(USER){
   document.getElementById('sb-name').textContent=USER.name;
 }
 
-function myAppts(){return APPTS.filter(a=>a.buyerId===USER.role||a.buyer.toLowerCase().includes(USER.name.split(' ')[0].toLowerCase()));}
+function myAppts(){
+  return APPTS.filter(a=>{
+    const bid = a.buyerID?._id || a.buyerID || '';
+    return bid === USER._id || bid.toString() === USER._id;
+  });
+}
 
 function showTab(t){
   document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','browse','profile'][i]===t));
@@ -242,7 +246,7 @@ async function cancelAppt(id){
 
 function buildRescCal(){
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  BOOKED=getData('hf_booked',[8,10,12,15]);
+  BOOKED=[];
   let html=days.map(d=>`<div class="cal-head">${d}</div>`).join('');
   // April 2024: starts Monday (offset=0), 30 days
   for(let d=1;d<=30;d++){
@@ -375,7 +379,7 @@ function closeMenu(){document.getElementById('mOv').classList.remove('on');docum
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
-loadData().then(()=>showTab('appointments'));
+loadData().then(()=>showTab('overview'));
 </script>
 </body>
 </html>

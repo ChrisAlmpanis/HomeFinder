@@ -21,9 +21,8 @@ async function apiRegister(data) {
 }
 
 // ── Listings ──────────────────────────────────────
-async function apiGetListings(filters = {}) {
-  const params = new URLSearchParams(filters).toString();
-  const res = await fetch(`${API}/listings${params ? '?' + params : ''}`);
+async function apiGetListing(id) {
+  const res = await fetch(`${API}/listings/${id}`);
   return res.json();
 }
 

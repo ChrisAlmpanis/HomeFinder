@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Home Finder — Listing</title>
+<link rel="stylesheet" href="css/shared.css"/>
+<style>
+main{flex:1;display:flex;flex-direction:column}
+.dh{height:360px;background:var(--gl);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.dh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dh-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.42));z-index:1}
+.dh-back{position:absolute;top:16px;left:16px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;z-index:2;border-radius:4px}.dh-back:hover{background:rgba(0,0,0,0.55)}
+.dh-badge{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);color:#fff;padding:6px 14px;font-size:13px;font-weight:700;z-index:2;border-radius:4px;border:1px solid rgba(255,255,255,0.2)}
+.detail-grid{display:grid;grid-template-columns:1fr 300px;flex:1}
+.dm{padding:36px 40px;border-right:1px solid var(--br)}
+.ds{padding:28px;background:var(--gl)}
+.dp{font-size:34px;font-weight:700;color:var(--g);margin-bottom:6px}
+.da{font-size:14px;color:var(--mu);margin-bottom:28px;font-weight:500}
+.specs{display:flex;gap:28px;padding-bottom:24px;border-bottom:1px solid var(--br);margin-bottom:24px}
+.spec-item{text-align:center}
+.sv{font-size:22px;font-weight:700;color:var(--bl)}.sl2{font-size:10px;color:var(--mu);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.ddesc{font-size:14px;color:#444;line-height:1.75;margin-bottom:24px}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:12px}
+.mph{border:1px solid var(--br);height:130px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px}
+.mph span{font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px}
+.ds-card{background:#fff;border:1px solid #c8e4d6;padding:16px;border-radius:6px;margin-bottom:16px}
+.seller-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.av{width:42px;height:42px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.sn{font-size:14px;font-weight:600}.si2{font-size:11px;color:var(--mu);margin-top:2px}
+.bbook{width:100%;padding:12px;background:var(--g);color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;margin-bottom:10px;cursor:pointer;border-radius:4px}.bbook:hover{background:var(--gd)}
+.bchat{width:100%;padding:11px;background:#fff;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);cursor:pointer;border-radius:4px}.bchat:hover{background:var(--gl)}
+.contact-info{font-size:13px;color:var(--mu);line-height:2.2;margin-top:8px}
+.aslot{padding:9px 12px;background:#fff;border:1px solid #c8e4d6;font-size:12px;color:var(--mu);margin-bottom:6px;border-radius:4px}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.tag{padding:5px 14px;background:var(--gl);border:1px solid #c8e4d6;font-size:12px;color:var(--g);font-weight:500;border-radius:20px}
+@media(max-width:768px){.detail-grid{grid-template-columns:1fr}.ds{border-top:1px solid var(--br)}.specs{gap:16px}.dm{padding:24px 20px}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
+<div class="side-menu" id="sMenu">
+  <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
+  <div class="sm-nav">
+    <button class="sm-item" onclick="location.href='home.html'">Home</button>
+    <button class="sm-item" onclick="location.href='browse.html'">Browse Listings</button>
+    <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
+    <div class="sm-div"></div>
+    <button class="sm-item" onclick="goDash()">My Dashboard</button>
+    <button class="sm-item" onclick="authLogout()">Sign Out</button>
+  </div>
+  <div class="sm-foot"><span>© 2025 Home Finder</span></div>
+</div>
+
+<nav>
+  <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
+  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-right">
+    <div class="prof-wrap">
+      <div class="prof-btn" id="prof-btn" onclick="toggleProf()">?</div>
+      <div class="prof-drop" id="prof-drop">
+        <div class="pd-head"><div class="pd-name" id="pd-name">User</div><div class="pd-role" id="pd-role">Member</div></div>
+        <button class="pd-item" onclick="goDash()">My Dashboard</button>
+        <button class="pd-item" onclick="location.href='messages.html'">Messages</button>
+        <button class="pd-item" onclick="authLogout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="dh" id="det-hero">
+    <span id="det-hero-ph" style="font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px">Loading...</span>
+    <button class="dh-back" onclick="location.href='browse.html'">← Back to Listings</button>
+    <div class="dh-badge" id="dh-badge"></div>
+  </div>
+  <div class="detail-grid" id="det-body">
+    <div class="dm" style="display:flex;align-items:center;justify-content:center;color:var(--mu)">Loading listing...</div>
+    <div class="ds"></div>
+  </div>
+  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+const USER = getUser();
+if(!USER) { location.href='index.html'; }
+
+if(USER){
+  document.getElementById('prof-btn').textContent = USER.initials;
+  document.getElementById('pd-name').textContent = USER.name;
+  document.getElementById('pd-role').textContent = USER.role.charAt(0).toUpperCase()+USER.role.slice(1);
+}
+
+function goDash(){
+  if(!USER) return;
+  if(USER.role==='seller') location.href='seller-dash.html';
+  else if(USER.role==='admin') location.href='admin-dash.html';
+  else location.href='buyer-dash.html';
+}
+
+async function loadListing(){
+  const id = sessionStorage.getItem('hf_listing_id');
+  if(!id){ location.href='browse.html'; return; }
+
+  try{
+    const res = await apiGetListing(id);
+    const l = res.listing;
+    if(!l){ location.href='browse.html'; return; }
+
+    // Normalise
+    const isRent = l.listingMode==='rent';
+    const price = isRent ? '€'+l.price+'/mo' : '€'+l.price.toLocaleString();
+    const img = l.files&&l.files[0] ? l.files[0].fileURL : '';
+    const seller = l.sellerID ? (l.sellerID.name||'Seller') : 'Seller';
+    const si = seller.substring(0,2).toUpperCase();
+    const city = l.location.split(',')[0].trim();
+
+    document.title = 'Home Finder — '+l.location;
+
+    // Hero
+    const hero = document.getElementById('det-hero');
+    const ph = document.getElementById('det-hero-ph');
+    if(img){
+      const imgEl = document.createElement('img');
+      imgEl.src=img; imgEl.referrerPolicy='no-referrer'; imgEl.alt=l.location;
+      imgEl.className='dh-img';
+      const ov=document.createElement('div');ov.className='dh-overlay';
+      hero.insertBefore(ov,hero.firstChild);hero.insertBefore(imgEl,hero.firstChild);
+      ph.style.display='none';
+    }
+    document.getElementById('dh-badge').textContent = price + ' · ' + l.type;
+
+    // Body
+    document.getElementById('det-body').innerHTML=`
+      <div class="dm">
+        <div class="dp">${price}</div>
+        <div class="da">📍 ${l.location}</div>
+        <div class="specs">
+          <div class="spec-item"><div class="sv">${l.beds}</div><div class="sl2">Bedrooms</div></div>
+          <div class="spec-item"><div class="sv">${l.baths}</div><div class="sl2">Bathrooms</div></div>
+          <div class="spec-item"><div class="sv">${l.sqft||'—'}</div><div class="sl2">Size</div></div>
+          <div class="spec-item"><div class="sv">${l.type}</div><div class="sl2">Type</div></div>
+        </div>
+        <div class="tag-row">
+          <span class="tag">${isRent?'For Rent':'For Sale'}</span>
+          <span class="tag">${city}</span>
+          <span class="tag">${l.beds} bed · ${l.baths} bath</span>
+        </div>
+        <p class="ddesc">${l.description||'No description available.'}</p>
+        <div class="sec-title">Location</div>
+        <div class="mph"><span>${city} · Athens · Greece</span></div>
+      </div>
+      <div class="ds">
+        <div class="ds-card">
+          <div class="sec-title">Listed By</div>
+          <div class="seller-row">
+            <div class="av">${si}</div>
+            <div><div class="sn">${seller}</div><div class="si2">✓ Verified Seller</div></div>
+          </div>
+          ${USER.role==='buyer'?`
+          <button class="bbook" onclick="toast('Booking coming soon!')">Book a Viewing</button>
+          <button class="bchat" onclick="location.href='messages.html'">Message Seller</button>
+          `:'<div style="font-size:12px;color:var(--mu)">Log in as a buyer to book or message.</div>'}
+        </div>
+        <div class="ds-card">
+          <div class="sec-title">Contact</div>
+          <div class="contact-info">
+            <div>✉ ${seller.toLowerCase().replace(/\s/g,'.')}@homefinder.gr</div>
+            <div>📞 +30 210 555 0100</div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="sec-title">Available Slots</div>
+          ${[5,8,12,15,19].map(d=>`<div class="aslot">May ${d} — 10:00 AM</div>`).join('')}
+        </div>
+      </div>`;
+
+  } catch(e){
+    console.error(e);
+    location.href='browse.html';
+  }
+}
+
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
+
+loadListing();
+</script>
+</body>
+</html>

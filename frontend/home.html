@@ -234,8 +234,7 @@
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
   <div class="sm-nav">
     <button class="sm-item" onclick="closeMenu();goView('home')">Home</button>
-    <button class="sm-item" onclick="closeMenu();goView('browse')">Browse Listings</button>
-    <button class="sm-item" onclick="closeMenu();goView('chat')">Messages</button>
+    <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
     <div class="sm-div"></div>
     <div id="sm-auth-links"></div>
   </div>
@@ -281,7 +280,6 @@
     <div class="sh"><div><div class="stag">Recently Added</div><h2>Latest Listings</h2></div></div>
     <div class="lg" id="feat-grid"></div>
   </div>
-  <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
 
 <!-- ████ VIEW: BROWSE ████ -->
 <div class="view" id="view-browse">
@@ -345,15 +343,14 @@
       <div class="rg" id="res-grid"></div>
     </div>
   </div>
-</div>
+  </div>
+  </div>
+<footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
 
 <!-- ████ VIEW: LISTING DETAIL ████ -->
 <div class="view" id="view-listing">
   <div class="dh" id="det-hero"><span id="det-hero-ph" style="font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px">Property Photo</span><button class="dh-back" onclick="goView('browse')">← Back to Listings</button></div>
   <div class="detail-grid" id="det-body"></div>
-  <footer class="site-footer">
-    <div class="footer-bottom"><div class="f-copy">© 2025 Home Finder.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
-  </footer>
 </div>
 
 <!-- ████ VIEW: CHAT ████ -->
@@ -375,13 +372,6 @@
     </div>
   </div>
 </div>
-
-<!-- ████ VIEW: RECENTLY ADDED ████ -->
- <div class="ct">
-    <div class="sh"><div><div class="stag">Recently Added</div><h2>Latest Listings</h2></div></div>
-    <div class="lg" id="feat-grid"></div>
-  </div>
-
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
@@ -424,20 +414,7 @@ function setHsMode(m){
 }
 function heroSearch(){
   const loc = document.getElementById('hs-loc').value.trim();
-  setMode(hsMode);
-  if(loc){
-    const match = LS.find(l=>
-      l.location.toLowerCase().includes(loc.toLowerCase()) ||
-      l.city && l.city.toLowerCase().includes(loc.toLowerCase())
-    );
-    if(!match && loc.length > 0){
-      toast('No listings found for "'+loc+'". Try: Kolonaki, Plaka, Glyfada, Kifisia...');
-      return;
-    }
-    document.getElementById('search-loc').value = loc;
-  }
-  goView('browse');
-  setTimeout(()=>applyFilters(), 100);
+  window.location.href = 'browse.html?location=' + encodeURIComponent(loc) + '&mode=' + hsMode;
 }
 function goView(name, opts={}) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -445,18 +422,16 @@ function goView(name, opts={}) {
   if(v) v.classList.add('active');
   window.scrollTo(0,0);
   closePd();
+  const ct = document.querySelector('#view-home .ct');
+  if(ct) ct.style.display = name==='home' ? 'block' : 'none';
   if(name==='home')    renderHome();
   if(name==='browse')  applyFilters();
   if(name==='listing') renderListing(opts.id||curId);
-  if(name==='chat')    { renderConvoList(); openConvo(activeConvoId); }
+  if(name==='chat')    { location.href='messages.html'; }
 }
 
 /* ── HOME ── */
-function renderHome(){
-  LS = gd('hf_ls',[]);
-  document.getElementById('feat-grid-removed').innerHTML = LS.slice(0,4).map(card).join('');
-}
-
+function renderHome(){}
 /* ── CARD ── */
 function card(l){
   const isRent = l.listingMode==='rent';
@@ -476,9 +451,8 @@ function card(l){
   </div>`;
 }
 function openListing(id){
-  curId = id;
-  sessionStorage.setItem('hf_cur',id);
-  goView('listing',{id});
+  sessionStorage.setItem('hf_listing_id', id);
+  location.href='listing.html';
 }
 
 /* ── BROWSE FILTERS ── */
