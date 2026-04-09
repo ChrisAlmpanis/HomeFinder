@@ -8,14 +8,27 @@
 <link rel="stylesheet" href="css/shared.css"/>
 <style>
 main{flex:1;display:flex;flex-direction:column}
-.dh{height:360px;background:var(--gl);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+body{background:url('images/backgound.jpg') center/cover fixed no-repeat}
+body::before{content:'';position:fixed;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
+main,nav{position:relative;z-index:1}
+.dh{padding:16px 24px 0;background:transparent;border:none}
+.dh-inner{position:relative;height:380px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.15)}
 .dh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.dh-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.42));z-index:1}
-.dh-back{position:absolute;top:16px;left:16px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;z-index:2;border-radius:4px}.dh-back:hover{background:rgba(0,0,0,0.55)}
-.dh-badge{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);color:#fff;padding:6px 14px;font-size:13px;font-weight:700;z-index:2;border-radius:4px;border:1px solid rgba(255,255,255,0.2)}
+.dh-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.35));z-index:1}
+.dh-back{position:absolute;top:14px;left:14px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;z-index:3;border-radius:8px}.dh-back:hover{background:rgba(0,0,0,0.55)}
+.dh-badge{position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);color:#fff;padding:6px 14px;font-size:13px;font-weight:700;z-index:3;border-radius:8px}
+.dh-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center}.dh-arrow:hover{background:rgba(0,0,0,0.65)}
+.dh-arrow-l{left:12px}.dh-arrow-r{right:12px}
+.dh-maximize{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);width:34px;height:34px;border-radius:8px;font-size:15px;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center}.dh-maximize:hover{background:rgba(0,0,0,0.6)}
+.dh-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
+.dh-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,0.2);cursor:pointer;transition:background .2s}.dh-dot.on{background:var(--g)}
+.dh-fullscreen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center}.dh-fullscreen.on{display:flex}
+.dh-fullscreen img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px}
+.dh-fullscreen-close{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none}
+.ds-card{background:#fff;padding:16px;border-radius:12px;margin-bottom:16px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .detail-grid{display:grid;grid-template-columns:1fr 300px;flex:1}
 .dm{padding:36px 40px;border-right:1px solid var(--br)}
-.ds{padding:28px;background:var(--gl)}
+.ds{padding:28px;background:transparent}
 .dp{font-size:34px;font-weight:700;color:var(--g);margin-bottom:6px}
 .da{font-size:14px;color:var(--mu);margin-bottom:28px;font-weight:500}
 .specs{display:flex;gap:28px;padding-bottom:24px;border-bottom:1px solid var(--br);margin-bottom:24px}
@@ -25,7 +38,6 @@ main{flex:1;display:flex;flex-direction:column}
 .sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:12px}
 .mph{border:1px solid var(--br);height:130px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px}
 .mph span{font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px}
-.ds-card{background:#fff;border:1px solid #c8e4d6;padding:16px;border-radius:6px;margin-bottom:16px}
 .seller-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .av{width:42px;height:42px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
 .sn{font-size:14px;font-weight:600}.si2{font-size:11px;color:var(--mu);margin-top:2px}
@@ -73,10 +85,21 @@ main{flex:1;display:flex;flex-direction:column}
 
 <main>
   <div class="dh" id="det-hero">
-    <span id="det-hero-ph" style="font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px">Loading...</span>
+  <div class="dh-inner" id="dh-inner">
+    <span id="det-hero-ph" style="font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px;position:relative;z-index:2">Loading...</span>
+    <div class="dh-overlay"></div>
     <button class="dh-back" onclick="location.href='browse.html'">← Back to Listings</button>
     <div class="dh-badge" id="dh-badge"></div>
+    <button class="dh-arrow dh-arrow-l" onclick="changePhoto(-1)">‹</button>
+    <button class="dh-arrow dh-arrow-r" onclick="changePhoto(1)">›</button>
+    <button class="dh-maximize" onclick="openFullscreen()" title="View fullscreen">⛶</button>
   </div>
+  <div class="dh-dots" id="dh-dots"></div>
+</div>
+<div class="dh-fullscreen" id="dh-fullscreen">
+  <button class="dh-fullscreen-close" onclick="closeFullscreen()">×</button>
+  <img id="dh-fullscreen-img" src="" alt=""/>
+</div>
   <div class="detail-grid" id="det-body">
     <div class="dm" style="display:flex;align-items:center;justify-content:center;color:var(--mu)">Loading listing...</div>
     <div class="ds"></div>
@@ -115,25 +138,31 @@ async function loadListing(){
     // Normalise
     const isRent = l.listingMode==='rent';
     const price = isRent ? '€'+l.price+'/mo' : '€'+l.price.toLocaleString();
-    const img = l.files&&l.files[0] ? l.files[0].fileURL : '';
+    const imgs = l.files&&l.files.length ? l.files.map(f=>f.fileURL) : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&q=80'];
+    const img = imgs[0]||'';
     const seller = l.sellerID ? (l.sellerID.name||'Seller') : 'Seller';
     const si = seller.substring(0,2).toUpperCase();
     const city = l.location.split(',')[0].trim();
 
     document.title = 'Home Finder — '+l.location;
 
-    // Hero
-    const hero = document.getElementById('det-hero');
+    // Hero gallery
+    window._photos = imgs;
+    window._photoIdx = 0;
     const ph = document.getElementById('det-hero-ph');
-    if(img){
-      const imgEl = document.createElement('img');
-      imgEl.src=img; imgEl.referrerPolicy='no-referrer'; imgEl.alt=l.location;
-      imgEl.className='dh-img';
-      const ov=document.createElement('div');ov.className='dh-overlay';
-      hero.insertBefore(ov,hero.firstChild);hero.insertBefore(imgEl,hero.firstChild);
+    if(imgs.length){
       ph.style.display='none';
+      renderPhoto(0);
     }
     document.getElementById('dh-badge').textContent = price + ' · ' + l.type;
+    // Dots
+    const dotsEl = document.getElementById('dh-dots');
+    dotsEl.innerHTML = imgs.map((_,i)=>`<div class="dh-dot${i===0?' on':''}" onclick="renderPhoto(${i})"></div>`).join('');
+    // hide arrows if only 1 photo
+    if(imgs.length<=1){
+      document.querySelectorAll('.dh-arrow').forEach(a=>a.style.display='none');
+      dotsEl.style.display='none';
+    }
 
     // Body
     document.getElementById('det-body').innerHTML=`
@@ -152,8 +181,6 @@ async function loadListing(){
           <span class="tag">${l.beds} bed · ${l.baths} bath</span>
         </div>
         <p class="ddesc">${l.description||'No description available.'}</p>
-        <div class="sec-title">Location</div>
-        <div class="mph"><span>${city} · Athens · Greece</span></div>
       </div>
       <div class="ds">
         <div class="ds-card">
@@ -204,6 +231,30 @@ function toggleSave(){
   }
   sessionStorage.setItem('hf_saved', JSON.stringify(saved));
 }
+function renderPhoto(idx){
+  const photos = window._photos||[];
+  if(!photos.length) return;
+  idx = (idx+photos.length)%photos.length;
+  window._photoIdx = idx;
+  const inner = document.getElementById('dh-inner');
+  let imgEl = inner.querySelector('.dh-img');
+  if(!imgEl){
+    imgEl = document.createElement('img');
+    imgEl.className='dh-img';
+    imgEl.referrerPolicy='no-referrer';
+    inner.insertBefore(imgEl, inner.firstChild);
+  }
+  imgEl.src = photos[idx];
+  document.querySelectorAll('.dh-dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+}
+function changePhoto(dir){ renderPhoto((window._photoIdx||0)+dir); }
+function openFullscreen(){
+  const photos=window._photos||[];
+  if(!photos.length) return;
+  document.getElementById('dh-fullscreen-img').src=photos[window._photoIdx||0];
+  document.getElementById('dh-fullscreen').classList.add('on');
+}
+function closeFullscreen(){ document.getElementById('dh-fullscreen').classList.remove('on'); }
 
 loadListing();
 </script>

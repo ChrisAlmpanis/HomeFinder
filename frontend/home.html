@@ -395,10 +395,16 @@ let curL  = LS.find(l=>l.id===curId)||LS[0];
   document.getElementById('pd-name').textContent = USER.name;
   document.getElementById('pd-role').textContent = USER.role.charAt(0).toUpperCase()+USER.role.slice(1);
   const dash = {admin:'admin-dash.html',seller:'seller-dash.html',buyer:'buyer-dash.html'}[USER.role]||'#';
-  pdl.innerHTML = `
-    <button class="pd-item" onclick="location.href='${dash}'">My Dashboard</button>
-    <button class="pd-item" onclick="closePd();goView('chat')">Messages</button>
-    <button class="pd-item" onclick="authLogout()">Sign Out</button>`;
+  if(USER.role==='buyer'){
+    pb.style.background='#1a4a6b';
+    pdl.innerHTML = `
+      <button class="pd-item" onclick="closePd();openProfileModal()">Edit Profile</button>
+      <button class="pd-item" onclick="authLogout()">Sign Out</button>`;
+  } else {
+    pdl.innerHTML = `
+      <button class="pd-item" onclick="location.href='${dash}'">My Dashboard</button>
+      <button class="pd-item" onclick="authLogout()">Sign Out</button>`;
+  }
   sm.innerHTML = `
     <button class="sm-item" onclick="location.href='${dash}'">My Dashboard</button>
     <button class="sm-item" onclick="authLogout()">Sign Out</button>`;
@@ -705,6 +711,50 @@ function cm(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
 function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
 function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+function openProfileModal(){
+  if(!USER) return;
+  const nm=USER.name.split(' ');
+  document.getElementById('ep-fn').value=nm[0]||'';
+  document.getElementById('ep-ln').value=nm[1]||'';
+  document.getElementById('ep-email').value=USER.email||'';
+  document.getElementById('ep-phone').value='';
+  document.getElementById('ep-oldpw').value='';
+  document.getElementById('ep-newpw').value='';
+  document.getElementById('ep-conpw').value='';
+  document.getElementById('profileMod').classList.add('on');
+}
+function saveProfile(){
+  const fn=document.getElementById('ep-fn').value.trim();
+  const ln=document.getElementById('ep-ln').value.trim();
+  const email=document.getElementById('ep-email').value.trim();
+  const phone=document.getElementById('ep-phone').value.trim();
+  const oldpw=document.getElementById('ep-oldpw').value;
+  const newpw=document.getElementById('ep-newpw').value;
+  const conpw=document.getElementById('ep-conpw').value;
+  const err=document.getElementById('prof-err');
+  err.style.display='none';
+  if(!fn||!ln){err.textContent='First and last name are required.';err.style.display='block';return;}
+  if(/\d/.test(fn)||/\d/.test(ln)){err.textContent='Name cannot contain numbers.';err.style.display='block';return;}
+  if(phone&&(/[a-zA-Z]/.test(phone)||phone.replace(/\D/g,'').length>20)){err.textContent='Phone: numbers only, max 20 digits.';err.style.display='block';return;}
+  if(oldpw||newpw||conpw){
+    if(!oldpw){err.textContent='Enter your current password.';err.style.display='block';return;}
+    if(newpw.length<8){err.textContent='New password must be at least 8 characters.';err.style.display='block';return;}
+    if(newpw!==conpw){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  }
+  USER.name=fn+' '+ln;
+  USER.initials=(fn[0]+ln[0]).toUpperCase();
+  if(email) USER.email=email;
+  saveUser(USER);
+  document.getElementById('prof-btn').textContent=USER.initials;
+  document.getElementById('pd-name').textContent=USER.name;
+  cm('profileMod');
+  toast('Profile saved!');
+}
+
 function closePd(){document.getElementById('prof-drop').classList.remove('on');}
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))closePd();});
@@ -733,5 +783,35 @@ loadListings().then(()=>{
   renderHome();
   });
 </script>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="ov" id="profileMod">
+  <div class="modal" style="max-width:440px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="cm('profileMod')">← Back</button>
+      <h2>Edit Profile</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <div id="prof-err" class="emsg"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="ep-fn"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="ep-ln"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
+      <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="ep-phone" placeholder="+30 69X XXX XXXX" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'').slice(0,20)"/></div>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
+      <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="ep-newpw" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" id="ep-conpw" placeholder="Repeat password"/></div>
+      </div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveProfile()">Save Changes</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('profileMod')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

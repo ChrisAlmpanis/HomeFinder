@@ -246,26 +246,29 @@ function showTab(t){
     // Calendar state - allow current month and next month only
     if(typeof window.calMonth==='undefined'){window.calMonth=todayM;window.calYear=todayY;}
     const viewMonth=window.calMonth, viewYear=window.calYear;
-    const maxMonth=todayM+1, maxYear=todayY+(todayM===11?1:0);
+  const maxMonth=todayM+1, maxYear=todayY+(todayM===11?1:0);
+    const maxDate=new Date(todayY,todayM+1,todayD);
 
     const monthName=new Date(viewYear,viewMonth,1).toLocaleString('en-US',{month:'long'});
     const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
     const firstDay=new Date(viewYear,viewMonth,1).getDay();
     const offset=firstDay===0?6:firstDay-1;
 
+    const selDay=window.calSelDay||todayD;
+    const selM=window.calSelMonth!==undefined?window.calSelMonth:todayM;
+    const selY=window.calSelYear||todayY;
     const bookedDates=ma.filter(a=>a.status!=='cancelled').map(a=>{
       const d=new Date(a.scheduledAt||a.date);
       return d.getMonth()===viewMonth&&d.getFullYear()===viewYear?d.getDate():null;
     }).filter(Boolean);
-
     const days=['Mo','Tu','We','Th','Fr','Sa','Su'];
     let cal=days.map(d=>`<div style="text-align:center;font-size:10px;font-weight:700;color:var(--mu);padding:4px 0">${d}</div>`).join('');
     for(let i=0;i<offset;i++) cal+=`<div></div>`;
     for(let d=1;d<=daysInMonth;d++){
       const isBooked=bookedDates.includes(d);
       const isToday=d===todayD&&viewMonth===todayM&&viewYear===todayY;
+      const isSelected=d===selDay&&viewMonth===selM&&viewYear===selY;
       const isPast=(viewYear<todayY)||(viewYear===todayY&&viewMonth<todayM)||(viewYear===todayY&&viewMonth===todayM&&d<todayD)||(viewYear===todayY&&viewMonth===todayM&&d===todayD&&false);
-      const maxDate=new Date(todayY,todayM+1,todayD);
       const thisDate=new Date(viewYear,viewMonth,d);
       const isFutureLocked=thisDate>maxDate;
       const crossed=isPast||isFutureLocked;
@@ -273,15 +276,11 @@ function showTab(t){
         style="text-align:center;cursor:${crossed?'default':'pointer'};border-radius:50%;
         ${isBooked?'background:var(--gd);color:#fff;font-weight:700;':''}
         ${isToday&&!isBooked?'border:2px solid var(--g);':''}
+        ${isSelected&&!isToday?'border:2px solid var(--g);background:rgba(30,107,69,0.12);':''}
         ${crossed?'color:#ccc;text-decoration:line-through;':''}
         font-size:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:auto"
         class="cal-day-btn" data-day="${d}" data-month="${viewMonth}" data-year="${viewYear}">${d}</div>`;
     }
-
-    // Selected day for time slots
-    const selDay=window.calSelDay||todayD;
-    const selM=window.calSelMonth!==undefined?window.calSelMonth:todayM;
-    const selY=window.calSelYear||todayY;
 
     const hours=[];
     for(let h=8;h<=20;h++) hours.push(h);
@@ -290,8 +289,11 @@ function showTab(t){
         const d=new Date(a.scheduledAt||a.date);
         return d.getDate()===selDay&&d.getMonth()===selM&&d.getFullYear()===selY&&(a.time||'').replace(/^0/,'').startsWith(h+':');
       });
-      const nowH=now.getHours();
-      const isPastHour=selM===todayM&&selY===todayY&&selDay===todayD&&h<nowH;
+      const freshNow=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+      const nowH=freshNow.getHours();
+      const isSelectedDayPast=(selY<todayY)||(selY===todayY&&selM<todayM)||(selY===todayY&&selM===todayM&&selDay<todayD);
+      const isToday=selY===todayY&&selM===todayM&&selDay===todayD;
+      const isPastHour=isSelectedDayPast||(isToday&&h<nowH);
       const isFutureDay=(selY>maxYear)||(selY===maxYear&&selM>maxMonth);
       const crossed=isPastHour||isFutureDay;
       return `<div style="border:1px solid var(--br);border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:8px;background:${appt?'rgba(90,122,78,0.12)':'rgba(255,255,255,0.6)'}">
@@ -487,15 +489,11 @@ function calNav(dir){
   window.calMonth=m;window.calYear=y;
   showTab('appointments');
 }
-function selectCalDay(d){
-  document.querySelectorAll('.cal-day-btn').forEach(el=>{
-    if(parseInt(el.dataset.day)===d) el.style.outline='2px solid var(--g)';
-    else el.style.outline='';
-  });
-  const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
-  const month=now.getMonth();const year=now.getFullYear();
-  const lbl=document.getElementById('time-label');
-  if(lbl) lbl.textContent=`Schedule for ${d}/${month+1}/${year}`;
+function selectCalDay(d,m,y){
+  window.calSelDay=d;
+  window.calSelMonth=m;
+  window.calSelYear=y;
+  showTab('appointments');
 }
 function removeSaved(id){
   let saved=JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
