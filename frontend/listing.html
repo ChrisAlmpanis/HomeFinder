@@ -2,59 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Listing</title>
 <link rel="stylesheet" href="css/shared.css"/>
 <style>
 main{flex:1;display:flex;flex-direction:column}
 body{background:url('images/backgound.jpg') center/cover fixed no-repeat}
-body::before{content:'';position:fixed;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
-main,nav{position:relative;z-index:1}
+body::before{content:'';position:fixed;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0;pointer-events:none}
+nav{position:relative;z-index:100}
+main{position:relative;z-index:1}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;align-items:center;justify-content:center}.ov.on{display:flex}
-.modal{max-width:440px;width:100%;position:relative;max-height:90vh;overflow-y:auto;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.modal{max-width:440px!important;width:100%;position:relative;max-height:90vh;overflow-y:auto;border-radius:16px!important;overflow:hidden;background:rgba(255,255,255,0.5)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none!important}
 .modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--br);background:var(--g);color:#fff}
 .modal-hdr h2{font-size:16px;font-weight:700}
 .modal-back{background:none;border:none;color:rgba(255,255,255,.8);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}.modal-back:hover{color:#fff}
 .modal-body{padding:22px}
 .macts{display:flex;gap:10px;margin-top:16px}
-.dh{padding:16px 24px 0;background:transparent}
-.dh-inner{position:relative;height:380px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.15);background:#d0e8d8}
-.dh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-.dh-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.35));z-index:2}
+.dh{padding:16px 300px 0;background:transparent;display:block;height:auto;border:none;position:static;margin:0 8px}
+.dh-inner{position:relative;height:480px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.15);background:#d0e8d8}
+.dh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.prof-wrap{position:relative;z-index:500}
+.prof-drop{z-index:501!important}
+.dh-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.35));z-index:1}
 .dh-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px}
 .dh-back{position:absolute;top:14px;left:14px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;z-index:4;border-radius:8px}.dh-back:hover{background:rgba(0,0,0,0.55)}
 .dh-badge{position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);color:#fff;padding:6px 14px;font-size:13px;font-weight:700;z-index:4;border-radius:8px}
 .dh-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;z-index:4;display:flex;align-items:center;justify-content:center}.dh-arrow:hover{background:rgba(0,0,0,0.65)}
-.dh-arrow-l{left:12px}.dh-arrow-r{right:12px}
+.dh-arrow-l{left:20px}.dh-arrow-r{right:20px}
 .dh-maximize{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.3);width:34px;height:34px;border-radius:8px;font-size:15px;cursor:pointer;z-index:4;display:flex;align-items:center;justify-content:center}.dh-maximize:hover{background:rgba(0,0,0,0.6)}
 .dh-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
 .dh-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,0.25);cursor:pointer;transition:background .2s}.dh-dot.on{background:var(--g)}
 .dh-fullscreen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center}.dh-fullscreen.on{display:flex}
 .dh-fullscreen img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px}
 .dh-fs-close{position:absolute;top:20px;right:24px;color:#fff;font-size:32px;cursor:pointer;background:none;border:none;line-height:1}
-.detail-grid{display:grid;grid-template-columns:1fr 300px;flex:1}
-.dm{padding:36px 40px;border-right:1px solid var(--br)}
-.ds{padding:28px;background:transparent}
-.dp{font-size:34px;font-weight:700;color:var(--g);margin-bottom:6px}
-.da{font-size:14px;color:var(--mu);margin-bottom:28px;font-weight:500}
-.specs{display:flex;gap:28px;padding-bottom:24px;border-bottom:1px solid var(--br);margin-bottom:24px}
-.spec-item{text-align:center}
-.sv{font-size:22px;font-weight:700;color:var(--bl)}.sl2{font-size:10px;color:var(--mu);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
-.ddesc{font-size:14px;color:#444;line-height:1.75;margin-bottom:24px}
+.detail-grid{display:grid;grid-template-columns:300px 1fr 300px;flex:1}
+.dl{padding:28px 24px 28px 32px;border-right:1px solid var(--br)}
+.dm{padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;border-right:1px solid var(--br)}
+.ds{padding:22px 18px;background:transparent}
+.ddesc{font-size:14px;color:#444;line-height:1.85}
+/* left col */
+.spec-list{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
+.spec-row{display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 20px;border:1px solid var(--br);border-radius:12px;background:rgba(255,255,255,0.7);box-shadow:0 2px 6px rgba(0,0,0,0.05);min-width:80px}
+.spec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:4px}
+.spec-val{font-size:16px;font-weight:700;color:var(--bl)}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{padding:4px 12px;background:var(--gl);font-size:11px;color:var(--g);font-weight:600;border-radius:20px}
+/* center col */
+.dp{font-size:32px;font-weight:700;color:var(--g);margin-bottom:4px}
+.da{font-size:13px;color:var(--mu);margin-bottom:20px;font-weight:500}
+.desc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:8px;margin-top:4px}
+.ddesc{font-size:14px;color:#444;line-height:1.85;text-align:center;max-width:400px}
+/* right col */
 .sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:12px}
-.ds-card{background:#fff;padding:16px;border-radius:12px;margin-bottom:16px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
-.seller-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.av{width:42px;height:42px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.ds-card{background:#fff;padding:16px;border-radius:12px;margin-bottom:14px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.seller-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.av{width:40px;height:40px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
 .sn{font-size:14px;font-weight:600}.si2{font-size:11px;color:var(--mu);margin-top:2px}
-.bbook{width:100%;padding:12px;background:var(--g);color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;margin-bottom:10px;cursor:pointer;border-radius:8px}.bbook:hover{background:var(--gd)}
-.bbook-out{width:100%;padding:11px;background:transparent;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);margin-bottom:10px;cursor:pointer;border-radius:8px}.bbook-out:hover{background:var(--gl)}
-.bchat{width:100%;padding:11px;background:#fff;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);cursor:pointer;border-radius:8px}.bchat:hover{background:var(--gl)}
-.contact-info{font-size:13px;color:var(--mu);line-height:2.2;margin-top:8px}
-.aslot{padding:9px 12px;background:var(--gl);font-size:12px;color:var(--g);margin-bottom:6px;border-radius:8px}
-.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.tag{padding:5px 14px;background:var(--gl);font-size:12px;color:var(--g);font-weight:500;border-radius:20px}
-@media(max-width:768px){.detail-grid{grid-template-columns:1fr}.ds{border-top:1px solid var(--br)}.specs{gap:16px}.dm{padding:24px 20px}}
+.bbook{width:100%;padding:11px;background:var(--g);color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;margin-bottom:9px;cursor:pointer;border-radius:8px}.bbook:hover{background:var(--gd)}
+.bbook-out{width:100%;padding:10px;background:transparent;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);margin-bottom:9px;cursor:pointer;border-radius:8px}.bbook-out:hover{background:var(--gl)}
+.bchat{width:100%;padding:10px;background:#fff;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);cursor:pointer;border-radius:8px}.bchat:hover{background:var(--gl)}
+.contact-info{font-size:13px;color:var(--mu);line-height:2.2}
+/* booking modal calendar */
+.bk-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.bk-cal-hd{text-align:center;font-size:10px;font-weight:700;color:var(--mu);padding:4px 0;text-transform:uppercase}
+.bk-day{text-align:center;font-size:12px;padding:7px 4px;border-radius:6px;cursor:pointer;font-weight:500;transition:background .15s}
+.bk-day:hover:not(.past):not(.empty){background:var(--gl)}
+.bk-day.today{border:2px solid var(--g);font-weight:700}
+.bk-day.selected{background:var(--g);color:#fff;font-weight:700}
+.bk-day.past{color:#ccc;text-decoration:line-through;cursor:default}
+.bk-day.empty{cursor:default}
+.bk-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px}
+.bk-slot{padding:7px 4px;border:1px solid var(--br);border-radius:8px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;background:#fff;transition:all .15s;color:var(--bl)}
+.bk-slot:hover:not(.past){border-color:var(--g);color:var(--g)}
+.bk-slot.selected{background:var(--g);color:#fff;border-color:var(--g)}
+.bk-slot.past{color:#ccc;text-decoration:line-through;cursor:default;background:transparent}
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.dl{border-bottom:1px solid var(--br);border-right:none}.ds{border-top:1px solid var(--br)}}
 </style>
 </head>
 <body>
@@ -85,6 +107,40 @@ main,nav{position:relative;z-index:1}
       <div class="macts">
         <button class="bfu bfu-g" style="max-width:140px" onclick="saveProfile()">Save Changes</button>
         <button class="bfu bfu-o" style="max-width:110px" onclick="closeProfileModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="ov" id="bookMod">
+  <div class="modal" style="max-width:520px!important">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="closeBookModal()">← Back</button>
+      <h2>Book a Viewing</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <div id="bk-err" class="emsg" style="display:none"></div>
+      <!-- Calendar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <button onclick="bkCalNav(-1)" id="bk-prev" style="background:none;border:1px solid var(--br);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px">‹</button>
+        <div id="bk-month-lbl" style="font-size:13px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px"></div>
+        <button onclick="bkCalNav(1)" id="bk-next" style="background:none;border:1px solid var(--br);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px">›</button>
+      </div>
+      <div class="bk-cal" id="bk-cal"></div>
+      <!-- Time slots -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g);margin-bottom:8px" id="bk-slots-lbl">Select a date first</div>
+      <div class="bk-slots" id="bk-slots"></div>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">Your Details</div><div class="fdl"></div></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Full Name</label><input type="text" class="fi" id="bk-name"/></div>
+        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="bk-phone" placeholder="+30 69X XXX XXXX" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'')"/></div>
+      </div>
+      <div class="fg"><label class="fl">Note for Seller <span style="font-weight:400;color:var(--mu)">(optional)</span></label><textarea class="fi" id="bk-note" rows="2" style="resize:vertical" placeholder="Any questions or special requests..."></textarea></div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:160px" onclick="submitBooking()">Confirm Booking</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="closeBookModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -128,10 +184,10 @@ main,nav{position:relative;z-index:1}
 <main>
   <div class="dh">
     <div class="dh-inner" id="dh-inner">
+      <img id="dh-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" src="" alt=""/>
       <div class="dh-ph" id="dh-ph">Loading...</div>
       <div class="dh-overlay"></div>
       <button class="dh-back" onclick="location.href='browse.html'">← Back to Listings</button>
-      <div class="dh-badge" id="dh-badge"></div>
       <button class="dh-arrow dh-arrow-l" id="dh-prev" onclick="changePhoto(-1)">‹</button>
       <button class="dh-arrow dh-arrow-r" id="dh-next" onclick="changePhoto(1)">›</button>
       <button class="dh-maximize" onclick="openFullscreen()">⛶</button>
@@ -161,7 +217,7 @@ if(USER){
   const dash = USER.role==='admin'?'admin-dash.html':USER.role==='seller'?'seller-dash.html':'buyer-dash.html';
   if(USER.role==='buyer'){
     document.getElementById('pd-links').innerHTML=
-      '<button class="pd-item" onclick="event.stopPropagation();closePd();openProfileModal()">Edit Profile</button>'+
+      '<button class="pd-item" onclick="openProfileModal()">Edit Profile</button>'+
       '<button class="pd-item" onclick="authLogout()">Sign Out</button>';
   } else {
     document.getElementById('pd-links').innerHTML=
@@ -181,16 +237,8 @@ var _photos=[], _idx=0;
 function renderPhoto(idx){
   if(!_photos.length) return;
   _idx = (idx+_photos.length)%_photos.length;
-  var old = document.getElementById('dh-img');
-  if(old) old.remove();
-  var img = document.createElement('img');
-  img.id='dh-img'; img.className='dh-img';
-  img.referrerPolicy='no-referrer';
-  img.onerror=function(){this.onerror=null;this.src='https://picsum.photos/seed/homefinder/1200/500';};
-  img.src=_photos[_idx];
-  var inner=document.getElementById('dh-inner');
-  inner.insertBefore(img, inner.firstChild);
-  document.getElementById('dh-ph').style.display='none';
+  document.getElementById('dh-img').src = _photos[_idx];
+  document.getElementById('dh-ph').style.display = 'none';
   document.querySelectorAll('.dh-dot').forEach(function(d,i){d.classList.toggle('on',i===_idx);});
 }
 function changePhoto(dir){ renderPhoto(_idx+dir); }
@@ -211,12 +259,11 @@ async function loadListing(){
     if(!l){ location.href='browse.html'; return; }
     var isRent=l.listingMode==='rent';
     var price=isRent?'€'+l.price+'/mo':'€'+Number(l.price).toLocaleString();
-    _photos=l.files&&l.files.length?l.files.map(function(f){return f.fileURL;}):['https://picsum.photos/seed/homefinder/1200/500'];
+    _photos=l.files&&l.files.length?l.files.map(function(f){return f.fileURL;}):['https://loremflickr.com/1200/500/house,apartment'];
     var seller=l.sellerID?(l.sellerID.name||'Seller'):'Seller';
     var si=seller.substring(0,2).toUpperCase();
     var city=l.location.split(',')[0].trim();
     document.title='Home Finder — '+l.location;
-    document.getElementById('dh-badge').textContent=price+' · '+l.type;
     renderPhoto(0);
     var dotsEl=document.getElementById('dh-dots');
     if(_photos.length>1){
@@ -226,20 +273,19 @@ async function loadListing(){
       document.getElementById('dh-next').style.display='none';
     }
     document.getElementById('det-body').innerHTML=
+      '<div class="dl">'+
+        '<div class="spec-list">'+
+          '<div class="spec-row"><span class="spec-lbl">Type</span><span class="spec-val">'+l.type+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">Bedrooms</span><span class="spec-val">'+l.beds+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">Bathrooms</span><span class="spec-val">'+l.baths+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">Size</span><span class="spec-val">'+(l.sqft||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">Status</span><span class="spec-val">'+(isRent?'For Rent':'For Sale')+'</span></div>'+
+        '</div>'+
+      '</div>'+
       '<div class="dm">'+
         '<div class="dp">'+price+'</div>'+
         '<div class="da">📍 '+l.location+'</div>'+
-        '<div class="specs">'+
-          '<div class="spec-item"><div class="sv">'+l.beds+'</div><div class="sl2">Bedrooms</div></div>'+
-          '<div class="spec-item"><div class="sv">'+l.baths+'</div><div class="sl2">Bathrooms</div></div>'+
-          '<div class="spec-item"><div class="sv">'+(l.sqft||'—')+'</div><div class="sl2">Size</div></div>'+
-          '<div class="spec-item"><div class="sv">'+l.type+'</div><div class="sl2">Type</div></div>'+
-        '</div>'+
-        '<div class="tag-row">'+
-          '<span class="tag">'+(isRent?'For Rent':'For Sale')+'</span>'+
-          '<span class="tag">'+city+'</span>'+
-          '<span class="tag">'+l.beds+' bed · '+l.baths+' bath</span>'+
-        '</div>'+
+        '<div class="desc-lbl">Description</div>'+
         '<p class="ddesc">'+(l.description||'No description available.')+'</p>'+
       '</div>'+
       '<div class="ds">'+
@@ -248,7 +294,7 @@ async function loadListing(){
           '<div class="seller-row"><div class="av">'+si+'</div><div><div class="sn">'+seller+'</div><div class="si2">✓ Verified Seller</div></div></div>'+
           (USER.role==='buyer'?
             '<button class="bbook-out" onclick="toggleSave()">♡ Save Listing</button>'+
-            '<button class="bbook" onclick="toast(\'Booking coming soon!\')">Book a Viewing</button>'+
+            '<button class="bbook" onclick="openBookModal()">Book a Viewing</button>'+
             '<button class="bchat" onclick="location.href=\'messages.html\'">Message Seller</button>':
             '<div style="font-size:12px;color:var(--mu)">Log in as a buyer to book or message.</div>')+
         '</div>'+
@@ -258,10 +304,6 @@ async function loadListing(){
             '<div>✉ '+seller.toLowerCase().replace(/\s/g,'.')+'@homefinder.gr</div>'+
             '<div>📞 +30 210 555 0100</div>'+
           '</div>'+
-        '</div>'+
-        '<div class="ds-card">'+
-          '<div class="sec-title">Available Slots</div>'+
-          [5,8,12,15,19].map(function(d){return '<div class="aslot">May '+d+' — 10:00 AM</div>';}).join('')+
         '</div>'+
       '</div>';
   } catch(e){
@@ -282,6 +324,7 @@ document.getElementById('profileMod').addEventListener('click',function(e){if(e.
 
 /* ── PROFILE ── */
 function openProfileModal(){
+  closePd();
   var nm=(USER.name||'').split(' ');
   document.getElementById('ep-fn').value=nm[0]||'';
   document.getElementById('ep-ln').value=nm[1]||'';
@@ -325,9 +368,125 @@ function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.c
 function toggleSave(){
   var id=sessionStorage.getItem('hf_listing_id');
   var saved=JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
-  if(saved.includes(id)){saved=saved.filter(function(x){return x!==id;});toast('Removed from saved.');}
-  else{saved.push(id);toast('Listing saved!');}
+  var btn=document.querySelector('.bbook-out');
+  if(saved.includes(id)){
+    saved=saved.filter(function(x){return x!==id;});
+    if(btn){btn.textContent='♡ Save Listing';btn.style.background='transparent';btn.style.color='var(--g)';btn.style.border='2px solid var(--g)';}
+    toast('Removed from saved.');
+  } else {
+    saved.push(id);
+    if(btn){btn.textContent='♥ Saved';btn.style.background='var(--g)';btn.style.color='#fff';btn.style.border='2px solid var(--g)';}
+    toast('Listing saved!');
+  }
   sessionStorage.setItem('hf_saved',JSON.stringify(saved));
+}
+
+/* ── BOOKING MODAL ── */
+var bkSelDay=null, bkSelMonth=null, bkSelYear=null, bkSelTime=null;
+var bkViewMonth=null, bkViewYear=null;
+
+function openBookModal(){
+  var now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  bkViewMonth=now.getMonth(); bkViewYear=now.getFullYear();
+  bkSelDay=null; bkSelMonth=null; bkSelYear=null; bkSelTime=null;
+  document.getElementById('bk-name').value=USER.name||'';
+  document.getElementById('bk-phone').value=USER.phone||'';
+  document.getElementById('bk-note').value='';
+  document.getElementById('bk-err').style.display='none';
+  renderBkCal();
+  renderBkSlots();
+  document.getElementById('bookMod').classList.add('on');
+}
+function closeBookModal(){document.getElementById('bookMod').classList.remove('on');}
+document.getElementById('bookMod').addEventListener('click',function(e){if(e.target===this)closeBookModal();});
+
+function bkCalNav(dir){
+  var now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  var maxDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()+30);
+  var maxM=maxDate.getMonth(),maxY=maxDate.getFullYear();
+  var m=bkViewMonth+dir, y=bkViewYear;
+  if(m>11){m=0;y++;}if(m<0){m=11;y--;}
+  if(y<now.getFullYear()||(y===now.getFullYear()&&m<now.getMonth()))return;
+  if(y>maxY||(y===maxY&&m>maxM))return;
+  bkViewMonth=m; bkViewYear=y;
+  renderBkCal();
+}
+
+function renderBkCal(){
+  var now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  var todayD=now.getDate(),todayM=now.getMonth(),todayY=now.getFullYear();
+  var maxDate=new Date(todayY,todayM,todayD+30);
+  var maxM=maxDate.getMonth(),maxY=maxDate.getFullYear();
+  var mn=new Date(bkViewYear,bkViewMonth,1).toLocaleString('en-US',{month:'long'});
+  document.getElementById('bk-month-lbl').textContent=mn+' '+bkViewYear;
+  document.getElementById('bk-prev').style.opacity=(bkViewMonth===todayM&&bkViewYear===todayY)?'0.3':'1';
+  document.getElementById('bk-next').style.opacity=(bkViewMonth===maxM&&bkViewYear===maxY)?'0.3':'1';
+  var days=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  var html=days.map(function(d){return '<div class="bk-cal-hd">'+d+'</div>';}).join('');
+  var first=new Date(bkViewYear,bkViewMonth,1).getDay();
+  var offset=first===0?6:first-1;
+  var dim=new Date(bkViewYear,bkViewMonth+1,0).getDate();
+  for(var i=0;i<offset;i++) html+='<div class="bk-day empty"></div>';
+  for(var d=1;d<=dim;d++){
+    var thisDate=new Date(bkViewYear,bkViewMonth,d);
+    var isPast=thisDate<new Date(todayY,todayM,todayD)||thisDate>maxDate;
+    var isToday=d===todayD&&bkViewMonth===todayM&&bkViewYear===todayY;
+    var isSel=bkSelDay===d&&bkSelMonth===bkViewMonth&&bkSelYear===bkViewYear;
+    var cls='bk-day'+(isPast?' past':'')+(isToday&&!isSel?' today':'')+(isSel?' selected':'');
+    var onclick=isPast?'':' onclick="bkSelDate('+d+','+bkViewMonth+','+bkViewYear+')"';
+    html+='<div class="'+cls+'"'+onclick+'>'+d+'</div>';
+  }
+  document.getElementById('bk-cal').innerHTML=html;
+}
+
+function bkSelDate(d,m,y){
+  bkSelDay=d; bkSelMonth=m; bkSelYear=y; bkSelTime=null;
+  renderBkCal();
+  renderBkSlots();
+}
+
+function renderBkSlots(){
+  var lbl=document.getElementById('bk-slots-lbl');
+  var container=document.getElementById('bk-slots');
+  if(bkSelDay===null){lbl.textContent='Select a date first';container.innerHTML='';return;}
+  var now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  var todayD=now.getDate(),todayM=now.getMonth(),todayY=now.getFullYear(),nowH=now.getHours();
+  lbl.textContent='Available times — '+bkSelDay+'/'+(bkSelMonth+1)+'/'+bkSelYear;
+  var html='';
+  for(var h=8;h<=20;h++){
+    var isToday=bkSelDay===todayD&&bkSelMonth===todayM&&bkSelYear===todayY;
+    var isPast=isToday&&h<=nowH;
+    var isSel=bkSelTime===h+':00';
+    var cls='bk-slot'+(isPast?' past':'')+(isSel?' selected':'');
+    var onclick=isPast?'':' onclick="bkSelSlot(\''+h+':00\')"';
+    html+='<div class="'+cls+'"'+onclick+'>'+h+':00</div>';
+  }
+  container.innerHTML=html;
+}
+
+function bkSelSlot(t){
+  bkSelTime=t;
+  renderBkSlots();
+}
+
+async function submitBooking(){
+  var err=document.getElementById('bk-err');
+  err.style.display='none';
+  if(!bkSelDay||bkSelTime===null){err.textContent='Please select a date and time.';err.style.display='block';return;}
+  var name=document.getElementById('bk-name').value.trim();
+  var phone=document.getElementById('bk-phone').value.trim();
+  var note=document.getElementById('bk-note').value.trim();
+  if(!name||!phone){err.textContent='Please fill in your name and phone.';err.style.display='block';return;}
+  var listingId=sessionStorage.getItem('hf_listing_id');
+  var scheduledAt=new Date(bkSelYear,bkSelMonth,bkSelDay);
+  try{
+    await apiBookAppointment({listingID:listingId,scheduledAt:scheduledAt,time:bkSelTime,note:note});
+    closeBookModal();
+    toast('Viewing booked for '+bkSelDay+'/'+(bkSelMonth+1)+'/'+bkSelYear+' at '+bkSelTime+'!');
+  } catch(e){
+    err.textContent='Could not book appointment. Please try again.';
+    err.style.display='block';
+  }
 }
 
 loadListing();

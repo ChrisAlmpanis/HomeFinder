@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Browse Listings</title>
 <link rel="stylesheet" href="css/shared.css"/>
@@ -95,6 +94,8 @@ main, nav{position:relative;z-index:1}
 .bbook{width:100%;padding:11px;background:var(--g);color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;margin-bottom:8px;cursor:pointer}.bbook:hover{background:var(--gd)}
 .bchat{width:100%;padding:10px;background:#fff;color:var(--g);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:2px solid var(--g);cursor:pointer}.bchat:hover{background:var(--gl)}
 .aslot{padding:8px 10px;background:#fff;border:1px solid #c8e4d6;font-size:12px;color:var(--mu);margin-bottom:5px}
+nav{position:relative;z-index:9999}
+.prof-drop{position:absolute;z-index:9999!important}
 @media(max-width:768px){.browse-wrap{grid-template-columns:1fr}.filter-sidebar{display:none}.detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -122,9 +123,7 @@ main, nav{position:relative;z-index:1}
       <div class="prof-btn" id="prof-btn" onclick="toggleProf()">?</div>
       <div class="prof-drop" id="prof-drop">
         <div class="pd-head"><div class="pd-name" id="pd-name">User</div><div class="pd-role" id="pd-role">Member</div></div>
-        <button class="pd-item" onclick="goDash()">My Dashboard</button>
-        <button class="pd-item" onclick="location.href='messages.html'">Messages</button>
-        <button class="pd-item" onclick="authLogout()">Sign Out</button>
+        <div id="pd-links"></div>
       </div>
     </div>
   </div>
@@ -218,9 +217,20 @@ const USER = getUser();
 if(!USER) location.href = 'index.html';
 
 if(USER){
-  document.getElementById('prof-btn').textContent = USER.initials;
+  const pb = document.getElementById('prof-btn');
+  pb.textContent = USER.initials;
+  if(USER.role==='buyer') pb.style.background='#1a4a6b';
   document.getElementById('pd-name').textContent = USER.name;
   document.getElementById('pd-role').textContent = USER.role.charAt(0).toUpperCase()+USER.role.slice(1);
+  const dash = USER.role==='admin'?'admin-dash.html':USER.role==='seller'?'seller-dash.html':'buyer-dash.html';
+  const pdl = document.getElementById('pd-links');
+  if(pdl){
+    if(USER.role==='buyer'){
+      pdl.innerHTML='<button class="pd-item" onclick="closePd();openProfileModal()">Edit Profile</button><button class="pd-item" onclick="authLogout()">Sign Out</button>';
+    } else {
+      pdl.innerHTML='<button class="pd-item" onclick="location.href=\''+dash+'\'">My Dashboard</button><button class="pd-item" onclick="authLogout()">Sign Out</button>';
+    }
+  }
 }
 
 function goDash(){
@@ -420,7 +430,9 @@ function inlineSearch(val){
 /* ── UTILS ── */
 function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
 function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function closePd(){document.getElementById('prof-drop').classList.remove('on');}
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',function(e){if(!e.target.closest('.prof-wrap'))closePd();});
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
 
@@ -434,6 +446,74 @@ loadListings().then(()=>{
   updateRange();
   applyFilters();
 });
+</script>
+<div class="ov" id="profileMod">
+  <div class="modal" style="max-width:440px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="document.getElementById('profileMod').classList.remove('on')">← Back</button>
+      <h2>Edit Profile</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <div id="prof-err" class="emsg" style="display:none"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="ep-fn"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="ep-ln"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
+      <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="ep-phone" placeholder="+30 69X XXX XXXX" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'').slice(0,20)"/></div>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
+      <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="ep-newpw" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" id="ep-conpw" placeholder="Repeat password"/></div>
+      </div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveProfile()">Save Changes</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="document.getElementById('profileMod').classList.remove('on')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function openProfileModal(){
+  const nm=(USER.name||'').split(' ');
+  document.getElementById('ep-fn').value=nm[0]||'';
+  document.getElementById('ep-ln').value=nm[1]||'';
+  document.getElementById('ep-email').value=USER.email||'';
+  document.getElementById('ep-phone').value='';
+  document.getElementById('ep-oldpw').value='';
+  document.getElementById('ep-newpw').value='';
+  document.getElementById('ep-conpw').value='';
+  document.getElementById('prof-err').style.display='none';
+  document.getElementById('profileMod').classList.add('on');
+}
+function saveProfile(){
+  const fn=document.getElementById('ep-fn').value.trim();
+  const ln=document.getElementById('ep-ln').value.trim();
+  const email=document.getElementById('ep-email').value.trim();
+  const oldpw=document.getElementById('ep-oldpw').value;
+  const newpw=document.getElementById('ep-newpw').value;
+  const conpw=document.getElementById('ep-conpw').value;
+  const err=document.getElementById('prof-err');
+  err.style.display='none';
+  if(!fn||!ln){err.textContent='First and last name are required.';err.style.display='block';return;}
+  if(/\d/.test(fn)||/\d/.test(ln)){err.textContent='Name cannot contain numbers.';err.style.display='block';return;}
+  if(oldpw||newpw||conpw){
+    if(!oldpw){err.textContent='Enter your current password.';err.style.display='block';return;}
+    if(newpw.length<8){err.textContent='New password must be at least 8 characters.';err.style.display='block';return;}
+    if(newpw!==conpw){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  }
+  USER.name=fn+' '+ln;
+  USER.initials=(fn[0]+ln[0]).toUpperCase();
+  if(email) USER.email=email;
+  saveUser(USER);
+  document.getElementById('prof-btn').textContent=USER.initials;
+  document.getElementById('pd-name').textContent=USER.name;
+  document.getElementById('profileMod').classList.remove('on');
+  toast('Profile saved!');
+}
+document.getElementById('profileMod').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 </script>
 </body>
 </html>

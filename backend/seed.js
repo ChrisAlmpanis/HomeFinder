@@ -58,7 +58,10 @@ const seed = async () => {
       description: 'Refined three-bedroom house in prestigious Kolonaki. High ceilings, oak floors and a private terrace with Acropolis views.',
       price: 485000, location: 'Kolonaki, Athens', type: 'House',
       beds: 3, baths: 2, sqft: '145 m²', listingMode: 'buy', status: 'active',
-      files: [{ fileName: 'kolonaki.jpg', fileType: 'image', fileURL: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=80' }]
+      files: [
+        { fileName: 'kolonaki1.jpg', fileType: 'image', fileURL: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=80' },
+        { fileName: 'kolonaki2.jpg', fileType: 'image', fileURL: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop&q=80' }
+      ]
     },
     {
       sellerID: seller._id, title: 'Bright Apartment in Exarchia',
