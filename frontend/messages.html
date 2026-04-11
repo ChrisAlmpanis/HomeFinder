@@ -87,8 +87,7 @@ main{flex:1;display:flex;flex-direction:column}
 <div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
 <div class="side-menu" id="sMenu">
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
-  <div class="sm-nav">
-    <button class="sm-item" onclick="location.href='home.html'">Home</button>
+  <div class="sm-nav" id="sm-nav">
     <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
     <div class="sm-div"></div>
     <button class="sm-item" onclick="goBack()">My Dashboard</button>
@@ -99,7 +98,7 @@ main{flex:1;display:flex;flex-direction:column}
 
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-center"><button class="logo" onclick="goBack()">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" style="background:#1a4a6b" onclick="toggleProf()">?</div>
@@ -136,116 +135,197 @@ main{flex:1;display:flex;flex-direction:column}
 
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
 const USER = getUser();
 if(!USER) location.href = 'index.html';
 
-// Set nav user info
 if(USER){
-  document.getElementById('prof-btn').textContent = USER.initials;
+  const pb = document.getElementById('prof-btn');
+  pb.textContent = USER.initials;
+  if(USER.role==='buyer') pb.style.background='#1a4a6b';
+  else if(USER.role==='admin') pb.style.background='#6b1a1a';
+  else pb.style.background='var(--g)';
   document.getElementById('pd-name').textContent = USER.name;
   document.getElementById('pd-role').textContent = USER.role.charAt(0).toUpperCase()+USER.role.slice(1);
+  if(USER.role==='buyer'){
+    document.getElementById('sm-nav').innerHTML=
+      '<button class="sm-item" onclick="location.href=\'home.html\'">Home</button>'+
+      '<button class="sm-item" onclick="location.href=\'messages.html\'">Messages</button>'+
+      '<div class="sm-div"></div>'+
+      '<button class="sm-item" onclick="location.href=\'buyer-dash.html\'">My Dashboard</button>'+
+      '<button class="sm-item" onclick="authLogout()">Sign Out</button>';
+  }
 }
 
-// Go back to correct dashboard
 function goBack(){
-  if(!USER) { location.href='index.html'; return; }
+  if(!USER){location.href='index.html';return;}
   if(USER.role==='seller') location.href='seller-dash.html';
   else if(USER.role==='admin') location.href='admin-dash.html';
-  else location.href='buyer-dash.html';
+  else location.href='home.html';
 }
 
-const CONVOS=[
-  {id:1,seller:'Yannis Papadopoulos',si:'YP',color:'#1e6b45',property:'Kolonaki, Athens',preview:'The house is available for viewing this week.',time:'10:41',unread:0,messages:[
-    {me:false,text:'Good morning! I saw you were interested in the Kolonaki property.',time:'10:32'},
-    {me:true,text:'Yes, it looks great! Is it still available?',time:'10:34'},
-    {me:false,text:'Absolutely. Would you like to arrange a viewing?',time:'10:36'},
-    {me:true,text:'That would be perfect. When are you free?',time:'10:38'},
-    {me:false,text:'The house is available for viewing this week.',time:'10:41'}
-  ]},
-  {id:2,seller:'Maria Stavrou',si:'MS',color:'#1a4a6b',property:'Plaka, Athens',preview:'The apartment has stunning Parthenon views.',time:'Yesterday',unread:2,messages:[
-    {me:false,text:'Hello! The Plaka apartment has stunning Parthenon views from the rooftop terrace.',time:'09:14'},
-    {me:true,text:'That sounds amazing. What floor is it on?',time:'09:20'},
-    {me:false,text:'4th floor with a rooftop terrace. Stone walls and original features.',time:'09:22'},
-    {me:false,text:'The apartment has stunning Parthenon views.',time:'09:23'}
-  ]},
-  {id:3,seller:'Nikos Georgiou',si:'NG',color:'#5a3a1a',property:'Monastiraki, Athens',preview:'The studio was fully renovated in 2023.',time:'Mon',unread:0,messages:[
-    {me:false,text:'Hi! Thanks for your interest in the Monastiraki studio.',time:'14:05'},
-    {me:true,text:'When was it last renovated?',time:'14:10'},
-    {me:false,text:'The studio was fully renovated in 2023.',time:'14:12'}
-  ]},
-];
-let activeConvoId=1;
+// ── Socket.io ──
+const socket = io('http://localhost:3000');
+socket.emit('join', USER._id);
+socket.on('receiveMessage', (data) => {
+  // If this message belongs to active convo, render it
+  if(activeOtherID === data.senderID){
+    const msgs = document.getElementById('chat-msgs');
+    msgs.innerHTML += buildBubble({me:false, text:data.content, time:now()}, data.senderInitials||'?', '#1e6b45');
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  loadConversations(); // refresh list
+});
 
-function filterConvos(v){renderConvoList(v);}
+// ── State ──
+let CONVOS = [];
+let activeOtherID = null;
+
+function now(){
+  const t=new Date();
+  return t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+}
+
+// ── Load conversations ──
+async function loadConversations(){
+  try{
+    const res = await apiGetConversations();
+    CONVOS = (res.conversations || []).sort((a,b)=>{
+      const aLast = a.messages[a.messages.length-1]?.createdAt||0;
+      const bLast = b.messages[b.messages.length-1]?.createdAt||0;
+      return new Date(bLast) - new Date(aLast);
+    });
+    renderConvoList();
+    // If coming from listing page with a seller to contact
+    const targetID = sessionStorage.getItem('hf_msg_target');
+    const targetListingID = sessionStorage.getItem('hf_msg_listing');
+    if(targetID){
+      sessionStorage.removeItem('hf_msg_target');
+      sessionStorage.removeItem('hf_msg_listing');
+      const c = CONVOS.find(c=>c.other._id===targetID);
+      if(c) openConvo(c.other._id);
+      else {
+        // No existing convo — start a new one by sending an intro message
+        try{
+          await apiSendMessage({receiverID:targetID, listingID:targetListingID, content:'Hi, I am interested in your listing.'});
+          await loadConversations();
+        } catch(e){ renderEmptyChat('Could not start conversation.'); }
+      }
+    } else if(CONVOS.length>0){
+      openConvo(CONVOS[0].other._id);
+    } else {
+      renderEmptyChat('No conversations yet.');
+    }
+  } catch(e){
+    console.error(e);
+    renderEmptyChat('Could not load messages. Make sure the backend is running.');
+  }
+}
+
 function renderConvoList(filter=''){
-  const html=CONVOS.filter(c=>!filter||c.seller.toLowerCase().includes(filter.toLowerCase())||c.property.toLowerCase().includes(filter.toLowerCase())).map(c=>`
-    <div class="convo-item${c.id===activeConvoId?' active':''}" onclick="openConvo(${c.id})">
-      <div class="convo-av" style="background:${c.color}">${c.si}</div>
-      <div class="convo-info"><div class="convo-name">${c.seller}</div><div class="convo-preview">${c.preview}</div></div>
-      <div class="convo-meta"><div class="convo-time">${c.time}</div>${c.unread>0?`<span class="convo-badge">${c.unread}</span>`:''}</div>
-    </div>`).join('');
-  document.getElementById('convo-items').innerHTML=html||'<p style="padding:20px;font-size:12px;color:var(--li);text-align:center">No conversations</p>';
+  const filtered = CONVOS.filter(c=>!filter||c.other.name.toLowerCase().includes(filter.toLowerCase()));
+  const html = filtered.map(c=>{
+    const last = c.messages[c.messages.length-1];
+    const preview = last ? last.content.slice(0,40) : 'No messages yet';
+    const t = last ? new Date(last.createdAt).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const initials = c.other.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    const isActive = c.other._id === activeOtherID;
+    return `<div class="convo-item${isActive?' active':''}" onclick="openConvo('${c.other._id}')">
+      <div class="convo-av">${initials}</div>
+      <div class="convo-info"><div class="convo-name">${c.other.name}</div><div class="convo-preview">${esc(preview)}</div></div>
+      <div class="convo-meta"><div class="convo-time">${t}</div>${c.unread>0?`<span class="convo-badge">${c.unread}</span>`:''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('convo-items').innerHTML = html||'<p style="padding:20px;font-size:12px;color:var(--li);text-align:center">No conversations</p>';
 }
 
-function openConvo(id){
-  activeConvoId=id;
-  const c=CONVOS.find(x=>x.id===id);if(!c)return;
-  c.unread=0; renderConvoList();
-  const ui=USER?USER.initials:'Y';
+function filterConvos(v){ renderConvoList(v); }
+
+async function openConvo(otherID){
+  activeOtherID = otherID;
+  const c = CONVOS.find(x=>x.other._id===otherID);
+  if(!c) return;
+  // Mark read
+  apiMarkRead(otherID).catch(()=>{});
+  c.unread = 0;
+  renderConvoList();
+
+  const initials = c.other.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const role = c.other.role==='seller'?'Verified Seller':'Buyer';
+  const listing = c.listing;
 
   document.getElementById('chat-topbar').innerHTML=`
-    <div class="chat-topbar-av" style="background:${c.color}">${c.si}</div>
-    <div><div class="chat-topbar-name">${c.seller}</div><div class="chat-topbar-sub">● Online · Verified Seller</div></div>
-    <div class="chat-topbar-acts">
-      <button class="chat-act chat-act-o" onclick="goBack()">← Back</button>
-    </div>`;
+    <div class="chat-topbar-av">${initials}</div>
+    <div><div class="chat-topbar-name">${c.other.name}</div><div class="chat-topbar-sub">● ${role}</div></div>
+    <div class="chat-topbar-acts"><button class="chat-act chat-act-o" onclick="goBack()">← Back</button></div>`;
 
-  document.getElementById('prop-ref-bar').innerHTML=`
-    <div><div class="prop-ref-txt">${c.property}</div></div>`;
+  document.getElementById('prop-ref-bar').innerHTML = listing
+    ? `<div><div class="prop-ref-txt">${listing.title||listing.location}</div><div class="prop-ref-addr">${listing.location||''}</div></div>`
+    : '';
 
-  let html=`<div class="date-divider"><div class="date-div-line"></div><div class="date-div-txt">Today</div><div class="date-div-line"></div></div>`;
-  html+=`<div class="sys-msg-chat">You are connected with ${c.seller} about ${c.property}</div>`;
-  let lastSender=null;
-  c.messages.forEach((m,i)=>{
-    const s=m.me?'me':'them';
-    if(s!==lastSender){if(i>0)html+='</div>';html+=`<div class="msg-group${m.me?' me':''}">`;}
-    html+=`<div class="msg-row${m.me?' me':''}">
-      ${!m.me&&s!==lastSender?`<div class="msg-av-sm" style="background:${c.color}">${c.si}</div>`:'<div style="width:26px"></div>'}
-      <div class="bubble ${m.me?'me':'them'}">${esc(m.text)}</div>
-      ${m.me&&s!==lastSender?`<div class="msg-av-sm me-av">${ui}</div>`:'<div style="width:26px"></div>'}
-      <span style="font-size:10px;color:var(--li)">${m.time}</span>
-    </div>`;
-    lastSender=s;
+  let html = `<div class="date-divider"><div class="date-div-line"></div><div class="date-div-txt">Conversation</div><div class="date-div-line"></div></div>`;
+  html += `<div class="sys-msg-chat">You are connected with ${c.other.name}${listing?' about '+( listing.title||listing.location):''}</div>`;
+
+  c.messages.forEach(m=>{
+    const isMe = m.senderID._id===USER._id || m.senderID===USER._id;
+    html += buildBubble({me:isMe, text:m.content, time:new Date(m.createdAt).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'})}, initials, '#1e6b45');
   });
-  if(lastSender)html+='</div>';
-  const box=document.getElementById('chat-msgs');
-  box.innerHTML=html; box.scrollTop=box.scrollHeight;
+
+  const box = document.getElementById('chat-msgs');
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
 }
 
-function sendMsg(){
-  const inp=document.getElementById('chat-input');const txt=inp.value.trim();if(!txt)return;
-  const c=CONVOS.find(x=>x.id===activeConvoId);if(!c)return;
-  const t=new Date();const ts=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
-  c.messages.push({me:true,text:txt,time:ts});c.preview=txt;c.time='Now';
-  inp.value=''; openConvo(activeConvoId); renderConvoList();
-  setTimeout(()=>{
-    const r=['Of course! I will check and get back to you.','Sounds good!','Looking forward to the viewing.','I will confirm shortly.','Feel free to call anytime.'];
-    const t2=new Date();
-    c.messages.push({me:false,text:r[Math.floor(Math.random()*r.length)],time:t2.getHours()+':'+String(t2.getMinutes()).padStart(2,'0')});
-    c.preview=c.messages[c.messages.length-1].text;
-    openConvo(activeConvoId);renderConvoList();
-  },1100);
+function buildBubble({me, text, time}, initials, color){
+  const ui = USER.initials||'?';
+  return `<div class="msg-group${me?' me':''}">
+    <div class="msg-row${me?' me':''}">
+      ${!me?`<div class="msg-av-sm" style="background:${color}">${initials}</div>`:'<div style="width:26px"></div>'}
+      <div class="bubble ${me?'me':'them'}">${esc(text)}</div>
+      ${me?`<div class="msg-av-sm me-av">${ui}</div>`:'<div style="width:26px"></div>'}
+      <span style="font-size:10px;color:var(--li)">${time}</span>
+    </div>
+  </div>`;
 }
 
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function sendMsg(){
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt||!activeOtherID) return;
+  inp.value = '';
+
+  const c = CONVOS.find(x=>x.other._id===activeOtherID);
+  const listingID = c?.listing?._id||null;
+
+  try{
+    const res = await apiSendMessage({receiverID:activeOtherID, listingID, content:txt});
+    const m = res.message;
+    // Add to local convo
+    if(c){ c.messages.push(m); c.unread=0; }
+    // Emit via socket
+    socket.emit('sendMessage',{receiverID:activeOtherID, senderID:USER._id, content:txt, senderInitials:USER.initials});
+    // Render
+    const msgs = document.getElementById('chat-msgs');
+    msgs.innerHTML += buildBubble({me:true, text:txt, time:now()}, '', '');
+    msgs.scrollTop = msgs.scrollHeight;
+    renderConvoList();
+  } catch(e){ toast('Could not send message.'); }
+}
+
+function renderEmptyChat(msg){
+  document.getElementById('chat-topbar').innerHTML='';
+  document.getElementById('prop-ref-bar').innerHTML='';
+  document.getElementById('chat-msgs').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--mu);font-size:13px">${msg}</div>`;
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
 function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
 function closePd(){document.getElementById('prof-drop').classList.remove('on');}
 function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
-document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))document.getElementById('prof-drop').classList.remove('on');});
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))closePd();});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
-
 function om(id){document.getElementById(id).classList.add('on');}
 function cm(id){document.getElementById(id).classList.remove('on');}
 function openProfileModal(){
@@ -254,7 +334,13 @@ function openProfileModal(){
   document.getElementById('ep-fn').value=nm[0]||'';
   document.getElementById('ep-ln').value=nm[1]||'';
   document.getElementById('ep-email').value=USER.email||'';
-  document.getElementById('ep-phone').value='';
+  const phoneField = document.getElementById('ep-phone');
+  if(phoneField) phoneField.closest('.fg').style.display = USER.role==='admin' ? 'none' : '';
+  if(phoneField) phoneField.value='';
+  const companyField = document.getElementById('company-field');
+  if(companyField) companyField.style.display = USER.role==='seller' ? '' : 'none';
+  const companyInput = document.getElementById('ep-company');
+  if(companyInput) companyInput.value = USER.agencyName||'';
   document.getElementById('ep-oldpw').value='';
   document.getElementById('ep-newpw').value='';
   document.getElementById('ep-conpw').value='';
@@ -264,7 +350,6 @@ function saveProfile(){
   const fn=document.getElementById('ep-fn').value.trim();
   const ln=document.getElementById('ep-ln').value.trim();
   const email=document.getElementById('ep-email').value.trim();
-  const phone=document.getElementById('ep-phone').value.trim();
   const oldpw=document.getElementById('ep-oldpw').value;
   const newpw=document.getElementById('ep-newpw').value;
   const conpw=document.getElementById('ep-conpw').value;
@@ -272,13 +357,14 @@ function saveProfile(){
   err.style.display='none';
   if(!fn||!ln){err.textContent='First and last name are required.';err.style.display='block';return;}
   if(/\d/.test(fn)||/\d/.test(ln)){err.textContent='Name cannot contain numbers.';err.style.display='block';return;}
-  if(phone&&(/[a-zA-Z]/.test(phone)||phone.replace(/\D/g,'').length>20)){err.textContent='Phone: numbers only, max 20 digits.';err.style.display='block';return;}
   if(oldpw||newpw||conpw){
     if(!oldpw){err.textContent='Enter your current password.';err.style.display='block';return;}
     if(newpw.length<8){err.textContent='New password must be at least 8 characters.';err.style.display='block';return;}
     if(newpw!==conpw){err.textContent='Passwords do not match.';err.style.display='block';return;}
   }
   USER.name=fn+' '+ln;
+  const company = document.getElementById('ep-company');
+  if(company && USER.role==='seller') USER.agencyName = company.value.trim();
   USER.initials=(fn[0]+ln[0]).toUpperCase();
   if(email) USER.email=email;
   saveUser(USER);
@@ -288,9 +374,7 @@ function saveProfile(){
   toast('Profile saved!');
 }
 
-// Init
-renderConvoList();
-openConvo(1);
+loadConversations();
 </script>
 
 <!-- EDIT PROFILE MODAL -->
@@ -309,6 +393,7 @@ openConvo(1);
       </div>
       <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
       <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="ep-phone" placeholder="+30 69X XXX XXXX" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'').slice(0,20)"/></div>
+      <div class="fg" id="company-field" style="display:none"><label class="fl">Company Name</label><input type="text" class="fi" id="ep-company" placeholder="Your agency name"/></div>
       <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
       <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
       <div class="frow">

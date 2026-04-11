@@ -98,6 +98,7 @@ main{position:relative;z-index:1}
       </div>
       <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
       <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="ep-phone" placeholder="+30 69X XXX XXXX"/></div>
+      <div class="fg" id="ep-company-wrap" style="display:none"><label class="fl">Company Name</label><input type="text" class="fi" id="ep-company" placeholder="Your agency name"/></div>
       <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
       <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
       <div class="frow">
@@ -156,7 +157,7 @@ main{position:relative;z-index:1}
 <div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
 <div class="side-menu" id="sMenu">
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
-  <div class="sm-nav">
+  <div class="sm-nav" id="sm-nav">
     <button class="sm-item" onclick="location.href='home.html'">Home</button>
     <button class="sm-item" onclick="location.href='browse.html'">Browse Listings</button>
     <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
@@ -169,7 +170,7 @@ main{position:relative;z-index:1}
 
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <div class="nav-center"><button class="logo" onclick="location.href='home.html'">Home Finder</button></div>
+  <div class="nav-center"><button class="logo" onclick="goDash()">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" onclick="toggleProf()">?</div>
@@ -212,23 +213,45 @@ if(USER){
   const pb = document.getElementById('prof-btn');
   pb.textContent = USER.initials||'?';
   if(USER.role==='buyer') pb.style.background='#1a4a6b';
+  else if(USER.role==='admin') pb.style.background='#6b1a1a';
+  else pb.style.background='var(--g)';
   document.getElementById('pd-name').textContent = USER.name;
   document.getElementById('pd-role').textContent = USER.role.charAt(0).toUpperCase()+USER.role.slice(1);
-  const dash = USER.role==='admin'?'admin-dash.html':USER.role==='seller'?'seller-dash.html':'buyer-dash.html';
   if(USER.role==='buyer'){
     document.getElementById('pd-links').innerHTML=
       '<button class="pd-item" onclick="openProfileModal()">Edit Profile</button>'+
       '<button class="pd-item" onclick="authLogout()">Sign Out</button>';
   } else {
     document.getElementById('pd-links').innerHTML=
-      '<button class="pd-item" onclick="location.href=\''+dash+'\'">My Dashboard</button>'+
+      '<button class="pd-item" onclick="openProfileModal()">Edit Profile</button>'+
       '<button class="pd-item" onclick="authLogout()">Sign Out</button>';
+  }
+  // Side menu
+  const smNav = document.getElementById('sm-nav');
+  if(smNav){
+    if(USER.role==='buyer'){
+      smNav.innerHTML=
+        '<button class="sm-item" onclick="location.href=\'home.html\'">Home</button>'+
+        '<button class="sm-item" onclick="location.href=\'browse.html\'">Browse Listings</button>'+
+        '<button class="sm-item" onclick="location.href=\'messages.html\'">Messages</button>'+
+        '<div class="sm-div"></div>'+
+        '<button class="sm-item" onclick="goDash()">My Dashboard</button>'+
+        '<button class="sm-item" onclick="authLogout()">Sign Out</button>';
+    } else {
+      smNav.innerHTML=
+        '<button class="sm-item" onclick="location.href=\'messages.html\'">Messages</button>'+
+        '<div class="sm-div"></div>'+
+        '<button class="sm-item" onclick="goDash()">My Dashboard</button>'+
+        '<button class="sm-item" onclick="authLogout()">Sign Out</button>';
+    }
   }
 }
 
 function goDash(){
   if(!USER) return;
-  location.href = USER.role==='admin'?'admin-dash.html':USER.role==='seller'?'seller-dash.html':'buyer-dash.html';
+  if(USER.role==='admin') location.href='admin-dash.html';
+  else if(USER.role==='seller') location.href='seller-dash.html';
+  else location.href='buyer-dash.html';
 }
 
 /* ── GALLERY ── */
@@ -256,6 +279,14 @@ async function loadListing(){
   try{
     var res=await apiGetListing(id);
     var l=res.listing;
+    window._currentListing = l;
+    var saved=JSON.parse(sessionStorage.getItem('hf_saved')||'[]');
+    var sid=sessionStorage.getItem('hf_listing_id');
+    var btn=document.querySelector('.bbook-out');
+    setTimeout(function(){
+      var btn2=document.querySelector('.bbook-out');
+      if(btn2&&saved.includes(sid)){btn2.textContent='♥ Saved';btn2.style.background='var(--g)';btn2.style.color='#fff';btn2.style.border='2px solid var(--g)';}
+    },100);
     if(!l){ location.href='browse.html'; return; }
     var isRent=l.listingMode==='rent';
     var price=isRent?'€'+l.price+'/mo':'€'+Number(l.price).toLocaleString();
@@ -295,7 +326,7 @@ async function loadListing(){
           (USER.role==='buyer'?
             '<button class="bbook-out" onclick="toggleSave()">♡ Save Listing</button>'+
             '<button class="bbook" onclick="openBookModal()">Book a Viewing</button>'+
-            '<button class="bchat" onclick="location.href=\'messages.html\'">Message Seller</button>':
+            '<button class="bchat" onclick="startChat()">Message Seller</button>':
             '<div style="font-size:12px;color:var(--mu)">Log in as a buyer to book or message.</div>')+
         '</div>'+
         '<div class="ds-card">'+
@@ -334,6 +365,9 @@ function openProfileModal(){
   document.getElementById('ep-newpw').value='';
   document.getElementById('ep-conpw').value='';
   document.getElementById('prof-err').style.display='none';
+  document.getElementById('ep-phone').closest('.fg').style.display=USER.role==='admin'?'none':'';
+  document.getElementById('ep-company-wrap').style.display=USER.role==='seller'?'':'none';
+  if(USER.role==='seller') document.getElementById('ep-company').value=USER.agencyName||'';
   document.getElementById('profileMod').classList.add('on');
 }
 function closeProfileModal(){document.getElementById('profileMod').classList.remove('on');}
@@ -356,6 +390,7 @@ function saveProfile(){
   USER.name=fn+' '+ln;
   USER.initials=(fn[0]+ln[0]).toUpperCase();
   if(email) USER.email=email;
+  if(USER.role==='seller'){var c=document.getElementById('ep-company');if(c)USER.agencyName=c.value.trim();}
   saveUser(USER);
   document.getElementById('prof-btn').textContent=USER.initials;
   document.getElementById('pd-name').textContent=USER.name;
@@ -487,6 +522,15 @@ async function submitBooking(){
     err.textContent='Could not book appointment. Please try again.';
     err.style.display='block';
   }
+}
+
+function startChat(){
+  const l = window._currentListing;
+  if(!l) return;
+  const sellerID = l.sellerID?._id || l.sellerID;
+  sessionStorage.setItem('hf_msg_target', sellerID);
+  sessionStorage.setItem('hf_msg_listing', l._id || sessionStorage.getItem('hf_listing_id'));
+  location.href = 'messages.html';
 }
 
 loadListing();

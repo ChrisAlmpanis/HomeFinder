@@ -5,26 +5,44 @@
 <meta name="referrer" content="no-referrer"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Home Finder — Admin Dashboard</title>
 <link rel="stylesheet" href="css/shared.css"/>
-<style>.sbu{background:#6b1a1a!important}.sbav{background:#521414!important}</style>
+<style>
+.sb2{background:url('images/backgound.jpg') center/cover fixed no-repeat!important;position:relative;overflow:hidden}
+.sb2::before{content:'';position:absolute;inset:0;background:rgba(207,227,194,0.75);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:0}
+.sbu,.sbmenu,.sbav,.sbnm,.sbrl,.sbi{position:relative;z-index:1}
+.sbu{background:rgba(80,20,20,0.85)!important}
+.sbav{background:rgba(80,20,20,0.7)!important}
+.mp{background:url('images/backgound.jpg') center/cover fixed no-repeat!important;position:relative;min-height:100vh}
+.mp::before{content:'';position:absolute;inset:0;background:rgba(240,246,236,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:0}
+.mp>*{position:relative;z-index:1}
+.sc2{border-radius:12px!important}.dt{border-radius:12px;overflow:hidden}
+.lc{background:rgba(255,255,255,0.7)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform 0.15s ease,box-shadow 0.15s ease;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.lc:hover{transform:scale(1.03);box-shadow:0 12px 32px rgba(0,0,0,0.15)}
+nav{position:relative;z-index:100}.prof-wrap{position:relative;z-index:500}.prof-drop{z-index:501!important}
+.modal{max-width:440px!important;border-radius:16px!important;overflow:hidden;background:rgba(255,255,255,0.5)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none!important}
+.bk-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.bk-cal-hd{text-align:center;font-size:10px;font-weight:700;color:var(--mu);padding:4px 0;text-transform:uppercase}
+.bk-day{text-align:center;font-size:12px;padding:7px 4px;border-radius:6px;cursor:pointer;font-weight:500;transition:background .15s}
+.bk-day:hover:not(.past):not(.empty){background:var(--gl)}.bk-day.today{border:2px solid var(--g);font-weight:700}
+.bk-day.selected{background:var(--g);color:#fff;font-weight:700}.bk-day.past{color:#ccc;text-decoration:line-through;cursor:default}
+.bk-day.empty{cursor:default}.bk-day.booked{background:rgba(192,57,43,0.1);color:#a03030;font-weight:700}
+.bk-slot{padding:7px 4px;border:1px solid var(--br);border-radius:8px;text-align:center;font-size:11px;font-weight:500;background:rgba(255,255,255,0.7);color:var(--bl)}
+.bk-slot.past{color:#ccc;text-decoration:line-through}.bk-slot.booked{background:rgba(192,57,43,0.1);color:#a03030;border-color:#f5c6c6;font-weight:700}
+</style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 
 <!-- EDIT USER MODAL -->
 <div class="ov" id="editUserMod">
-  <div class="modal" style="max-width:440px">
+  <div class="modal">
     <div class="modal-hdr"><button class="modal-back" onclick="cm('editUserMod')">← Back</button><h2>Edit User</h2><span style="width:60px"></span></div>
     <div class="modal-body">
       <div class="fg"><label class="fl">Full Name</label><input type="text" class="fi" id="eu-name"/></div>
       <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="eu-email"/></div>
-      <div class="fg"><label class="fl">Role</label>
-        <select class="fi" id="eu-role"><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="admin">Admin</option></select>
-      </div>
-      <div class="fg"><label class="fl">Status</label>
-        <select class="fi" id="eu-status"><option value="approved">Approved</option><option value="pending">Pending</option><option value="suspended">Suspended</option></select>
-      </div>
+      <div class="fg"><label class="fl">Role</label><select class="fi" id="eu-role"><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="admin">Admin</option></select></div>
+      <div class="fg"><label class="fl">Approved</label><select class="fi" id="eu-approved"><option value="true">Approved</option><option value="false">Pending</option></select></div>
       <div class="macts">
-        <button class="bfu bfu-g" style="max-width:140px" onclick="saveUser()">Save Changes</button>
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveEditUser()">Save Changes</button>
         <button class="bfu bfu-o" style="max-width:110px" onclick="cm('editUserMod')">Cancel</button>
       </div>
     </div>
@@ -38,9 +56,7 @@
     <div class="modal-body">
       <div class="frow">
         <div class="fg"><label class="fl">Price (€)</label><input type="number" class="fi" id="el-price"/></div>
-        <div class="fg"><label class="fl">Type</label>
-          <select class="fi" id="el-type"><option>House</option><option>Apartment</option><option>Studio</option><option>Townhouse</option></select>
-        </div>
+        <div class="fg"><label class="fl">Type</label><select class="fi" id="el-type"><option>House</option><option>Apartment</option><option>Studio</option><option>Townhouse</option></select></div>
       </div>
       <div class="fg"><label class="fl">Address</label><input type="text" class="fi" id="el-addr"/></div>
       <div class="frow">
@@ -49,7 +65,7 @@
       </div>
       <div class="fg"><label class="fl">Description</label><textarea class="fi" id="el-desc" rows="3" style="resize:vertical"></textarea></div>
       <div class="macts">
-        <button class="bfu bfu-g" style="max-width:140px" onclick="saveListing()">Save Changes</button>
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveEditListing()">Save Changes</button>
         <button class="bfu bfu-o" style="max-width:110px" onclick="cm('editListingMod')">Cancel</button>
       </div>
     </div>
@@ -61,7 +77,7 @@
   <div class="modal" style="max-width:400px">
     <div class="modal-hdr"><button class="modal-back" onclick="cm('confirmDelMod')">← Back</button><h2>Confirm Delete</h2><span style="width:60px"></span></div>
     <div class="modal-body">
-      <p id="del-msg">Are you sure you want to delete this item? This cannot be undone.</p>
+      <p id="del-msg">Are you sure? This cannot be undone.</p>
       <div class="macts">
         <button class="bfu" style="max-width:140px;background:#c0392b;color:#fff;border:none" onclick="confirmDelete()">Delete</button>
         <button class="bfu bfu-o" style="max-width:110px" onclick="cm('confirmDelMod')">Cancel</button>
@@ -70,41 +86,40 @@
   </div>
 </div>
 
-<!-- NEW LISTING MODAL -->
-<div class="ov" id="nlMod">
-  <div class="modal" style="max-width:480px">
-    <div class="modal-hdr"><button class="modal-back" onclick="cm('nlMod')">← Back</button><h2>New Listing</h2><span style="width:60px"></span></div>
+<!-- CANCEL APPOINTMENT MODAL -->
+<div class="ov" id="cancelApptMod">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hdr"><button class="modal-back" onclick="cm('cancelApptMod')">← Back</button><h2>Cancel Appointment</h2><span style="width:60px"></span></div>
     <div class="modal-body">
-      <div class="frow">
-        <div class="fg"><label class="fl">Address</label><input type="text" class="fi" id="nl-addr" placeholder="Kolonaki, Athens"/></div>
-        <div class="fg"><label class="fl">Price (€)</label><input type="number" class="fi" id="nl-price" placeholder="400000"/></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Type</label><select class="fi" id="nl-type"><option>House</option><option>Apartment</option><option>Studio</option></select></div>
-        <div class="fg"><label class="fl">Bedrooms</label><input type="number" class="fi" id="nl-beds" placeholder="3" min="1"/></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Bathrooms</label><input type="number" class="fi" id="nl-baths" placeholder="2" min="1"/></div>
-        <div class="fg"><label class="fl">Size</label><input type="text" class="fi" id="nl-sqft" placeholder="120 m²"/></div>
-      </div>
-      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="nl-desc" rows="2" style="resize:vertical" placeholder="Describe the property..."></textarea></div>
+      <p id="ca-msg">Cancel this appointment?</p>
       <div class="macts">
-        <button class="bfu bfu-g" style="max-width:140px" onclick="addListing()">Add Listing</button>
-        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('nlMod')">Cancel</button>
+        <button class="bfu" style="max-width:160px;background:#c0392b;color:#fff;border:none" onclick="doAdminCancel()">Yes, Cancel It</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('cancelApptMod')">Back</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CANCEL APPOINTMENT CONFIRM -->
-<div class="ov" id="cancelApptMod">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-hdr"><button class="modal-back" onclick="cm('cancelApptMod')">← Back</button><h2>Cancel Appointment</h2><span style="width:60px"></span></div>
+<!-- PROFILE MODAL -->
+<div class="ov" id="profileMod">
+  <div class="modal">
+    <div class="modal-hdr"><button class="modal-back" onclick="cm('profileMod')">← Back</button><h2>Edit Profile</h2><span style="width:60px"></span></div>
     <div class="modal-body">
-      <p id="ca-msg">Cancel this appointment? The buyer will be notified.</p>
+      <div id="prof-err" class="emsg" style="display:none"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="ep-fn"/></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="ep-ln"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ep-email"/></div>
+      <div class="fdiv"><div class="fdl"></div><div class="fdt">Change Password</div><div class="fdl"></div></div>
+      <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" id="ep-oldpw" placeholder="Enter current password"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="ep-newpw" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" id="ep-conpw" placeholder="Repeat password"/></div>
+      </div>
       <div class="macts">
-        <button class="bfu" style="max-width:160px;background:#c0392b;color:#fff;border:none" onclick="doAdminCancel()">Yes, Cancel It</button>
-        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('cancelApptMod')">Back</button>
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveProfile()">Save Changes</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('profileMod')">Cancel</button>
       </div>
     </div>
   </div>
@@ -114,19 +129,17 @@
 <div class="side-menu" id="sMenu">
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
   <div class="sm-nav">
-    <button class="sm-item" onclick="showTab('users')">Users</button>
-    <button class="sm-item" onclick="showTab('approvals')">Approvals</button>
-    <button class="sm-item" onclick="showTab('listings')">Listings</button>
-    <button class="sm-item" onclick="showTab('appointments')">Appointments</button>
-    <button class="sm-item" onclick="showTab('messages')">Messages</button>
+    <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
     <div class="sm-div"></div>
+    <button class="sm-item" onclick="showTab('overview')">My Dashboard</button>
     <button class="sm-item" onclick="authLogout()">Sign Out</button>
   </div>
-  <div class="sm-foot"><span>© 2024 Home Finder</span></div>
+  <div class="sm-foot"><span>© 2025 Home Finder</span></div>
 </div>
+
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <div class="nav-center"><button class="logo" onclick="showTab('users')">Home Finder</button></div>
+  <div class="nav-center"><button class="logo" onclick="showTab('overview')">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" style="background:#6b1a1a" onclick="toggleProf()">AU</div>
@@ -137,30 +150,24 @@
     </div>
   </div>
 </nav>
+
 <main>
 <div class="dl">
   <div class="sb2">
     <div class="sbu">
-      <div class="sbav adm-av">AU</div>
-      <div class="sbnm">Admin User</div>
-      <div class="sbrl adm">Administrator</div>
+      <div class="sbav" id="sb-av">AU</div>
+      <div class="sbnm" id="sb-name">Admin User</div>
+      <div class="sbrl" style="color:#ffaaaa">Administrator</div>
     </div>
     <div class="sbmenu">
-      <button class="sbi on" onclick="showTab('users')">Users</button>
+      <button class="sbi on" onclick="showTab('overview')">Overview</button>
+      <button class="sbi" onclick="showTab('users')">Users</button>
       <button class="sbi" onclick="showTab('approvals')">Pending Approvals</button>
       <button class="sbi" onclick="showTab('listings')">Listings</button>
-      <button class="sbi" onclick="showTab('appointments')">Appointments</button>
-      <button class="sbi" onclick="showTab('messages')">Messages</button>
-      <button class="sbi" onclick="showTab('profile')">Profile</button>
+      <button class="sbi" onclick="showTab('calendar')">Calendar</button>
     </div>
   </div>
   <div class="dash-inner">
-    <div class="dash-banner">
-      <div class="dash-banner-txt">
-        <h3>Athens Home Finder — Admin Panel</h3>
-        <p>Manage users, listings and appointments across Athens</p>
-      </div>
-    </div>
     <div class="mp" id="mp"></div>
   </div>
 </div>
@@ -170,295 +177,323 @@
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
-const USER = getUser();
+const USER=getUser();
+if(!USER||USER.role!=='admin'){location.href='index.html';}
+if(USER){
+  const pb=document.getElementById('prof-btn');
+  pb.textContent=USER.initials||'AU';
+  document.getElementById('pd-name').textContent=USER.name||'Admin User';
+  document.getElementById('sb-av').textContent=USER.initials||'AU';
+  document.getElementById('sb-name').textContent=USER.name||'Admin User';
+  document.getElementById('pd-links').innerHTML=
+    '<button class="pd-item" onclick="closePd();openProfileModal()">Edit Profile</button>'+
+    '<button class="pd-item" onclick="authLogout()">Sign Out</button>';
+}
 
-// build profile dropdown manually for admin
-(function(){
-  const pd = document.getElementById('pd-links');
-  if(pd) pd.innerHTML = `
-    <button class="pd-item" onclick="showTab('users')">Manage Users</button>
-    <button class="pd-item" onclick="showTab('approvals')">Pending Approvals</button>
-    <button class="pd-item" onclick="showTab('appointments')">All Appointments</button>
-    <button class="pd-item" onclick="authLogout()">Sign Out</button>`;
-})();
+let LS=[],APPTS=[],USERS_LIST=[],PENDING=[];
+let editingUserId=null,editingListingId=null,deletingType=null,deletingId=null,cancelingApptId=null;
+var selCalDay=null,selCalMonth=null,selCalYear=null,calViewMonth=null,calViewYear=null;
 
-function getData(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
-function setData(k,v){sessionStorage.setItem(k,JSON.stringify(v));}
+async function loadData(){
+  try{
+    const [lRes,aRes,uRes]=await Promise.all([apiGetListings(),apiGetAppointments(),apiGetUsers()]);
+    LS=lRes.listings||[];
+    APPTS=aRes.appointments||[];
+    const all=uRes.users||[];
+    USERS_LIST=all.filter(u=>u.isApproved||u.role!=='seller');
+    PENDING=all.filter(u=>!u.isApproved&&u.role==='seller');
+  }catch(e){console.error('Load error',e);}
+}
 
-let LS = getData('hf_ls',[]);
-let APPTS = getData('hf_appts',[]);
-let USERS = [
-  {id:1,name:"James Thompson",  email:"james.t@email.com",    role:"buyer",  joined:"Mar 2024",status:"approved"},
-  {id:2,name:"Sarah Mitchell",   email:"sarah.m@email.com",    role:"seller", joined:"Jan 2024",status:"approved"},
-  {id:3,name:"Ana Rodriguez",    email:"ana.r@email.com",      role:"buyer",  joined:"Apr 2024",status:"approved"},
-  {id:4,name:"Marco Verdi",      email:"marco.v@email.com",    role:"seller", joined:"Feb 2024",status:"approved"},
-  {id:5,name:"Lisa Han",         email:"lisa.h@email.com",     role:"buyer",  joined:"Apr 2024",status:"approved"},
-  {id:6,name:"Dimitris Alexiou", email:"d.alexiou@email.com",  role:"buyer",  joined:"Apr 2024",status:"approved"},
-];
-let PENDING = [
-  {id:7,name:"John Davies",  email:"john.d@email.com",   joined:"Today"},
-  {id:8,name:"Maria Costa",  email:"maria.c@email.com",  joined:"Today"},
-];
-
-let editingUserId = null;
-let editingListingId = null;
-let deletingType = null;
-let deletingId = null;
-let cancelingApptId = null;
-
-/* ── TABS ── */
 function showTab(t){
-  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['users','approvals','listings','appointments','messages','profile'][i]===t));
-  APPTS = getData('hf_appts',[]);
-  LS = getData('hf_ls',[]);
-  const mp = document.getElementById('mp');
+  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','users','approvals','listings','calendar'][i]===t));
+  const mp=document.getElementById('mp');
 
-  if(t==='users'){
-    mp.innerHTML=`
-      <div class="sh"><div><div class="stag">Admin</div><h2>Users</h2></div>
-        <span style="font-size:13px;color:var(--mu)">${USERS.length} accounts</span></div>
-      <div class="srow" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
-        ${[[''+USERS.length,'Total Users'],[''+USERS.filter(u=>u.role==='seller').length,'Sellers'],[''+LS.length,'Listings']].map(([n,l])=>`<div class="sc2"><div class="sbig">${n}</div><div class="slb">${l}</div></div>`).join('')}
+  if(t==='overview'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Overview</h2></div></div>
+      <div class="srow" style="grid-template-columns:repeat(4,1fr)">
+        ${[[''+USERS_LIST.length,'Total Users'],[''+PENDING.length,'Pending'],[''+LS.length,'Listings'],[''+APPTS.filter(a=>a.status!=='cancelled').length,'Appointments']].map(([n,l])=>`<div class="sc2"><div class="sbig">${n}</div><div class="slb">${l}</div></div>`).join('')}
       </div>
-      <table class="dt">
-        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
-        <tbody>${USERS.map(u=>`<tr>
-          <td style="font-weight:600">${u.name}</td>
-          <td style="color:var(--mu);font-size:12px">${u.email}</td>
-          <td><span class="badge b${u.role[0]}">${u.role}</span></td>
-          <td><span class="pill ${u.status==='approved'?'confirmed':'pending'}">${u.status}</span></td>
-          <td style="color:var(--mu);font-size:12px">${u.joined}</td>
-          <td style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="bsm bsm-g" onclick="openEditUser(${u.id})">Edit</button>
-            <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="openDelete('user',${u.id},'${u.name}')">Remove</button>
-          </td>
-        </tr>`).join('')}</tbody>
-      </table>`;
+      <div class="sh"><div><div class="stag">Recent</div><h2 style="font-size:16px">Latest Appointments</h2></div></div>
+      ${APPTS.length?`<table class="dt"><thead><tr><th>Buyer</th><th>Property</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${APPTS.slice(0,5).map(a=>`<tr><td>${a.buyerID?.name||'—'}</td><td>${a.listingID?.title||a.listingID?.location||'—'}</td><td>${a.scheduledAt?new Date(a.scheduledAt).toLocaleDateString('el-GR'):''}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`
+      :'<p style="color:var(--mu);font-size:13px;padding:20px 0">No appointments yet.</p>'}`;
+
+  } else if(t==='users'){
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Users</h2></div><span style="font-size:13px;color:var(--mu)">${USERS_LIST.length} accounts</span></div>
+      <table class="dt"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${USERS_LIST.map(u=>`<tr>
+        <td style="font-weight:600">${u.name}</td><td style="color:var(--mu);font-size:12px">${u.email}</td>
+        <td><span class="badge b${u.role[0]}">${u.role}</span></td>
+        <td><span class="pill ${u.isApproved?'confirmed':'pending'}">${u.isApproved?'approved':'pending'}</span></td>
+        <td style="display:flex;gap:6px">
+          <button class="bsm bsm-g" onclick="openEditUser('${u._id}')">Edit</button>
+          <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="openDelete('user','${u._id}','${u.name}')">Remove</button>
+        </td></tr>`).join('')}</tbody></table>`;
 
   } else if(t==='approvals'){
-    mp.innerHTML=`
-      <div class="sh"><div><div class="stag">Admin</div><h2>Pending Approvals</h2></div>
-        <span style="font-size:13px;color:#856404">${PENDING.length} pending</span></div>
-      <div class="infomsg" style="margin-bottom:16px">Buyers must be approved by an administrator before they can access the platform.</div>
-      ${PENDING.length?`
-      <table class="dt">
-        <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead>
-        <tbody id="pending-tbody">${PENDING.map(u=>`<tr id="prow-${u.id}">
-          <td style="font-weight:600">${u.name}</td>
-          <td style="color:var(--mu);font-size:12px">${u.email}</td>
-          <td style="color:var(--mu);font-size:12px">${u.joined}</td>
-          <td style="display:flex;gap:6px">
-            <button class="bsm bsm-g" onclick="approveUser(${u.id})">Approve</button>
-            <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="rejectUser(${u.id})">Reject</button>
-          </td>
-        </tr>`).join('')}</tbody>
-      </table>`
-      :'<p style="font-size:13px;color:var(--mu);padding:20px 0">No pending approvals at this time.</p>'}`;
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Pending Approvals</h2></div><span style="font-size:13px;color:#856404">${PENDING.length} pending</span></div>
+      <div class="infomsg" style="margin-bottom:16px">Buyers must be approved before accessing the platform.</div>
+      ${PENDING.length?`<table class="dt"><thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
+      <tbody>${PENDING.map(u=>`<tr><td style="font-weight:600">${u.name}</td><td style="color:var(--mu);font-size:12px">${u.email}</td>
+        <td style="display:flex;gap:6px">
+          <button class="bsm bsm-g" onclick="approveUser('${u._id}')">Approve</button>
+          <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="rejectUser('${u._id}')">Reject</button>
+        </td></tr>`).join('')}</tbody></table>`
+      :'<p style="font-size:13px;color:var(--mu);padding:20px 0">No pending approvals.</p>'}`;
 
   } else if(t==='listings'){
-    mp.innerHTML=`
-      <div class="sh"><div><div class="stag">Admin</div><h2>All Listings</h2></div>
-        <button class="bsm bsm-g" style="padding:8px 18px;font-size:12px" onclick="om('nlMod')">+ New Listing</button></div>
-      <div class="lg">${LS.map(l=>`
-        <div class="lc">
-          <div class="li-img" onclick="openL(${l.id})">${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div>
-          <div class="li-body">
-            <div class="li-price">${l.price}</div>
-            <div class="li-addr">${l.address}</div>
-            <div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div>
-            <div class="li-acts">
-              <button class="bsm bsm-g" onclick="openEditListing(${l.id})">Edit</button>
-              <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="openDelete('listing',${l.id},'${l.address}')">Delete</button>
-            </div>
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>All Listings</h2></div></div>
+      ${LS.length?`<div class="lg">${LS.map(l=>{
+        const img=l.files&&l.files[0]?l.files[0].fileURL:'';
+        const price=l.listingMode==='rent'?'€'+l.price+'/mo':'€'+Number(l.price).toLocaleString();
+        const id=l._id||l.id;
+        return `<div class="lc" onclick="sessionStorage.setItem('hf_listing_id','${id}');location.href='listing.html'">
+          <div class="li-img">${img?`<img src="${img}" alt="${l.location}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}<div class="li-badge">${l.type}</div></div>
+          <div class="li-body"><div class="li-price">${price}</div><div class="li-addr">${l.location}</div>
+          <div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span></div>
+          <div class="li-acts">
+            <button class="bsm bsm-g" onclick="event.stopPropagation();openEditListing('${id}')">Edit</button>
+            <button class="bsm bsm-o" style="color:#a03030;border-color:#f5c6c6" onclick="event.stopPropagation();openDelete('listing','${id}','${l.location}')">Delete</button>
+          </div></div></div>`;
+      }).join('')}</div>`:'<p style="color:var(--mu);font-size:13px;padding:20px 0">No listings yet.</p>'}`;
+
+  } else if(t==='calendar'){
+    const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+    const todayD=now.getDate(),todayM=now.getMonth(),todayY=now.getFullYear(),nowH=now.getHours();
+    if(calViewMonth===null){calViewMonth=todayM;calViewYear=todayY;}
+    const maxDate=new Date(todayY,todayM,todayD+30);
+    const maxM=maxDate.getMonth(),maxY=maxDate.getFullYear();
+    const mn=new Date(calViewYear,calViewMonth,1).toLocaleString('en-US',{month:'long'});
+    const dim=new Date(calViewYear,calViewMonth+1,0).getDate();
+    const first=new Date(calViewYear,calViewMonth,1).getDay();
+    const offset=first===0?6:first-1;
+    if(selCalDay===null){selCalDay=todayD;selCalMonth=todayM;selCalYear=todayY;}
+    const bookedDays=APPTS.filter(a=>a.status!=='cancelled').map(a=>{
+      const d=new Date(a.scheduledAt||a.date);
+      return d.getMonth()===calViewMonth&&d.getFullYear()===calViewYear?d.getDate():null;
+    }).filter(Boolean);
+    const days=['Mo','Tu','We','Th','Fr','Sa','Su'];
+    let cal=days.map(d=>`<div class="bk-cal-hd">${d}</div>`).join('');
+    for(let i=0;i<offset;i++) cal+='<div class="bk-day empty"></div>';
+    for(let d=1;d<=dim;d++){
+      const thisDate=new Date(calViewYear,calViewMonth,d);
+      const isPast=thisDate<new Date(todayY,todayM,todayD)||thisDate>maxDate;
+      const isToday=d===todayD&&calViewMonth===todayM&&calViewYear===todayY;
+      const isSel=selCalDay===d&&selCalMonth===calViewMonth&&selCalYear===calViewYear;
+      const isBooked=bookedDays.includes(d);
+      let cls='bk-day'+(isPast?' past':'')+(isBooked?' booked':'')+(isToday&&!isSel?' today':'')+(isSel?' selected':'');
+      const onclick=isPast?'':` onclick="adminSelDay(${d},${calViewMonth},${calViewYear})"`;
+      cal+=`<div class="${cls}"${onclick}>${d}</div>`;
+    }
+    const selAppts=APPTS.filter(a=>{
+      const d=new Date(a.scheduledAt||a.date);
+      return d.getDate()===selCalDay&&d.getMonth()===selCalMonth&&d.getFullYear()===selCalYear&&a.status!=='cancelled';
+    });
+    const bookedTimes=selAppts.map(a=>parseInt((a.time||'').split(':')[0]));
+    let slots='';
+    for(let h=8;h<=20;h++){
+      const isPast2=(selCalYear<todayY)||(selCalYear===todayY&&selCalMonth<todayM)||(selCalYear===todayY&&selCalMonth===todayM&&selCalDay<todayD)||(selCalDay===todayD&&selCalMonth===todayM&&selCalYear===todayY&&h<=nowH);
+      const isB=bookedTimes.includes(h);
+      const appt=selAppts.find(a=>parseInt((a.time||'').split(':')[0])===h);
+      slots+=`<div class="bk-slot${isPast2?' past':''}${isB?' booked':''}">
+        <div style="font-weight:700">${h}:00</div>
+        ${isB?`<div style="font-size:9px">${appt?.buyerID?.name||'Buyer'}</div><div style="font-size:9px;color:var(--mu)">${appt?.listingID?.title||appt?.listingID?.location||''}</div>`:'<div style="font-size:10px;color:var(--li)">Free</div>'}
+      </div>`;
+    }
+    const dayAppts=APPTS.filter(a=>{
+      const d=new Date(a.scheduledAt||a.date);
+      return d.getDate()===selCalDay&&d.getMonth()===selCalMonth&&d.getFullYear()===selCalYear;
+    });
+    const canPrev=!(calViewMonth===todayM&&calViewYear===todayY);
+    const canNext=!(calViewMonth===maxM&&calViewYear===maxY);
+    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Calendar</h2></div></div>
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:24px;margin-bottom:28px">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <button onclick="adminCalNav(-1)" style="background:none;border:1px solid var(--br);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;${canPrev?'':'opacity:.3;cursor:default'}">‹</button>
+            <div style="font-size:12px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px">${mn} ${calViewYear}</div>
+            <button onclick="adminCalNav(1)" style="background:none;border:1px solid var(--br);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;${canNext?'':'opacity:.3;cursor:default'}">›</button>
           </div>
-        </div>`).join('')}</div>`;
-
-  } else if(t==='appointments'){
-    mp.innerHTML=`
-      <div class="sh"><div><div class="stag">Admin</div><h2>All Appointments</h2></div></div>
-      <div class="infomsg" style="margin-bottom:16px">You can cancel any appointment in an emergency. The buyer will be notified.</div>
-      <table class="dt">
-        <thead><tr><th>Buyer</th><th>Seller</th><th>Property</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>${APPTS.length?APPTS.map(a=>`<tr>
-          <td>${a.buyer}</td><td>${a.seller}</td><td>${a.property}</td>
-          <td style="font-size:12px;color:var(--mu)">${a.date}</td>
-          <td style="font-size:12px;color:var(--mu)">${a.time}</td>
-          <td><span class="pill ${a.status}">${a.status}</span></td>
-          <td>${a.status!=='cancelled'?`<button class="bsm bsm-o" style="font-size:10px;padding:4px 10px;color:#a03030;border-color:#f5c6c6" onclick="openCancelAppt(${a.id},'${a.property}')">Cancel</button>`:'<span style="font-size:11px;color:var(--li)">—</span>'}</td>
-        </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:24px">No appointments yet.</td></tr>'}</tbody>
-      </table>`;
-
-  } else if(t==='messages'){
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Admin</div><h2>Messages</h2></div></div>
-      <div class="infomsg">Admin can monitor all conversations. Real-time chat via Socket.io.</div>
-      <div style="padding:40px;text-align:center;color:var(--mu);border:1px dashed var(--br)">
-        <p style="font-size:14px;margin-bottom:8px">No active conversations.</p>
-        <span style="font-size:12px">All buyer-seller conversations will appear here for monitoring.</span>
-      </div>`;
-  } else if(t==='profile'){
-    mp.innerHTML=`
-      <div class="sh"><div><div class="stag">Admin</div><h2>Profile</h2></div></div>
-      <div style="max-width:400px">
-        <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="ap-name" value="Admin User"/></div>
-        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="ap-email" value="admin@homefinder.com"/></div>
-        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="ap-pw" placeholder="Leave blank to keep current"/></div>
-        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="saveAdminProfile()">Save Changes</button>
-      </div>`;
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cal}</div>
+          <div style="margin-top:8px;font-size:10px;color:var(--mu)">&#9679; Booked &nbsp; &#8212; Past/unavailable</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--g);margin-bottom:10px;text-transform:uppercase">${selCalDay}/${selCalMonth+1}/${selCalYear}</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${slots}</div>
+        </div>
+      </div>
+      <div class="sh"><div><div class="stag">All Bookings</div><h2 style="font-size:16px">Appointments on ${selCalDay}/${selCalMonth+1}/${selCalYear}</h2></div></div>
+      ${dayAppts.length?`<table class="dt"><thead><tr><th>Buyer</th><th>Seller</th><th>Property</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${dayAppts.map(a=>`<tr>
+        <td style="font-weight:600">${a.buyerID?.name||'—'}</td>
+        <td>${a.listingID?.sellerID?.name||'—'}</td>
+        <td>${a.listingID?.title||a.listingID?.location||'—'}</td>
+        <td>${a.time||'—'}</td>
+        <td><span class="pill ${a.status}">${a.status}</span></td>
+        <td>${a.status!=='cancelled'?`<button class="bsm bsm-o" style="font-size:10px;padding:4px 10px;color:#a03030;border-color:#f5c6c6" onclick="openCancelAppt('${a._id}','${a.listingID?.location||''}')">Cancel</button>`:'<span style="font-size:11px;color:var(--li)">—</span>'}</td>
+      </tr>`).join('')}</tbody></table>`
+      :'<p style="color:var(--mu);font-size:13px;padding:12px 0">No appointments on this day.</p>'}`;
   }
 }
 
-/* ── USER EDIT ── */
+function adminSelDay(d,m,y){selCalDay=d;selCalMonth=m;selCalYear=y;showTab('calendar');}
+function adminCalNav(dir){
+  const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
+  const maxDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()+30);
+  const maxM=maxDate.getMonth(),maxY=maxDate.getFullYear();
+  let m=calViewMonth+dir,y=calViewYear;
+  if(m>11){m=0;y++;}if(m<0){m=11;y--;}
+  if(y<now.getFullYear()||(y===now.getFullYear()&&m<now.getMonth()))return;
+  if(y>maxY||(y===maxY&&m>maxM))return;
+  calViewMonth=m;calViewYear=y;showTab('calendar');
+}
+
+/* USER EDIT */
 function openEditUser(id){
-  const u = USERS.find(x=>x.id===id);
-  if(!u) return;
-  editingUserId = id;
-  document.getElementById('eu-name').value   = u.name;
-  document.getElementById('eu-email').value  = u.email;
-  document.getElementById('eu-role').value   = u.role;
-  document.getElementById('eu-status').value = u.status;
+  const u=USERS_LIST.find(x=>(x._id||x.id)===id)||PENDING.find(x=>(x._id||x.id)===id);
+  if(!u)return;
+  editingUserId=id;
+  document.getElementById('eu-name').value=u.name||'';
+  document.getElementById('eu-email').value=u.email||'';
+  document.getElementById('eu-role').value=u.role||'buyer';
+  document.getElementById('eu-approved').value=u.isApproved?'true':'false';
   om('editUserMod');
 }
-function saveUser(){
-  const u = USERS.find(x=>x.id===editingUserId);
-  if(u){
-    u.name   = document.getElementById('eu-name').value.trim()   || u.name;
-    u.email  = document.getElementById('eu-email').value.trim()  || u.email;
-    u.role   = document.getElementById('eu-role').value;
-    u.status = document.getElementById('eu-status').value;
-  }
-  cm('editUserMod');
-  toast('User updated successfully.');
-  loadData().then(()=>showTab('users'));
+async function saveEditUser(){
+  try{
+    await apiApproveUser(editingUserId);
+    cm('editUserMod');
+    toast('User updated.');
+    loadData().then(()=>showTab('users'));
+  }catch(e){toast('Error updating user.');}
 }
 
-/* ── LISTING EDIT ── */
+/* LISTING EDIT */
 function openEditListing(id){
-  const l = LS.find(x=>x.id===id);
-  if(!l) return;
-  editingListingId = id;
-  document.getElementById('el-price').value = l.raw;
-  document.getElementById('el-type').value  = l.type;
-  document.getElementById('el-addr').value  = l.address;
-  document.getElementById('el-beds').value  = l.beds;
-  document.getElementById('el-baths').value = l.baths;
-  document.getElementById('el-desc').value  = l.desc;
+  const l=LS.find(x=>(x._id||x.id)===id);
+  if(!l)return;
+  editingListingId=id;
+  document.getElementById('el-price').value=l.price||'';
+  document.getElementById('el-type').value=l.type||'House';
+  document.getElementById('el-addr').value=l.location||'';
+  document.getElementById('el-beds').value=l.beds||'';
+  document.getElementById('el-baths').value=l.baths||'';
+  document.getElementById('el-desc').value=l.description||'';
   om('editListingMod');
 }
-function saveListing(){
-  const l = LS.find(x=>x.id===editingListingId);
-  if(l){
-    const newPrice = parseInt(document.getElementById('el-price').value);
-    l.raw     = newPrice || l.raw;
-    l.price   = '€' + (l.raw).toLocaleString();
-    l.type    = document.getElementById('el-type').value;
-    l.address = document.getElementById('el-addr').value.trim() || l.address;
-    l.beds    = parseInt(document.getElementById('el-beds').value)  || l.beds;
-    l.baths   = parseInt(document.getElementById('el-baths').value) || l.baths;
-    l.desc    = document.getElementById('el-desc').value.trim()  || l.desc;
-    
-  }
-  cm('editListingMod');
-  toast('Listing updated successfully.');
-  showTab('listings');
-}
-
-/* ── ADD LISTING ── */
-function addListing(){
-  const addr  = document.getElementById('nl-addr').value.trim();
-  const price = parseInt(document.getElementById('nl-price').value);
-  if(!addr || !price){ toast('Please fill in address and price.'); return; }
-  const newL = {
-    id: Date.now(), price:'€'+price.toLocaleString(), raw:price,
-    address:addr, city:addr.split(',')[0].trim(),
-    type: document.getElementById('nl-type').value,
-    beds: parseInt(document.getElementById('nl-beds').value)||3,
-    baths:parseInt(document.getElementById('nl-baths').value)||1,
-    sqft: document.getElementById('nl-sqft').value||'100 m²',
-    desc: document.getElementById('nl-desc').value||'Property in Athens.',
-    seller:'Admin User', si:'AU',
-    img:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=80'
+async function saveEditListing(){
+  const data={
+    price:parseInt(document.getElementById('el-price').value),
+    type:document.getElementById('el-type').value,
+    location:document.getElementById('el-addr').value.trim(),
+    beds:parseInt(document.getElementById('el-beds').value)||1,
+    baths:parseInt(document.getElementById('el-baths').value)||1,
+    description:document.getElementById('el-desc').value.trim()
   };
-  LS.push(newL);
-  
-  cm('nlMod');
-  toast('New listing added successfully!');
-  showTab('listings');
+  try{
+    await apiUpdateListing(editingListingId,data);
+    cm('editListingMod');
+    toast('Listing updated.');
+    loadData().then(()=>showTab('listings'));
+  }catch(e){toast('Error updating listing.');}
 }
 
-/* ── DELETE ── */
-function openDelete(type, id, name){
-  deletingType = type;
-  deletingId   = id;
-  document.getElementById('del-msg').textContent = `Delete "${name}"? This cannot be undone.`;
+/* DELETE */
+function openDelete(type,id,name){
+  deletingType=type;deletingId=id;
+  document.getElementById('del-msg').textContent=`Delete "${name}"? This cannot be undone.`;
   om('confirmDelMod');
 }
-function confirmDelete(){
-  if(deletingType==='user'){
-    USERS = USERS.filter(u=>u.id!==deletingId);
-    toast('User removed.');
-    cm('confirmDelMod'); loadData().then(()=>showTab('users'));
-  } else if(deletingType==='listing'){
-    LS = LS.filter(l=>l.id!==deletingId);
-    
-    toast('Listing deleted.');
-    cm('confirmDelMod'); showTab('listings');
-  }
+async function confirmDelete(){
+  try{
+    if(deletingType==='listing') await apiDeleteListing(deletingId);
+    cm('confirmDelMod');
+    toast('Deleted successfully.');
+    loadData().then(()=>showTab(deletingType==='listing'?'listings':'users'));
+  }catch(e){toast('Error deleting.');}
 }
 
-/* ── APPROVALS ── */
+/* APPROVALS */
 async function approveUser(id){
   try{
     await apiApproveUser(id);
-    const u=PENDING.find(x=>(x._id||x.id)===id);
-    if(u){
-      u.isApproved=true;
-      USERS.push(u);
-      PENDING=PENDING.filter(x=>(x._id||x.id)!==id);
-      toast((u.name||'User')+' approved successfully.');
-      showTab('approvals');
-    }
-  } catch(e){ toast('Error approving user.'); }
+    toast('User approved.');
+    loadData().then(()=>showTab('approvals'));
+  }catch(e){toast('Error approving user.');}
 }
 function rejectUser(id){
-  const u = PENDING.find(x=>x.id===id);
-  if(u){ PENDING = PENDING.filter(x=>x.id!==id); toast(u.name+' rejected.'); showTab('approvals'); }
+  PENDING=PENDING.filter(x=>(x._id||x.id)!==id);
+  toast('User rejected.');
+  showTab('approvals');
 }
 
-/* ── CANCEL APPOINTMENT ── */
-function openCancelAppt(id, prop){
-  cancelingApptId = id;
-  document.getElementById('ca-msg').textContent = `Cancel the appointment for "${prop}"? The buyer will be notified.`;
+/* CANCEL APPOINTMENT */
+function openCancelAppt(id,prop){
+  cancelingApptId=id;
+  document.getElementById('ca-msg').textContent=`Cancel the appointment for "${prop}"?`;
   om('cancelApptMod');
 }
 async function doAdminCancel(){
   try{
     await apiCancelAppointment(cancelingApptId);
-    const a=APPTS.find(x=>(x._id||x.id)===cancelingApptId);
-    if(a) a.status='cancelled';
     cm('cancelApptMod');
-    toast('Appointment cancelled by admin.');
-    showTab('appointments');
-  } catch(e){ toast('Error cancelling appointment.'); }
+    toast('Appointment cancelled.');
+    loadData().then(()=>showTab('calendar'));
+  }catch(e){toast('Error cancelling.');}
 }
 
-/* ── PROFILE ── */
-function saveAdminProfile(){
-  const name = document.getElementById('ap-name').value.trim();
-  const pw   = document.getElementById('ap-pw').value;
-  if(name && USER){ USER.name=name; sessionStorage.setItem('hf_user',JSON.stringify(USER)); }
-  toast(pw ? 'Profile and password updated.' : 'Profile saved.');
+/* PROFILE */
+function openProfileModal(){
+  const nm=(USER.name||'').split(' ');
+  document.getElementById('ep-fn').value=nm[0]||'';
+  document.getElementById('ep-ln').value=nm[1]||'';
+  document.getElementById('ep-email').value=USER.email||'';
+  document.getElementById('ep-oldpw').value='';
+  document.getElementById('ep-newpw').value='';
+  document.getElementById('ep-conpw').value='';
+  document.getElementById('prof-err').style.display='none';
+  om('profileMod');
+}
+function saveProfile(){
+  const fn=document.getElementById('ep-fn').value.trim();
+  const ln=document.getElementById('ep-ln').value.trim();
+  const email=document.getElementById('ep-email').value.trim();
+  const oldpw=document.getElementById('ep-oldpw').value;
+  const newpw=document.getElementById('ep-newpw').value;
+  const conpw=document.getElementById('ep-conpw').value;
+  const err=document.getElementById('prof-err');
+  err.style.display='none';
+  if(!fn||!ln){err.textContent='Name required.';err.style.display='block';return;}
+  if(oldpw||newpw||conpw){
+    if(!oldpw){err.textContent='Enter current password.';err.style.display='block';return;}
+    if(newpw.length<8){err.textContent='Min 8 characters.';err.style.display='block';return;}
+    if(newpw!==conpw){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  }
+  USER.name=fn+' '+ln;
+  USER.initials=(fn[0]+ln[0]).toUpperCase();
+  if(email)USER.email=email;
+  saveUser(USER);
+  document.getElementById('prof-btn').textContent=USER.initials;
+  document.getElementById('pd-name').textContent=USER.name;
+  document.getElementById('sb-av').textContent=USER.initials;
+  document.getElementById('sb-name').textContent=USER.name;
+  cm('profileMod');
+  toast('Profile saved!');
 }
 
-function openL(id){ sessionStorage.setItem('hf_cur',id); location.href='home.html'; }
-function om(id){ document.getElementById(id).classList.add('on'); }
-function cm(id){ document.getElementById(id).classList.remove('on'); }
+/* UTILS */
+function om(id){document.getElementById(id).classList.add('on');}
+function cm(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
-function openMenu(){ document.getElementById('mOv').classList.add('on'); document.getElementById('sMenu').classList.add('on'); }
-function closeMenu(){ document.getElementById('mOv').classList.remove('on'); document.getElementById('sMenu').classList.remove('on'); }
-function toggleProf(){ document.getElementById('prof-drop').classList.toggle('on'); }
-document.addEventListener('click',e=>{ if(!e.target.closest('.prof-wrap')) document.getElementById('prof-drop').classList.remove('on'); });
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),3200); }
-loadData().then(()=>showTab('users'));
+function openMenu(){document.getElementById('mOv').classList.add('on');document.getElementById('sMenu').classList.add('on');}
+function closeMenu(){document.getElementById('mOv').classList.remove('on');document.getElementById('sMenu').classList.remove('on');}
+function closePd(){document.getElementById('prof-drop').classList.remove('on');}
+function toggleProf(){document.getElementById('prof-drop').classList.toggle('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-wrap'))closePd();});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200);}
+
+loadData().then(()=>showTab('overview'));
 </script>
 </body>
 </html>

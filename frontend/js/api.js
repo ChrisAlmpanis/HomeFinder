@@ -32,11 +32,6 @@ async function apiGetListing(id) {
   return res.json();
 }
 
-async function apiGetListing(id) {
-  const res = await fetch(`${API}/listings/${id}`);
-  return res.json();
-}
-
 async function apiCreateListing(data) {
   const res = await fetch(`${API}/listings`, {
     method: 'POST',
@@ -113,6 +108,40 @@ async function apiApproveUser(id) {
   return res.json();
 }
 
+// ── Messages ──────────────────────────────────────
+async function apiGetConversations() {
+  const res = await fetch(`${API}/messages`, {
+    headers: { 'Authorization': `Bearer ${getToken()}` }
+  });
+  return res.json();
+}
+
+async function apiSendMessage(data) {
+  const res = await fetch(`${API}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function apiMarkRead(otherUserID) {
+  const res = await fetch(`${API}/messages/read/${otherUserID}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${getToken()}` }
+  });
+  return res.json();
+}
+
+async function apiBookAppointment(data) {
+  const res = await fetch(`${API}/appointments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
 // ── Helpers ───────────────────────────────────────
 function getToken() {
   const user = JSON.parse(sessionStorage.getItem('hf_user') || '{}');
@@ -131,3 +160,4 @@ function logout() {
   sessionStorage.clear();
   window.location.href = 'index.html';
 }
+

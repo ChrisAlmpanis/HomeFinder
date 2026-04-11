@@ -23,6 +23,7 @@ app.use(express.static('../frontend'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/listings', require('./routes/listings'));
 app.use('/api/appointments', require('./routes/appointments'));
+app.use('/api/messages', require('./routes/messages'));
 app.use('/api/users', require('./routes/users'));
 
 // Health check

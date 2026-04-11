@@ -41,6 +41,38 @@ nav{position:relative;z-index:100}
 <body>
 <div class="toast" id="toast"></div>
 
+<!-- EDIT LISTING MODAL -->
+<div class="ov" id="elMod">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hdr">
+      <button class="modal-back" onclick="cm('elMod')">← Back</button>
+      <h2>Edit Listing</h2>
+      <span style="width:60px"></span>
+    </div>
+    <div class="modal-body">
+      <div class="frow">
+        <div class="fg"><label class="fl">Title</label><input type="text" class="fi" id="el-title"/></div>
+        <div class="fg"><label class="fl">Price (€)</label><input type="number" class="fi" id="el-price"/></div>
+      </div>
+      <div class="fg"><label class="fl">Address</label><input type="text" class="fi" id="el-addr"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Type</label><select class="fi" id="el-type"><option>House</option><option>Apartment</option><option>Studio</option><option>Townhouse</option></select></div>
+        <div class="fg"><label class="fl">Bedrooms</label><input type="number" class="fi" id="el-beds" min="1"/></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Bathrooms</label><input type="number" class="fi" id="el-baths" min="1"/></div>
+        <div class="fg"><label class="fl">Size</label><input type="text" class="fi" id="el-sqft" placeholder="e.g. 120 m²"/></div>
+      </div>
+      <div class="fg"><label class="fl">Mode</label><select class="fi" id="el-mode"><option value="buy">For Sale</option><option value="rent">For Rent</option></select></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="el-desc" rows="3" style="resize:vertical"></textarea></div>
+      <div class="macts">
+        <button class="bfu bfu-g" style="max-width:140px" onclick="saveEditL()">Save Changes</button>
+        <button class="bfu bfu-o" style="max-width:110px" onclick="cm('elMod')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- NEW LISTING MODAL -->
 <div class="ov" id="nlMod">
   <div class="modal" style="max-width:540px">
@@ -173,13 +205,41 @@ function card(l){
 function openL(id){sessionStorage.setItem('hf_listing_id',id);location.href='listing.html';}
 function openEditL(id){
   const l=LS.find(x=>(x._id||x.id)===id);if(!l)return;
-  om('nlMod');
-  setTimeout(()=>{
-    const t=document.querySelector('#nlMod [placeholder="3-Bed House"]');
-    if(t)t.value=l.title||l.address||'';
-    const p=document.querySelector('#nlMod input[type=number]');
-    if(p)p.value=l.price||'';
-  },50);
+  document.getElementById('el-title').value=l.title||l.address||'';
+  document.getElementById('el-price').value=l.price||'';
+  document.getElementById('el-addr').value=l.location||l.address||'';
+  document.getElementById('el-beds').value=l.beds||'';
+  document.getElementById('el-baths').value=l.baths||'';
+  document.getElementById('el-sqft').value=l.sqft||'';
+  document.getElementById('el-desc').value=l.description||'';
+  document.getElementById('el-mode').value=l.listingMode==='rent'?'rent':'buy';
+  const typeEl=document.getElementById('el-type');
+  for(let i=0;i<typeEl.options.length;i++){
+    if(typeEl.options[i].value===l.type){typeEl.selectedIndex=i;break;}
+  }
+  document.getElementById('elMod').dataset.editId=id;
+  om('elMod');
+}
+async function saveEditL(){
+  const id=document.getElementById('elMod').dataset.editId;
+  const data={
+    title:document.getElementById('el-title').value.trim(),
+    price:parseInt(document.getElementById('el-price').value),
+    location:document.getElementById('el-addr').value.trim(),
+    type:document.getElementById('el-type').value,
+    beds:parseInt(document.getElementById('el-beds').value)||1,
+    baths:parseInt(document.getElementById('el-baths').value)||1,
+    sqft:document.getElementById('el-sqft').value.trim(),
+    description:document.getElementById('el-desc').value.trim(),
+    listingMode:document.getElementById('el-mode').value
+  };
+  if(!data.title||!data.price||!data.location){toast('Please fill in title, price and address.');return;}
+  try{
+    await apiUpdateListing(id,data);
+    cm('elMod');
+    toast('Listing updated!');
+    loadData().then(()=>showTab('listings'));
+  } catch(e){ toast('Error saving changes.'); }
 }
 function deleteL(id){
   if(!confirm('Delete this listing?')) return;
