@@ -196,7 +196,11 @@ var selCalDay=null,selCalMonth=null,selCalYear=null,calViewMonth=null,calViewYea
 
 async function loadData(){
   try{
-    const [lRes,aRes,uRes]=await Promise.all([apiGetListings(),apiGetAppointments(),apiGetUsers()]);
+    const [lRes,aRes,uRes]=await Promise.all([
+      apiGetListings().catch(e=>({listings:[]})),
+      apiGetAppointments().catch(e=>({appointments:[]})),
+      apiGetUsers().catch(e=>({users:[]}))
+    ]);
     LS=lRes.listings||[];
     APPTS=aRes.appointments||[];
     const all=uRes.users||[];

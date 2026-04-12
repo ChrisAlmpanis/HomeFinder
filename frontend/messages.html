@@ -61,7 +61,7 @@ nav{position:relative;z-index:400}main, .chat-page-wrap{position:relative;z-inde
 .msg-group{display:flex;flex-direction:column;margin-bottom:14px}.msg-group.me{align-items:flex-end}
 .msg-row{display:flex;align-items:flex-end;gap:7px}.msg-row.me{flex-direction:row-reverse}
 .msg-av-sm{width:26px;height:26px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
-.msg-av-sm.me-av{background:#1a4a6b}
+.msg-av-sm.me-av{background:#1e6b45}
 .bubble{padding:9px 14px;font-size:13px;line-height:1.55;max-width:460px}
 .bubble.them{background:#fff;border:1px solid var(--br)}.bubble.me{background:var(--g);color:#fff}
 .date-divider{display:flex;align-items:center;gap:10px;margin:14px 0}
@@ -206,11 +206,11 @@ async function loadConversations(){
       const c = CONVOS.find(c=>c.other._id===targetID);
       if(c) openConvo(c.other._id);
       else {
-        // No existing convo — start a new one by sending an intro message
-        try{
-          await apiSendMessage({receiverID:targetID, listingID:targetListingID, content:'Hi, I am interested in your listing.'});
-          await loadConversations();
-        } catch(e){ renderEmptyChat('Could not start conversation.'); }
+        renderEmptyChat('Send a message to start the conversation.');
+        document.getElementById('chat-input').focus();
+        // Store target so sendMsg knows who to message first time
+        window._pendingReceiverID = targetID;
+        window._pendingListingID = targetListingID || null;
       }
     } else if(CONVOS.length>0){
       openConvo(CONVOS[0].other._id);
@@ -231,8 +231,9 @@ function renderConvoList(filter=''){
     const t = last ? new Date(last.createdAt).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'}) : '';
     const initials = c.other.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
     const isActive = c.other._id === activeOtherID;
+    const avColor = c.other.role==='admin'?'#6b1a1a':c.other.role==='buyer'?'#1a4a6b':'#1e6b45';
     return `<div class="convo-item${isActive?' active':''}" onclick="openConvo('${c.other._id}')">
-      <div class="convo-av">${initials}</div>
+      <div class="convo-av" style="background:${avColor}">${initials}</div>
       <div class="convo-info"><div class="convo-name">${c.other.name}</div><div class="convo-preview">${esc(preview)}</div></div>
       <div class="convo-meta"><div class="convo-time">${t}</div>${c.unread>0?`<span class="convo-badge">${c.unread}</span>`:''}</div>
     </div>`;
@@ -252,11 +253,12 @@ async function openConvo(otherID){
   renderConvoList();
 
   const initials = c.other.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-  const role = c.other.role==='seller'?'Verified Seller':'Buyer';
+  const role = c.other.role==='seller'?'Verified Seller':c.other.role==='admin'?'Administrator':'Buyer';
+  const avatarColor = c.other.role==='admin'?'#6b1a1a':c.other.role==='buyer'?'#1a4a6b':'#1e6b45';
   const listing = c.listing;
 
   document.getElementById('chat-topbar').innerHTML=`
-    <div class="chat-topbar-av">${initials}</div>
+    <div class="chat-topbar-av" style="background:${avatarColor}">${initials}</div>
     <div><div class="chat-topbar-name">${c.other.name}</div><div class="chat-topbar-sub">● ${role}</div></div>
     <div class="chat-topbar-acts"><button class="chat-act chat-act-o" onclick="goBack()">← Back</button></div>`;
 
@@ -269,7 +271,7 @@ async function openConvo(otherID){
 
   c.messages.forEach(m=>{
     const isMe = m.senderID._id===USER._id || m.senderID===USER._id;
-    html += buildBubble({me:isMe, text:m.content, time:new Date(m.createdAt).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'})}, initials, '#1e6b45');
+    html += buildBubble({me:isMe, text:m.content, time:new Date(m.createdAt).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'})}, isMe?USER.initials:initials, avatarColor);
   });
 
   const box = document.getElementById('chat-msgs');
@@ -279,11 +281,12 @@ async function openConvo(otherID){
 
 function buildBubble({me, text, time}, initials, color){
   const ui = USER.initials||'?';
+  const myColor = USER.role==='admin'?'#6b1a1a':USER.role==='seller'?'#1e6b45':'#1a4a6b';
   return `<div class="msg-group${me?' me':''}">
     <div class="msg-row${me?' me':''}">
       ${!me?`<div class="msg-av-sm" style="background:${color}">${initials}</div>`:'<div style="width:26px"></div>'}
       <div class="bubble ${me?'me':'them'}">${esc(text)}</div>
-      ${me?`<div class="msg-av-sm me-av">${ui}</div>`:'<div style="width:26px"></div>'}
+      ${me?`<div class="msg-av-sm me-av" style="background:${myColor}">${ui}</div>`:'<div style="width:26px"></div>'}
       <span style="font-size:10px;color:var(--li)">${time}</span>
     </div>
   </div>`;
@@ -292,24 +295,30 @@ function buildBubble({me, text, time}, initials, color){
 async function sendMsg(){
   const inp = document.getElementById('chat-input');
   const txt = inp.value.trim();
-  if(!txt||!activeOtherID) return;
+  if(!txt) return;
+  // Set activeOtherID from pending if not set yet
+  if(!activeOtherID && window._pendingReceiverID){
+    activeOtherID = window._pendingReceiverID;
+  }
+  if(!activeOtherID) return;
   inp.value = '';
 
   const c = CONVOS.find(x=>x.other._id===activeOtherID);
-  const listingID = c?.listing?._id||null;
+  const listingID = c?.listing?._id||window._pendingListingID||null;
 
   try{
     const res = await apiSendMessage({receiverID:activeOtherID, listingID, content:txt});
     const m = res.message;
-    // Add to local convo
     if(c){ c.messages.push(m); c.unread=0; }
-    // Emit via socket
     socket.emit('sendMessage',{receiverID:activeOtherID, senderID:USER._id, content:txt, senderInitials:USER.initials});
-    // Render
     const msgs = document.getElementById('chat-msgs');
     msgs.innerHTML += buildBubble({me:true, text:txt, time:now()}, '', '');
     msgs.scrollTop = msgs.scrollHeight;
-    renderConvoList();
+    window._pendingReceiverID = null;
+    window._pendingListingID = null;
+    const keepID = activeOtherID;
+    await loadConversations();
+    if(keepID) openConvo(keepID);
   } catch(e){ toast('Could not send message.'); }
 }
 

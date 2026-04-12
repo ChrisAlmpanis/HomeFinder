@@ -30,4 +30,14 @@ router.get('/me', protect, async (req, res) => {
   res.json({ user: req.user });
 });
 
+// GET /api/users/admins — any logged in user can get admin list for support
+router.get('/admins', protect, async (req, res) => {
+  try {
+    const admins = await User.find({ role: 'admin' }).select('name email role');
+    res.json({ users: admins });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

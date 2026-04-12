@@ -9,9 +9,14 @@ router.get('/', protect, async (req, res) => {
     const filter = req.user.role === 'admin' ? {} : { buyerID: req.user._id };
     const appointments = await Appointment.find(filter)
       .populate('buyerID', 'name email')
-      .populate('listingID', 'title location');
+      .populate({
+        path: 'listingID',
+        select: 'title location sellerID',
+        populate: { path: 'sellerID', select: 'name' }
+      });
     res.json({ appointments });
   } catch (error) {
+    console.error('Appointments error:', error);
     res.status(500).json({ error: error.message });
   }
 });

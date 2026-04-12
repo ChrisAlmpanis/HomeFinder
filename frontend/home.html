@@ -215,29 +215,12 @@
 <div class="toast" id="toast"></div>
 
 <!-- BOOKING MODAL -->
-<div class="ov" id="bkMod">
-  <div class="modal">
-    <div class="modal-hdr"><button class="modal-back" onclick="cm('bkMod')">← Back</button><h2>Book a Viewing</h2><span style="width:50px"></span></div>
-    <div class="modal-body">
-      <p id="bk-txt">Select a date in May 2025.</p>
-      <div class="cal-wrap">
-        <div class="cal-month-hdr"><span>📅 May 2025</span><span style="font-size:11px;color:var(--mu)">Red = already booked</span></div>
-        <div class="cal-grid-m" id="bk-cal"></div>
-      </div>
-      <div class="fg" style="margin-top:12px"><label class="fl">Selected Date</label><input type="text" class="fi" id="bk-date" placeholder="Click a date above" readonly/></div>
-      <div class="fg"><label class="fl">Time Slot</label><select class="fi" id="bk-time"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>3:30 PM</option><option>5:00 PM</option></select></div>
-      <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="bk-name" placeholder="Full name"/></div>
-      <div class="macts"><button class="bfu bfu-g" style="max-width:140px" onclick="confirmBook()">Confirm</button><button class="bfu bfu-o" style="max-width:110px" onclick="cm('bkMod')">Cancel</button></div>
-    </div>
-  </div>
-</div>
-
 <!-- NAV + SIDE MENU -->
 <div class="m-overlay" id="mOv" onclick="closeMenu()"></div>
 <div class="side-menu" id="sMenu">
   <div class="sm-top"><span class="sm-title">Home Finder</span><button class="sm-x" onclick="closeMenu()">×</button></div>
   <div class="sm-nav">
-    <button class="sm-item" onclick="closeMenu();goView('home')">Home</button>
+    <button class="sm-item" onclick="closeMenu()">Home</button>
     <button class="sm-item" onclick="location.href='messages.html'">Messages</button>
     <div class="sm-div"></div>
     <div id="sm-auth-links"></div>
@@ -246,7 +229,7 @@
 </div>
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <div class="nav-center"><button class="logo" onclick="goView('home')">Home Finder</button></div>
+  <div class="nav-center"><button class="logo" onclick="applyFilters()">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" onclick="toggleProf()">G</div>
@@ -345,44 +328,13 @@
   </div>
 <footer class="site-footer"><div class="footer-bottom"><div class="f-copy">© 2025 Home Finder. All rights reserved.</div><div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
 
-<!-- ████ VIEW: LISTING DETAIL ████ -->
-<div class="view" id="view-listing">
-  <div class="dh" id="det-hero"><span id="det-hero-ph" style="font-size:11px;color:var(--li);text-transform:uppercase;letter-spacing:1px">Property Photo</span><button class="dh-back" onclick="goView('browse')">← Back to Listings</button></div>
-  <div class="detail-grid" id="det-body"></div>
-</div>
 
-<!-- ████ VIEW: CHAT ████ -->
-<div class="view" id="view-chat">
-  <div class="chat-page-wrap">
-    <div class="convo-list">
-      <div class="convo-hdr"><h3>Messages</h3><p>Conversations with sellers</p></div>
-      <div class="convo-search"><input type="text" placeholder="Search…" oninput="filterConvos(this.value)"/></div>
-      <div class="convo-items" id="convo-items"></div>
-    </div>
-    <div class="chat-main">
-      <div class="chat-topbar" id="chat-topbar"></div>
-      <div class="prop-ref-bar" id="prop-ref-bar"></div>
-      <div class="chat-msgs" id="chat-msgs"></div>
-      <div class="chat-input-area">
-        <div class="chat-input-row"><textarea id="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea><div class="chat-send-wrap"><button class="chat-send" onclick="sendMsg()">Send</button></div></div>
-        <div class="chat-hint">Enter to send · Shift+Enter for new line</div>
-      </div>
-    </div>
-  </div>
-</div>
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
 const USER = getUser();
 
 /* ── DATA ── */
-function gd(k,d){try{return JSON.parse(sessionStorage.getItem(k)||'null')||d;}catch{return d;}}
-function sd(k,v){sessionStorage.setItem(k,JSON.stringify(v));}
-let LS    = gd('hf_ls',[]);
-let APPTS = gd('hf_appts',[]);
-let BOOKED= gd('hf_booked',[8,14,20,22]);
-let curId = parseInt(sessionStorage.getItem('hf_cur')||'1');
-let curL  = LS.find(l=>l.id===curId)||LS[0];
 
 /* ── NAV ── */
 (function(){
@@ -411,6 +363,9 @@ let curL  = LS.find(l=>l.id===curId)||LS[0];
 
 /* ── VIEW ROUTER ── */
 let hsMode = 'buy';
+let LS = [];
+const fS={mode:'buy',type:'All',pMin:0,pMax:1000000,beds:0,baths:0,date:'any'};
+const steps={beds:0,baths:0};
 function setHsMode(m){
   hsMode=m;
   document.getElementById('hs-buy').classList.toggle('on',m==='buy');
@@ -420,50 +375,6 @@ function heroSearch(){
   const loc = document.getElementById('hs-loc').value.trim();
   window.location.href = 'browse.html?location=' + encodeURIComponent(loc) + '&mode=' + hsMode;
 }
-function goView(name, opts={}) {
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const v = document.getElementById('view-'+name);
-  if(v) v.classList.add('active');
-  window.scrollTo(0,0);
-  closePd();
-  const ct = document.querySelector('#view-home .ct');
-  if(ct) ct.style.display = name==='home' ? 'block' : 'none';
-  if(name==='home')    renderHome();
-  if(name==='browse')  applyFilters();
-  if(name==='listing') renderListing(opts.id||curId);
-  if(name==='chat')    { location.href='messages.html'; }
-}
-
-/* ── HOME ── */
-function renderHome(){}
-/* ── CARD ── */
-function card(l){
-  const isRent = l.listingMode==='rent';
-  const price  = isRent ? (l.rentPrice||'€'+l.raw+'/mo') : l.price;
-  const newBadge = l.addedDaysAgo<=7 ? '<span style="position:absolute;top:0;right:0;background:#e67e22;color:#fff;font-size:9px;font-weight:700;padding:3px 8px;letter-spacing:.5px;text-transform:uppercase">New</span>' : '';
-  return `<div class="lc" onclick="openListing(${l.id})">
-    <div class="li-img">
-      ${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}
-      <div class="li-badge${isRent?' li-badge-rent':''}">${l.type}</div>
-      ${newBadge}
-    </div>
-    <div class="li-body">
-      <div class="li-price">${price}</div>
-      <div class="li-addr">${l.address}</div>
-      <div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div>
-    </div>
-  </div>`;
-}
-function openListing(id){
-  sessionStorage.setItem('hf_listing_id', id);
-  location.href='listing.html';
-}
-
-/* ── BROWSE FILTERS ── */
-const fS={mode:'buy',type:'All',pMin:0,pMax:1000000,beds:0,baths:0,date:'any'};
-const steps={beds:0,baths:0};
-
-function setMode(m){fS.mode=m;document.getElementById('tb-buy').classList.toggle('on',m==='buy');document.getElementById('tb-rent').classList.toggle('on',m==='rent');}
 function setType(t){fS.type=t;['All','House','Apartment','Studio'].forEach(x=>{const el=document.getElementById('tc-'+x);if(el)el.classList.toggle('on',x===t);});}
 function stepChange(k,d){steps[k]=Math.max(0,steps[k]+d);fS[k]=steps[k];const el=document.getElementById(k+'-v');el.innerHTML=steps[k]===0?'<span class="step-any">Any</span>':steps[k]+'+';}
 function setDate(v){fS.date=v;['any','7','30','90','180'].forEach(x=>{const el=document.getElementById('do-'+x);if(el)el.classList.toggle('on',x===v);});}
@@ -528,180 +439,36 @@ function applyFilters(){
   document.getElementById('res-grid').innerHTML=arr.length?arr.map(card).join(''):`<div class="no-res"><p>No listings match your filters.</p><span>Try adjusting price, type, or clearing filters.</span><br><br><button class="bsm bsm-g" onclick="resetFilters()">Clear All</button></div>`;
 }
 
-/* ── LISTING DETAIL ── */
-function renderListing(id){
-  BOOKED=[];APPTS=[];
-  curL=LS.find(l=>l.id===id)||LS[0];
-  if(!curL)return;
-  document.title='Home Finder — '+curL.address;
-
-  // Hero image
-  const hero=document.getElementById('det-hero');
-  const ph=document.getElementById('det-hero-ph');
-  hero.querySelectorAll('.dh-img,.dh-overlay').forEach(e=>e.remove());
-  if(curL.img){
-    const img=document.createElement('img');
-    img.src=curL.img; img.referrerPolicy='no-referrer'; img.alt=curL.address;
-    img.className='dh-img';
-    const ov=document.createElement('div');ov.className='dh-overlay';
-    hero.insertBefore(ov,hero.firstChild);hero.insertBefore(img,hero.firstChild);
-    ph.style.display='none';
-  } else {ph.style.display='';}
-
-  const isRent=curL.listingMode==='rent';
-  const price=isRent?(curL.rentPrice||'€'+curL.raw+'/mo'):curL.price;
-  const slots=[5,6,7,9,10,11,12,13,16,17,18,19,23,24,25,26,27,28,29,30].filter(d=>!BOOKED.includes(d)).slice(0,3);
-
-  document.getElementById('det-body').innerHTML=`
-    <div class="dm">
-      <div class="dp">${price}</div>
-      <div class="da">${curL.address}</div>
-      <div class="specs">
-        <div><div class="sv">${curL.beds}</div><div class="sl2">Bedrooms</div></div>
-        <div><div class="sv">${curL.baths}</div><div class="sl2">Bathrooms</div></div>
-        <div><div class="sv">${curL.sqft}</div><div class="sl2">Size</div></div>
-        <div><div class="sv">${curL.type}</div><div class="sl2">Type</div></div>
-      </div>
-      <p class="ddesc">${curL.desc}</p>
-      <div class="ssl" style="margin-bottom:8px">Location</div>
-      <div class="mph"><span>${curL.city} · Athens · Greece</span></div>
+function card(l){
+  const isRent = l.listingMode==='rent';
+  const price = isRent ? '€'+l.raw+'/mo' : '€'+Number(l.raw).toLocaleString();
+  const newBadge = l.addedDaysAgo<=7 ? '<span style="position:absolute;top:0;right:0;background:#e67e22;color:#fff;font-size:9px;font-weight:700;padding:3px 8px;letter-spacing:.5px;text-transform:uppercase">New</span>' : '';
+  return `<div class="lc" onclick="openListing('${l.id}')">
+    <div class="li-img">
+      ${l.img?`<img src="${l.img}" alt="${l.address}" loading="lazy" referrerpolicy="no-referrer"/>`:'<span>Photo</span>'}
+      <div class="li-badge${isRent?' li-badge-rent':''}">${l.type}</div>
+      ${newBadge}
     </div>
-    <div class="ds">
-      <div class="ssec">
-        <div class="ssl">Listed By</div>
-        <div class="sc"><div class="av">${curL.si}</div><div><div class="sn">${curL.seller}</div><div class="si2">Verified Seller</div></div></div>
-        <button class="bbook" onclick="openBook()">Book a Viewing</button>
-        <button class="bchat" onclick="openChat(${curL.id})">Message Seller</button>
-      </div>
-      <div class="ssec">
-        <div class="ssl">Contact</div>
-        <div style="font-size:13px;color:var(--mu);line-height:2">
-          <div>${curL.seller.toLowerCase().replace(/\s/g,'.')}@homefinder.gr</div>
-          <div>+30 210 555 0${100+curL.id}</div>
-        </div>
-      </div>
-      <div class="ssec">
-        <div class="ssl">Available Slots</div>
-        ${slots.map(d=>`<div class="aslot">May ${d} — 10:00 AM</div>`).join('')}
-      </div>
-    </div>`;
+    <div class="li-body">
+      <div class="li-price">${price}</div>
+      <div class="li-addr">${l.address}</div>
+      <div class="li-meta"><span>${l.beds} Bed</span><span>${l.baths} Bath</span><span>${l.sqft}</span></div>
+    </div>
+  </div>`;
+}
+function openListing(id){
+  sessionStorage.setItem('hf_listing_id', id);
+  location.href='listing.html';
+}
+function setMode(m){
+  fS.mode=m;
+  const buy=document.getElementById('tc-buy');
+  const rent=document.getElementById('tc-rent');
+  if(buy) buy.classList.toggle('on',m==='buy');
+  if(rent) rent.classList.toggle('on',m==='rent');
+  applyFilters();
 }
 
-/* ── BOOKING CALENDAR ── */
-let bkDay=null;
-function buildBookCal(){
-  BOOKED=[];
-  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  // May 2025: starts Thursday → offset 3
-  let html=days.map(d=>`<div class="cal-head-m">${d}</div>`).join('');
-  for(let i=0;i<3;i++)html+=`<div class="cal-day-m empty-m"></div>`;
-  for(let d=1;d<=31;d++){
-    const booked=BOOKED.includes(d),past=d<5;
-    html+=`<div class="cal-day-m${booked?' booked-m':past?' past-m':''}" onclick="selBkDay(${d},this)"><div class="cal-num">${d}</div>${booked?'<div class="cal-booked-tag">Booked</div>':''}</div>`;
-  }
-  const pad=(7-((3+31)%7))%7;
-  for(let i=0;i<pad;i++)html+=`<div class="cal-day-m empty-m"></div>`;
-  document.getElementById('bk-cal').innerHTML=html;
-}
-function selBkDay(d,el){
-  if(el.classList.contains('booked-m')){toast('Already booked — pick another date.');return;}
-  if(el.classList.contains('past-m')){toast('This date has passed.');return;}
-  document.querySelectorAll('#bk-cal .cal-day-m').forEach(x=>x.classList.remove('selected-m'));
-  el.classList.add('selected-m');
-  document.getElementById('bk-date').value='May '+d+', 2025';
-  bkDay=d;
-}
-function openBook(){
-  document.getElementById('bk-txt').textContent='Viewing for: '+curL.address;
-  document.getElementById('bk-date').value='';
-  bkDay=null; buildBookCal(); om('bkMod');
-}
-function confirmBook(){
-  if(!bkDay){toast('Please select a date first.');return;}
-  BOOKED.push(bkDay); sd('hf_booked',BOOKED);
-  const time=document.getElementById('bk-time').value;
-  const name=document.getElementById('bk-name').value||(USER?USER.name:'Guest');
-  APPTS=[];
-  APPTS.push({id:Date.now(),buyer:name,buyerId:USER?USER.role:'',seller:curL.seller,property:curL.address.split(',')[0],date:'May '+bkDay,time,loc:curL.city,status:'confirmed'});
-  sd('hf_appts',APPTS); cm('bkMod');
-  toast('✓ Viewing booked for May '+bkDay+' at '+time+'!');
-  renderListing(curL.id);
-}
-
-/* ── CHAT ── */
-const CONVOS=[
-  {id:1,seller:'Yannis Papadopoulos',si:'YP',color:'#1e6b45',property:'Kolonaki, Athens',lid:1,preview:'The house is available for viewing this week.',time:'10:41',unread:0,messages:[{me:false,text:'Good morning! I saw you were interested in the Kolonaki property.',time:'10:32'},{me:true,text:'Yes, it looks great! Is it still available?',time:'10:34'},{me:false,text:'Absolutely. Would you like to arrange a viewing?',time:'10:36'},{me:true,text:'That would be perfect. When are you free?',time:'10:38'},{me:false,text:'The house is available for viewing this week.',time:'10:41'}]},
-  {id:2,seller:'Maria Stavrou',si:'MS',color:'#1a4a6b',property:'Plaka, Athens',lid:6,preview:'The apartment has stunning Parthenon views.',time:'Yesterday',unread:2,messages:[{me:false,text:'Hello! The Plaka apartment has stunning Parthenon views from the rooftop terrace.',time:'09:14'},{me:true,text:'That sounds amazing. What floor is it on?',time:'09:20'},{me:false,text:'4th floor with a rooftop terrace. Stone walls and original features.',time:'09:22'},{me:false,text:'The apartment has stunning Parthenon views.',time:'09:23'}]},
-  {id:3,seller:'Nikos Georgiou',si:'NG',color:'#5a3a1a',property:'Monastiraki, Athens',lid:4,preview:'The studio was fully renovated in 2023.',time:'Mon',unread:0,messages:[{me:false,text:'Hi! Thanks for your interest in the Monastiraki studio.',time:'14:05'},{me:true,text:'When was it last renovated?',time:'14:10'},{me:false,text:'The studio was fully renovated in 2023.',time:'14:12'}]},
-];
-let activeConvoId=1;
-
-function openChat(listingId){
-  const cv=CONVOS.find(c=>c.lid===listingId)||CONVOS[0];
-  activeConvoId=cv.id;
-  goView('chat');
-}
-function renderConvoList(filter=''){
-  const html=CONVOS.filter(c=>!filter||c.seller.toLowerCase().includes(filter.toLowerCase())||c.property.toLowerCase().includes(filter.toLowerCase())).map(c=>`
-    <div class="convo-item${c.id===activeConvoId?' active':''}" onclick="openConvo(${c.id})">
-      <div class="convo-av" style="background:${c.color}">${c.si}</div>
-      <div class="convo-info"><div class="convo-name">${c.seller}</div><div class="convo-preview">${c.preview}</div></div>
-      <div class="convo-meta"><div class="convo-time">${c.time}</div>${c.unread>0?`<span class="convo-badge">${c.unread}</span>`:''}</div>
-    </div>`).join('');
-  document.getElementById('convo-items').innerHTML=html||'<p style="padding:20px;font-size:12px;color:var(--li);text-align:center">No conversations</p>';
-}
-function filterConvos(v){renderConvoList(v);}
-function openConvo(id){
-  activeConvoId=id;
-  const c=CONVOS.find(x=>x.id===id);if(!c)return;
-  c.unread=0; renderConvoList();
-  const listing=LS.find(l=>l.id===c.lid)||{};
-  const un=USER?USER.name:'You';const ui=USER?USER.initials:'Y';
-
-  document.getElementById('chat-topbar').innerHTML=`
-    <div class="chat-topbar-av" style="background:${c.color}">${c.si}</div>
-    <div><div class="chat-topbar-name">${c.seller}</div><div class="chat-topbar-sub">● Online · Verified Seller</div></div>
-    <div class="chat-topbar-acts">
-      <button class="chat-act chat-act-g" onclick="openListing(${c.lid})">View Property</button>
-      <button class="chat-act chat-act-o" onclick="openListing(${c.lid});setTimeout(openBook,400)">Book Viewing</button>
-    </div>`;
-
-  document.getElementById('prop-ref-bar').innerHTML=listing.id?`
-    <img class="prop-ref-img" src="${listing.img||''}" alt="" referrerpolicy="no-referrer"/>
-    <div><div class="prop-ref-txt">${listing.price||listing.raw||''} · ${listing.type||''}</div><div class="prop-ref-addr">${listing.address||''}</div></div>`:'';
-
-  let html=`<div class="date-divider"><div class="date-div-line"></div><div class="date-div-txt">Today</div><div class="date-div-line"></div></div>`;
-  html+=`<div class="sys-msg-chat">You are now connected with ${c.seller} about ${c.property}</div>`;
-  let lastSender=null;
-  c.messages.forEach((m,i)=>{
-    const s=m.me?'me':'them';
-    if(s!==lastSender){if(i>0)html+='</div>';html+=`<div class="msg-group${m.me?' me':''}">`;}
-    html+=`<div class="msg-row${m.me?' me':''}">
-      ${!m.me&&s!==lastSender?`<div class="msg-av-sm" style="background:${c.color}">${c.si}</div>`:'<div style="width:26px"></div>'}
-      <div class="bubble ${m.me?'me':'them'}">${esc(m.text)}</div>
-      ${m.me&&s!==lastSender?`<div class="msg-av-sm me-av">${ui}</div>`:'<div style="width:26px"></div>'}
-      <span class="msg-ts">${m.time}</span>
-    </div>`;
-    lastSender=s;
-  });
-  if(lastSender)html+='</div>';
-  const box=document.getElementById('chat-msgs');
-  box.innerHTML=html; box.scrollTop=box.scrollHeight;
-}
-function sendMsg(){
-  const inp=document.getElementById('chat-input');const txt=inp.value.trim();if(!txt)return;
-  const c=CONVOS.find(x=>x.id===activeConvoId);if(!c)return;
-  const t=new Date();const ts=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
-  c.messages.push({me:true,text:txt,time:ts});c.preview=txt;c.time='Now';
-  inp.value=''; openConvo(activeConvoId); renderConvoList();
-  setTimeout(()=>{
-    const r=['Of course! I will check and get back to you.','Sounds good!','Looking forward to the viewing.','I will confirm shortly.','Feel free to call anytime.'];
-    const t2=new Date();
-    c.messages.push({me:false,text:r[Math.floor(Math.random()*r.length)],time:t2.getHours()+':'+String(t2.getMinutes()).padStart(2,'0')});
-    c.preview=c.messages[c.messages.length-1].text;
-    openConvo(activeConvoId);renderConvoList();
-  },1100);
-}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 /* ── UTILS ── */
@@ -771,9 +538,7 @@ function saveProfile(){
   cm('profileMod');
   toast('Profile saved!');
 }
-loadListings().then(()=>{
-  renderHome();
-  });
+loadListings().then(()=>{ applyFilters(); });
 </script>
 <div class="ov" id="profileMod">
   <div class="modal" style="max-width:440px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none">

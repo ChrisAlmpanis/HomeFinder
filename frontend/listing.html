@@ -170,7 +170,7 @@ main{position:relative;z-index:1}
 
 <nav>
   <div class="nav-left"><button class="hbtn" onclick="openMenu()"><span></span><span></span><span></span></button></div>
-  <div class="nav-center"><button class="logo" onclick="goDash()">Home Finder</button></div>
+  <div class="nav-center"><button class="logo" onclick="USER&&USER.role==='buyer'?location.href='home.html':goDash()">Home Finder</button></div>
   <div class="nav-right">
     <div class="prof-wrap">
       <div class="prof-btn" id="prof-btn" onclick="toggleProf()">?</div>

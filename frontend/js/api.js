@@ -142,6 +142,13 @@ async function apiBookAppointment(data) {
   return res.json();
 }
 
+async function apiGetAdmins() {
+  const res = await fetch(`${API}/users/admins`, {
+    headers: { 'Authorization': `Bearer ${getToken()}` }
+  });
+  return res.json();
+}
+
 // ── Helpers ───────────────────────────────────────
 function getToken() {
   const user = JSON.parse(sessionStorage.getItem('hf_user') || '{}');

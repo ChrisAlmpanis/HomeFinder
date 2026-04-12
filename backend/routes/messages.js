@@ -32,6 +32,8 @@ router.get('/', protect, async (req, res) => {
 // POST send a message
 router.post('/', protect, async (req, res) => {
   try {
+    console.log('Message body:', req.body);
+    console.log('Sender:', req.user._id);
     const { receiverID, listingID, content } = req.body;
     const message = await Message.create({
       senderID: req.user._id, receiverID, listingID, content

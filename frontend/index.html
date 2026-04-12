@@ -71,7 +71,6 @@ body{background:none;display:block;min-height:100vh}
 
 <script src="js/api.js"></script>
 <script>
-// Redirect if already logged in
 if (getUser()) {
   const u = getUser();
   location.href = u.role === 'admin' ? 'admin-dash.html'
@@ -94,7 +93,6 @@ async function doLogin() {
     return;
   }
 
-  // Show loading state
   btn.disabled = true;
   btn.textContent = 'Signing in...';
   spinner.style.display = 'block';
@@ -108,20 +106,18 @@ async function doLogin() {
       return;
     }
 
-    // Save user + token to sessionStorage
     saveUser({
-      _id:       data.user._id,
-      name:      data.user.name,
-      email:     data.user.email,
-      role:      data.user.role,
-      initials:  data.user.name.substring(0, 2).toUpperCase(),
-      isApproved:data.user.isApproved,
-      token:     data.token
+      _id:        data.user._id,
+      name:       data.user.name,
+      email:      data.user.email,
+      role:       data.user.role,
+      initials:   data.user.name.substring(0, 2).toUpperCase(),
+      isApproved: data.user.isApproved,
+      token:      data.token
     });
 
     toast('Welcome, ' + data.user.name + '!');
 
-    // Redirect based on role
     setTimeout(() => {
       if (data.user.role === 'admin')       location.href = 'admin-dash.html';
       else if (data.user.role === 'seller') location.href = 'seller-dash.html';

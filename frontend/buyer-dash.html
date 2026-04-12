@@ -116,6 +116,7 @@
       <button class="sbi" onclick="showTab('overview')">Overview</button>
       <button class="sbi" onclick="showTab('appointments')">My Appointments</button>
       <button class="sbi" onclick="showTab('saved')">Saved Listings</button>
+      <button class="sbi" onclick="showTab('support')">Contact Support</button>
     </div>
   </div>
   <div class="dash-inner">
@@ -225,7 +226,7 @@ function myAppts(){
 }
 
 function showTab(t){
-  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','saved'][i]===t));
+  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','appointments','saved','support'][i]===t));
   const mp=document.getElementById('mp');
   if(t==='overview'){
     const ma=myAppts();
@@ -345,16 +346,35 @@ function showTab(t){
             </div>
           </div>`).join('')}</div>`
         :'<p style="color:var(--mu);font-size:13px;padding:20px 0">No saved listings yet. <a href="browse.html" style="color:var(--g);font-weight:600">Browse listings</a> and click ♡ to save them.</p>'}`;
-  } else if(t==='profile'){
-    const nm=USER.name.split(' ');
-    mp.innerHTML=`<div class="sh"><div><div class="stag">Buyer</div><h2>Edit Profile</h2></div></div>
-      <div style="max-width:400px">
-        <div class="frow"><div class="fg"><label class="fl">First Name</label><input type="text" class="fi" value="${nm[0]||'James'}"/></div><div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" value="${nm[1]||'Thompson'}"/></div></div>
-        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="james.t@email.com"/></div>
-        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" value="+1 (503) 555-0201"/></div>
-        <button class="bsm bsm-g" style="padding:10px 24px;font-size:12px;margin-top:8px" onclick="toast('Profile saved')">Save Changes</button>
-      </div>`;
+  } else if(t==='support'){
+    renderSupport(mp);
   }
+}
+
+async function renderSupport(mp){
+  mp.innerHTML=`<div class="sh"><div><div class="stag">Support</div><h2>Contact Support</h2></div></div>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:20px">Click the message icon to start a conversation with an admin.</p>
+    <div id="support-cards" style="display:flex;gap:16px;flex-wrap:wrap"><p style="font-size:12px;color:var(--li)">Loading admins...</p></div>`;
+  try{
+    const res=await apiGetAdmins();
+    const admins=(res.users||[]).filter(u=>u.role==='admin');
+    if(!admins.length){document.getElementById('support-cards').innerHTML='<p style="font-size:13px;color:var(--mu)">No admins available.</p>';return;}
+    document.getElementById('support-cards').innerHTML=admins.map(a=>{
+      const ini=(a.name||'A').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const first=(a.name||'Admin').split(' ')[0];
+      return `<div style="background:rgba(255,255,255,0.75);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px;box-shadow:0 2px 8px rgba(0,0,0,0.07)">
+        <div style="width:52px;height:52px;border-radius:50%;background:#6b1a1a;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff">${ini}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--bl)">${first}</div>
+        <div style="font-size:11px;font-weight:600;color:#a03030">Administrator</div>
+        <button onclick="contactAdmin('${a._id}')" style="margin-top:4px;background:none;border:1.5px solid #6b1a1a;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6b1a1a" title="Message">💬</button>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('support-cards').innerHTML='<p style="font-size:13px;color:var(--mu)">Could not load admins.</p>';}
+}
+
+function contactAdmin(adminID){
+  sessionStorage.setItem('hf_msg_target',adminID);
+  location.href='messages.html';
 }
 
 function openL(id){sessionStorage.setItem('hf_cur',id);location.href='home.html';}

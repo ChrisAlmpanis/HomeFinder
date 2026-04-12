@@ -150,6 +150,7 @@ nav{position:relative;z-index:100}
       <button class="sbi" onclick="showTab('overview')">Overview</button>
       <button class="sbi on" onclick="showTab('listings')">My Listings</button>
       <button class="sbi" onclick="showTab('calendar')">Calendar</button>
+      <button class="sbi" onclick="showTab('support')">Contact Support</button>
     </div>
   </div>
   <div class="dash-inner">
@@ -253,7 +254,7 @@ var selCalDay=null,selCalMonth=null,selCalYear=null;
 var calViewMonth=null,calViewYear=null;
 
 function showTab(t){
-  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','listings','calendar'][i]===t));
+  document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','listings','calendar','support'][i]===t));
   const mp=document.getElementById('mp');
 
   if(t==='overview'){
@@ -347,10 +348,39 @@ function showTab(t){
       ${dayAppts.length?`<table class="dt"><thead><tr><th>Property</th><th>Time</th><th>Status</th></tr></thead>
       <tbody>${dayAppts.map(a=>`<tr><td style="font-weight:600">${a.listingID?.title||a.listingID?.location||'—'}</td><td>${a.time||'—'}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`
       :'<p style="color:var(--mu);font-size:13px;padding:12px 0">No appointments on this day.</p>'}`;
+  } else if(t==='support'){
+    renderSupport(mp);
   }
 }
 
 function sellerSelDay(d,m,y){selCalDay=d;selCalMonth=m;selCalYear=y;showTab('calendar');}
+
+async function renderSupport(mp){
+  mp.innerHTML=`<div class="sh"><div><div class="stag">Support</div><h2>Contact Support</h2></div></div>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:20px">Click the message icon to start a conversation with an admin.</p>
+    <div id="support-cards" style="display:flex;gap:16px;flex-wrap:wrap"><p style="font-size:12px;color:var(--li)">Loading admins...</p></div>`;
+  try{
+    const res=await apiGetAdmins();
+    const admins = (res.users||[]).filter(u=>u.role==='admin');
+    if(!admins.length){document.getElementById('support-cards').innerHTML='<p style="font-size:13px;color:var(--mu)">No admins available.</p>';return;}
+    document.getElementById('support-cards').innerHTML = admins.map(a=>{
+      const ini=(a.name||'A').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const first=(a.name||'Admin').split(' ')[0];
+      return `<div style="background:rgba(255,255,255,0.75);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px;box-shadow:0 2px 8px rgba(0,0,0,0.07)">
+        <div style="width:52px;height:52px;border-radius:50%;background:#6b1a1a;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff">${ini}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--bl)">${first}</div>
+        <div style="font-size:11px;font-weight:600;color:#a03030">Administrator</div>
+        <button onclick="contactAdmin('${a._id}')" style="margin-top:4px;background:none;border:1.5px solid #6b1a1a;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6b1a1a" title="Message">💬</button>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('support-cards').innerHTML='<p style="font-size:13px;color:var(--mu)">Could not load admins.</p>';}
+}
+
+function contactAdmin(adminID){
+  sessionStorage.setItem('hf_msg_target', adminID);
+  location.href='messages.html';
+}
+
 function sellerCalNav(dir){
   const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Athens'}));
   const maxDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()+30);
