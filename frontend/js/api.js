@@ -1,7 +1,7 @@
 // js/api.js — all backend API calls for HomeFinder
 const API = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
-  : 'https://homefinder-xxxx.onrender.com/api';
+  : '/api';
 
 // ── Auth ──────────────────────────────────────────
 async function apiLogin(email, password) {
