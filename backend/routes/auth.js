@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
       name, email, passwordHash, role,
       agencyName: role === 'seller' ? agencyName : undefined,
       licenseNumber: role === 'seller' ? licenseNumber : undefined,
-      isApproved: role === 'seller' ? true : false
+      isApproved: role === 'seller' ? false : true
     });
 
     res.status(201).json({
