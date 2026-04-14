@@ -180,7 +180,7 @@ function goBack(){
 }
 
 // ── Socket.io ──
-const socket = io('http://localhost:3000');
+const socket = io(window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin);
 socket.emit('join', USER._id);
 socket.on('receiveMessage', (data) => {
   // If this message belongs to active convo, render it
