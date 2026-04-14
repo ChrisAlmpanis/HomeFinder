@@ -59,12 +59,6 @@ body{background:none;display:block;min-height:100vh}
       <button class="bfu bfu-g" id="loginBtn" onclick="doLogin()">Sign In</button>
       <div class="fdiv"><div class="fdl"></div><div class="fdt">or</div><div class="fdl"></div></div>
       <button class="bfu bfu-o" onclick="location.href='signup.html'">Create Account</button>
-      <p style="font-size:11px;color:var(--li);margin-top:18px;text-align:center;line-height:1.8">
-        Demo logins:<br/>
-        Seller: <strong style="color:var(--mu)">sarah.m@homefinder.com</strong> / <strong style="color:var(--mu)">pass123</strong><br/>
-        Buyer: <strong style="color:var(--mu)">james.t@homefinder.com</strong> / <strong style="color:var(--mu)">buyer123</strong><br/>
-        Admin: <strong style="color:var(--mu)">admin@homefinder.com</strong> / <strong style="color:var(--mu)">12345678</strong>
-      </p>
     </div>
   </div>
 </div>
@@ -125,7 +119,7 @@ async function doLogin() {
     }, 600);
 
   } catch (err) {
-    errEl.textContent = 'Server error. Make sure the backend is running.';
+    errEl.textContent = 'Server error. Please try again later.';
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
