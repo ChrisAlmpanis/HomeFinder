@@ -186,7 +186,7 @@ nav{position:relative;z-index:9999}
         <div class="results-topbar">
           <div><h2 id="res-title">All Properties</h2><div class="results-count" id="res-count"></div></div>
           <div class="sort-row">
-            <input type="text" id="inline-search" placeholder="Search location..." oninput="inlineSearch(this.value)" style="padding:7px 12px;border:1px solid var(--br);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:180px;margin-right:8px"/>
+            <input type="text" id="inline-search" placeholder="Search location..." oninput="inlineSearch(this.value)" autocomplete="new-password" name="search-location" style="padding:7px 12px;border:1px solid var(--br);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:180px;margin-right:8px"/>
             <button onclick="toggleFilters()" style="padding:7px 14px;font-size:12px;font-weight:600;background:var(--w);border:1px solid var(--br);cursor:pointer;font-family:'Inter',sans-serif;margin-right:8px" id="filter-btn">☰ Filters</button>
             <span class="sort-label">Sort by</span>
             <select class="sort-sel" id="sort-sel" onchange="applyFilters()"><option value="default">Featured</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option><option value="beds-desc">Most Bedrooms</option><option value="newest">Newest First</option></select>

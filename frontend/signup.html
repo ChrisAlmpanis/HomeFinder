@@ -63,10 +63,10 @@ nav{display:none}
       <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" placeholder="Smith"/></div>
     </div>
     <div class="fg"><label class="fl">Email</label><input type="email" class="fi" placeholder="you@email.com"/></div>
-    <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" placeholder="+1 (000) 000-0000"/></div>
+    <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="phone-field" placeholder="+1 (000) 000-0000" maxlength="30" oninput="this.value=this.value.replace(/[^0-9+\s\-()]/g,'')"/></div>
     <div class="frow">
-      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" placeholder="••••••••"/></div>
-      <div class="fg"><label class="fl">Confirm</label><input type="password" class="fi" placeholder="••••••••"/></div>
+      <div class="fg"><label class="fl">Password</label><div style="position:relative"><input type="password" class="fi" id="sp1" placeholder="••••••••" style="padding-right:40px"/><button type="button" onclick="togglePw('sp1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.5);font-size:16px;line-height:1;padding:0" id="eye1">👁</button></div></div>
+      <div class="fg"><label class="fl">Confirm</label><div style="position:relative"><input type="password" class="fi" id="sp2" placeholder="••••••••" style="padding-right:40px"/><button type="button" onclick="togglePw('sp2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.5);font-size:16px;line-height:1;padding:0" id="eye2">👁</button></div></div>
     </div>
     <div id="co-field" style="display:none" class="fg"><label class="fl">Company (optional)</label><input type="text" class="fi" placeholder="Acme Realty"/></div>
     <button class="bfu bfu-g" style="margin-top:8px" onclick="doSignup()">Create Account</button>
@@ -76,6 +76,7 @@ nav{display:none}
   </div>
 </div>
 </main>
+<script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
 
@@ -92,8 +93,8 @@ async function doSignup(){
   const firstName = document.querySelectorAll('.frow .fi')[0].value.trim();
   const lastName  = document.querySelectorAll('.frow .fi')[1].value.trim();
   const email     = document.querySelector('input[type=email]').value.trim();
-  const password  = document.querySelectorAll('input[type=password]')[0].value;
-  const confirm   = document.querySelectorAll('input[type=password]')[1].value;
+  const password  = document.getElementById('sp1').value;
+  const confirm   = document.getElementById('sp2').value;
   const company   = document.getElementById('co-field').querySelector('.fi').value.trim();
 
   if(!firstName||!lastName||!email||!password){ toast('Please fill in all fields.'); return; }
@@ -110,6 +111,15 @@ async function doSignup(){
 
   toast(role==='seller' ? 'Account created! Awaiting admin approval.' : 'Account created! Welcome aboard.');
   setTimeout(()=>location.href='index.html', 1500);
+}
+
+const eyeOpen = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const eyeClosed = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+function togglePw(inputId, btnId){
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if(input.type==='password'){ input.type='text'; btn.innerHTML=eyeClosed; }
+  else { input.type='password'; btn.innerHTML=eyeOpen; }
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
 </script>

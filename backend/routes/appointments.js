@@ -6,7 +6,15 @@ const { protect } = require('../middleware/auth');
 // GET /api/appointments — buyer sees own, admin sees all
 router.get('/', protect, async (req, res) => {
   try {
-    const filter = req.user.role === 'admin' ? {} : { buyerID: req.user._id };
+    let filter = {};
+if (req.user.role === 'buyer') {
+  filter = { buyerID: req.user._id };
+} else if (req.user.role === 'seller') {
+  const Listing = require('../models/Listing');
+  const myListings = await Listing.find({ sellerID: req.user._id }).select('_id');
+  const myListingIds = myListings.map(l => l._id);
+  filter = { listingID: { $in: myListingIds } };
+}
     const appointments = await Appointment.find(filter)
       .populate('buyerID', 'name email')
       .populate({

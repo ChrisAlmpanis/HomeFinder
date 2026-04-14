@@ -151,6 +151,18 @@ async function apiGetAdmins() {
   return res.json();
 }
 
+// UPLOAD PHOTOS
+async function apiUploadListingFiles(listingId, files) {
+  const formData = new FormData();
+  files.forEach(f => formData.append('files', f));
+  const res = await fetch(`${API}/listings/${listingId}/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: formData
+  });
+  return res.json();
+}
+
 // ── Helpers ───────────────────────────────────────
 function getToken() {
   const user = JSON.parse(sessionStorage.getItem('hf_user') || '{}');
