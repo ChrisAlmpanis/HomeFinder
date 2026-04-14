@@ -33,14 +33,15 @@ Visit the live demo and register as a **Buyer** or **Seller**.
 
 - **Buyers** can browse listings, book viewings, and message sellers directly.
 - **Sellers** require admin approval before their account is activated.
-- Once approved, sellers can create and manage their property listings.
+- Once approved, sellers can create and manage their property listings. (currently disabled so testers can create their own seller accouny)
 
 # Testing the Website
 
-If you wish to test the functionality of the website please sign in with the following:
+If you wish to test the functionality of the website with testing data please sign in with the following:
 
 buyer: james.t@homefinder.com / buyer123
 seller: sarah.m@homefinder.com / pass123
+
 Admin: admin@homefinder.com / 12345678
 
 ## Source Code
