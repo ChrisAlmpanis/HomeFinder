@@ -276,14 +276,96 @@ nav{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;height:5
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-  .ct{padding:24px 20px}
-  .db{grid-template-columns:1fr}.ds{border-top:1px solid var(--br)}
-  .dl{grid-template-columns:1fr}.sb2{display:none}
-  .srow{grid-template-columns:repeat(2,1fr)}
+
+  /* ── Content padding ── */
+  .ct{padding:20px 16px}
+
+  /* ── Nav ── */
+  nav{grid-template-columns:48px 1fr 48px}
+
+  /* ── Search bar ── */
+  .sw{padding:0}
+  .sb{flex-wrap:wrap}
+  .sb input{flex:1;min-width:0;font-size:13px}
+  .sb select{display:none}
+  .sbtn{width:100%;text-align:center;padding:11px}
+
+  /* ── Listing grid ── */
+  .lg{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .li-img{height:140px}
+  .li-price{font-size:17px}
+  .li-body{padding:12px}
+
+  /* ── Detail page (listing.html) ── */
+  .db{grid-template-columns:1fr}
+  .ds{border-top:1px solid var(--br)}
+  .dm{padding:20px 16px}
+  .ds{padding:16px}
+  .dp{font-size:24px}
+  .specs{flex-wrap:wrap;gap:16px;padding-bottom:16px;margin-bottom:16px}
+  .sv{font-size:18px}
+
+  /* ── Dashboard layout ── */
+  .dl{grid-template-columns:1fr}
+  .sb2{display:none}
+  .mp{padding:20px 16px;overflow-x:hidden}
+  .dash-hero{padding:0 16px}
+  .dash-banner{padding:14px 16px;height:100px}
+  .dash-banner-txt h3{font-size:16px}
+
+  /* ── Dashboard stat cards ── */
+  .srow{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+  .sc2{padding:14px 12px}
+  .sbig{font-size:22px}
+  .slb{font-size:10px}
+
+  /* ── Calendar ── */
+  .cal-day{min-height:44px;padding:4px 3px}
+  .cal-day-num{font-size:11px;margin-bottom:2px}
+  .cal-event{font-size:8px;padding:2px 3px;margin-bottom:1px}
+  .cal-booked-lbl{font-size:8px}
+  .cal-head{padding:6px 2px;font-size:9px;letter-spacing:0}
+
+  /* ── Tables ── */
+  .dt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
+  .dt{min-width:520px}
+  .dt th,.dt td{padding:8px 10px;font-size:12px}
+
+  /* ── Dashboard forms / modals ── */
   .frow{grid-template-columns:1fr}
+  .modal{width:calc(100% - 32px);max-width:100%;margin:0 16px}
+  .modal-body{padding:18px 16px}
+  .modal-hdr{padding:14px 16px}
+
+  /* ── Forms ── */
+  .fp{padding:24px 16px}
+  .fbox{padding:24px 16px}
+
+  /* ── Footer ── */
   .footer-top{grid-template-columns:1fr 1fr;padding:28px 20px}
   .footer-brand{grid-column:1/-1}
   .footer-bottom{flex-direction:column;gap:10px;padding:14px 20px;text-align:center}
+
+  /* ── Toast ── */
+  .toast{left:16px;right:16px;bottom:16px;text-align:center}
+
+  /* ── Chat widget ── */
+  .cw{height:380px;max-width:100%}
+
+  /* ── Filter chips ── */
+  .fr{gap:6px}
+  .chip{padding:5px 10px;font-size:11px}
+}
+
+/* ── Very small screens (≤400px) ── */
+@media(max-width:400px){
+  .srow{grid-template-columns:1fr 1fr}
+  .cal-head{font-size:8px;padding:5px 1px}
+  .cal-day{min-height:38px;padding:3px 2px}
+  .cal-day-num{font-size:10px}
+  .lg{grid-template-columns:1fr}
+  .specs{gap:12px}
+  nav{grid-template-columns:44px 1fr 44px}
 }
 /* Buttons over images - blur background */
 .dh-back,.bkbtn,.li-badge{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
