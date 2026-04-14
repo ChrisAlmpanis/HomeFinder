@@ -291,8 +291,8 @@ nav{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;height:5
   .sbtn{width:100%;text-align:center;padding:11px}
 
   /* ── Listing grid ── */
-  .lg{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-  .li-img{height:140px}
+  .lg{grid-template-columns:1fr;gap:12px}
+  .li-img{height:200px}
   .li-price{font-size:17px}
   .li-body{padding:12px}
 

@@ -36,6 +36,16 @@ nav{position:relative;z-index:100}
 .bk-slot{padding:7px 4px;border:1px solid var(--br);border-radius:8px;text-align:center;font-size:12px;font-weight:500;background:rgba(255,255,255,0.7);color:var(--bl)}
 .bk-slot.past{color:#ccc;text-decoration:line-through}
 .bk-slot.booked{background:rgba(192,57,43,0.1);color:#a03030;border-color:#f5c6c6;font-weight:700}
+
+/* ── MOBILE TAB BAR ── */
+.mob-tabbar{display:none}
+@media(max-width:768px){
+  .mob-tabbar{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fff;border-bottom:2px solid var(--g);flex-shrink:0;scrollbar-width:none}
+  .mob-tabbar::-webkit-scrollbar{display:none}
+  .mob-tab{flex-shrink:0;padding:12px 16px;font-size:12px;font-weight:600;background:none;border:none;color:var(--mu);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif}
+  .mob-tab.on{color:var(--g);border-bottom-color:var(--g)}
+  .mob-tab:hover{color:var(--g)}
+}
 </style>
 </head>
 <body>
@@ -139,7 +149,10 @@ nav{position:relative;z-index:100}
   </div>
 </nav>
 <main>
-<div class="dl">
+<div class="mob-tabbar" id="mob-tabbar">
+      <button class="mob-tab" id="mob-tab-overview" onclick="showTab('overview')">Overview</button><button class="mob-tab" id="mob-tab-listings" onclick="showTab('listings')">My Listings</button><button class="mob-tab" id="mob-tab-calendar" onclick="showTab('calendar')">Calendar</button><button class="mob-tab" id="mob-tab-support" onclick="showTab('support')">Support</button>
+    </div>
+  <div class="dl">
   <div class="sb2">
     <div class="sbu">
       <div class="sbav" id="sb-av">SM</div>
@@ -254,6 +267,7 @@ var selCalDay=null,selCalMonth=null,selCalYear=null;
 var calViewMonth=null,calViewYear=null;
 
 function showTab(t){
+  document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('on'));const mt=document.getElementById('mob-tab-'+t);if(mt)mt.classList.add('on');
   document.querySelectorAll('.sbi').forEach((b,i)=>b.classList.toggle('on',['overview','listings','calendar','support'][i]===t));
   const mp=document.getElementById('mp');
 
